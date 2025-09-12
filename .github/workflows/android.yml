@@ -30,13 +30,10 @@ jobs:
 
           cd AIWorksApp
 
-          cat > settings.gradle <<EOF
-rootProject.name = "AIWorksApp"
-include ':app'
-EOF
+          echo 'rootProject.name = "AIWorksApp"' > settings.gradle
+          echo 'include ":app"' >> settings.gradle
 
-          cat > build.gradle <<EOF
-// Top-level build file
+          cat > build.gradle <<'EOT'
 buildscript {
     repositories { google(); mavenCentral() }
     dependencies { classpath "com.android.tools.build:gradle:8.0.2" }
@@ -44,10 +41,10 @@ buildscript {
 allprojects {
     repositories { google(); mavenCentral() }
 }
-EOF
+EOT
 
           mkdir -p app
-          cat > app/build.gradle <<EOF
+          cat > app/build.gradle <<'EOT'
 plugins {
     id 'com.android.application'
 }
@@ -73,9 +70,9 @@ dependencies {
     implementation "androidx.appcompat:appcompat:1.6.1"
     implementation "com.google.android.material:material:1.9.0"
 }
-EOF
+EOT
 
-          cat > app/src/main/AndroidManifest.xml <<EOF
+          cat > app/src/main/AndroidManifest.xml <<'EOT'
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.aiworks">
     <application android:label="AIWorksApp" android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
@@ -87,9 +84,9 @@ EOF
         </activity>
     </application>
 </manifest>
-EOF
+EOT
 
-          cat > app/src/main/java/com/example/aiworks/MainActivity.java <<EOF
+          cat > app/src/main/java/com/example/aiworks/MainActivity.java <<'EOT'
 package com.example.aiworks;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -100,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(android.R.layout.simple_list_item_1);
     }
 }
-EOF
+EOT
 
       - name: Unpack project.zip into assets
         run: |
@@ -118,7 +115,7 @@ EOF
       - name: Build Debug APK
         run: |
           cd AIWorksApp
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --stacktrace --debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v3
