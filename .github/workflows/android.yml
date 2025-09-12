@@ -21,20 +21,21 @@ jobs:
       - name: Install Android SDK tools
         uses: android-actions/setup-android@v2
 
-      - name: Prepare Android project
+      - name: Bootstrap minimal Android project
         run: |
-          # If no gradlew found, create a minimal project
-          if [ ! -f gradlew ]; then
-            echo "⚙️ No gradlew found — generating minimal Android project..."
-            mkdir -p app/src/main/java/com/example/aiworks
-            mkdir -p app/src/main/res/layout
+          echo "⚙️ Creating Android project shell..."
+          mkdir -p AIWorksApp/app/src/main/java/com/example/aiworks
+          mkdir -p AIWorksApp/app/src/main/res/layout
+          mkdir -p AIWorksApp/app/src/main/assets
 
-            cat > settings.gradle <<EOF
+          cd AIWorksApp
+
+          cat > settings.gradle <<EOF
 rootProject.name = "AIWorksApp"
 include ':app'
 EOF
 
-            cat > build.gradle <<EOF
+          cat > build.gradle <<EOF
 // Top-level build file
 buildscript {
     repositories { google(); mavenCentral() }
@@ -45,10 +46,10 @@ allprojects {
 }
 EOF
 
-            cat > app/build.gradle <<EOF
+          mkdir -p app
+          cat > app/build.gradle <<EOF
 plugins {
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.android' version '1.8.20' apply false
 }
 android {
     namespace "com.example.aiworks"
@@ -74,7 +75,7 @@ dependencies {
 }
 EOF
 
-            cat > app/src/main/AndroidManifest.xml <<EOF
+          cat > app/src/main/AndroidManifest.xml <<EOF
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.aiworks">
     <application android:label="AIWorksApp" android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
@@ -88,7 +89,7 @@ EOF
 </manifest>
 EOF
 
-            cat > app/src/main/java/com/example/aiworks/MainActivity.java <<EOF
+          cat > app/src/main/java/com/example/aiworks/MainActivity.java <<EOF
 package com.example.aiworks;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -100,14 +101,22 @@ public class MainActivity extends AppCompatActivity {
     }
 }
 EOF
+
+      - name: Unpack project.zip into assets
+        run: |
+          echo "📦 Adding uploaded ZIP into assets..."
+          if [ -f project.zip ]; then
+            mkdir -p AIWorksApp/app/src/main/assets
+            cp project.zip AIWorksApp/app/src/main/assets/
           fi
-          chmod +x gradlew || true
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug || ./gradlew build
+        run: |
+          cd AIWorksApp
+          ./gradlew assembleDebug || ./gradlew build
 
       - name: Upload APK
         uses: actions/upload-artifact@v3
         with:
           name: app-debug
-          path: app/build/outputs/apk/debug/app-debug.apk
+          path: AIWorksApp/app/build/outputs/apk/debug/app-debug.apk
