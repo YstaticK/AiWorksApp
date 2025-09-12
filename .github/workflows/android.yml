@@ -110,13 +110,12 @@ EOF
             cp project.zip AIWorksApp/app/src/main/assets/
           fi
 
+- name: Generate Gradle wrapper
+        run: |
+          cd AIWorksApp
+          gradle wrapper --gradle-version 8.0
+
       - name: Build Debug APK
         run: |
           cd AIWorksApp
-          ./gradlew assembleDebug || ./gradlew build
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v3
-        with:
-          name: app-debug
-          path: AIWorksApp/app/build/outputs/apk/debug/app-debug.apk
+          ./gradlew assembleDebug
