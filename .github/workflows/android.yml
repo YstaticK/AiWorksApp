@@ -99,10 +99,20 @@ jobs:
           }
           EOT
 
-      - name: Generate Gradle wrapper
-        run: |
-          cd AIWorksApp
-          gradle wrapper --gradle-version 8.0
+          # Install Gradle wrapper files manually
+          mkdir -p gradle/wrapper
+          cat <<'EOT' > gradle/wrapper/gradle-wrapper.properties
+          distributionBase=GRADLE_USER_HOME
+          distributionPath=wrapper/dists
+          distributionUrl=https\://services.gradle.org/distributions/gradle-8.0-bin.zip
+          zipStoreBase=GRADLE_USER_HOME
+          zipStorePath=wrapper/dists
+          EOT
+
+          curl -sL https://raw.githubusercontent.com/gradle/gradle/master/gradle/wrapper/gradle-wrapper.jar -o gradle/wrapper/gradle-wrapper.jar
+          curl -sL https://raw.githubusercontent.com/gradle/gradle/master/gradlew -o gradlew
+          curl -sL https://raw.githubusercontent.com/gradle/gradle/master/gradlew.bat -o gradlew.bat
+          chmod +x gradlew
 
       - name: Build Debug APK
         run: |
