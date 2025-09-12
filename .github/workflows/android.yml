@@ -99,16 +99,6 @@ jobs:
           }
           EOT
 
-      - name: Unpack project.zip into assets
-        run: |
-          echo "📦 Adding uploaded ZIP into assets..."
-          if [ -f project.zip ]; then
-              mkdir -p AIWorksApp/app/src/main/assets
-              cp project.zip AIWorksApp/app/src/main/assets/
-          else
-              echo "⚠️ No project.zip found"
-          fi
-
       - name: Generate Gradle wrapper
         run: |
           cd AIWorksApp
@@ -119,11 +109,13 @@ jobs:
           cd AIWorksApp
           ./gradlew assembleDebug --stacktrace --debug
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - name: Upload APK to Release
+        uses: softprops/action-gh-release@v1
         with:
-          name: app-debug
-          path: AIWorksApp/app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
-          compression-level: 6
-          overwrite: true
+          tag_name: v${{ github.run_number }}
+          name: "AIWorksApp Build ${{ github.run_number }}"
+          body: "Automated build of AIWorksApp (debug APK)"
+          files: |
+            AIWorksApp/app/build/outputs/apk/debug/app-debug.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
