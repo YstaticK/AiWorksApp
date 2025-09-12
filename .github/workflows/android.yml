@@ -33,78 +33,80 @@ jobs:
           echo 'rootProject.name = "AIWorksApp"' > settings.gradle
           echo 'include ":app"' >> settings.gradle
 
-          cat > build.gradle <<'EOT'
-buildscript {
-    repositories { google(); mavenCentral() }
-    dependencies { classpath "com.android.tools.build:gradle:8.0.2" }
-}
-allprojects {
-    repositories { google(); mavenCentral() }
-}
-EOT
+          cat <<'EOT' > build.gradle
+          buildscript {
+              repositories { google(); mavenCentral() }
+              dependencies { classpath "com.android.tools.build:gradle:8.0.2" }
+          }
+          allprojects {
+              repositories { google(); mavenCentral() }
+          }
+          EOT
 
           mkdir -p app
-          cat > app/build.gradle <<'EOT'
-plugins {
-    id 'com.android.application'
-}
-android {
-    namespace "com.example.aiworks"
-    compileSdk 33
-    defaultConfig {
-        applicationId "com.example.aiworks"
-        minSdk 24
-        targetSdk 33
-        versionCode 1
-        versionName "1.0"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-    }
-}
-dependencies {
-    implementation "androidx.core:core-ktx:1.10.1"
-    implementation "androidx.appcompat:appcompat:1.6.1"
-    implementation "com.google.android.material:material:1.9.0"
-}
-EOT
+          cat <<'EOT' > app/build.gradle
+          plugins {
+              id 'com.android.application'
+          }
+          android {
+              namespace "com.example.aiworks"
+              compileSdk 33
+              defaultConfig {
+                  applicationId "com.example.aiworks"
+                  minSdk 24
+                  targetSdk 33
+                  versionCode 1
+                  versionName "1.0"
+              }
+              buildTypes {
+                  release {
+                      minifyEnabled false
+                      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+                  }
+              }
+          }
+          dependencies {
+              implementation "androidx.core:core-ktx:1.10.1"
+              implementation "androidx.appcompat:appcompat:1.6.1"
+              implementation "com.google.android.material:material:1.9.0"
+          }
+          EOT
 
-          cat > app/src/main/AndroidManifest.xml <<'EOT'
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.aiworks">
-    <application android:label="AIWorksApp" android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
-        <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity>
-    </application>
-</manifest>
-EOT
+          cat <<'EOT' > app/src/main/AndroidManifest.xml
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+              package="com.example.aiworks">
+              <application android:label="AIWorksApp" android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+                  <activity android:name=".MainActivity">
+                      <intent-filter>
+                          <action android:name="android.intent.action.MAIN"/>
+                          <category android:name="android.intent.category.LAUNCHER"/>
+                      </intent-filter>
+                  </activity>
+              </application>
+          </manifest>
+          EOT
 
-          cat > app/src/main/java/com/example/aiworks/MainActivity.java <<'EOT'
-package com.example.aiworks;
-import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-public class MainActivity extends AppCompatActivity {
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(android.R.layout.simple_list_item_1);
-    }
-}
-EOT
+          cat <<'EOT' > app/src/main/java/com/example/aiworks/MainActivity.java
+          package com.example.aiworks;
+          import android.os.Bundle;
+          import androidx.appcompat.app.AppCompatActivity;
+          public class MainActivity extends AppCompatActivity {
+              @Override
+              protected void onCreate(Bundle savedInstanceState) {
+                  super.onCreate(savedInstanceState);
+                  setContentView(android.R.layout.simple_list_item_1);
+              }
+          }
+          EOT
 
       - name: Unpack project.zip into assets
         run: |
           echo "📦 Adding uploaded ZIP into assets..."
           if [ -f project.zip ]; then
-            mkdir -p AIWorksApp/app/src/main/assets
-            cp project.zip AIWorksApp/app/src/main/assets/
+              mkdir -p AIWorksApp/app/src/main/assets
+              cp project.zip AIWorksApp/app/src/main/assets/
+          else
+              echo "⚠️ No project.zip found"
           fi
 
       - name: Generate Gradle wrapper
