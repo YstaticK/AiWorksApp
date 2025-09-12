@@ -1,0 +1,45 @@
+#!/bin/bash
+set -e
+
+WORKFLOW_DIR=".github/workflows"
+WORKFLOW_FILE="$WORKFLOW_DIR/android.yml"
+
+mkdir -p "$WORKFLOW_DIR"
+
+cat > "$WORKFLOW_FILE" <<'YAML'
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AIWorksApp-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
+YAML
+
+echo "✅ Workflow patched: $WORKFLOW_FILE"
