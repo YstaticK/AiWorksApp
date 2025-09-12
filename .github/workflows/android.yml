@@ -86,10 +86,13 @@ jobs:
           EOT
 
           cat <<'EOT' > app/src/main/AndroidManifest.xml
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-              package="com.example.aiworks">
-              <application android:label="AIWorksApp" android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
-                  <activity android:name=".MainActivity">
+          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+              <application
+                  android:label="AIWorksApp"
+                  android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+                  <activity
+                      android:name=".MainActivity"
+                      android:exported="true">
                       <intent-filter>
                           <action android:name="android.intent.action.MAIN"/>
                           <category android:name="android.intent.category.LAUNCHER"/>
@@ -131,6 +134,12 @@ jobs:
         run: |
           cd AIWorksApp
           ./gradlew assembleDebug --stacktrace
+
+      - name: Upload APK to Actions Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: AIWorksApp-debug
+          path: AIWorksApp/app/build/outputs/apk/debug/app-debug.apk
 
       - name: Upload APK to Release
         uses: softprops/action-gh-release@v1
