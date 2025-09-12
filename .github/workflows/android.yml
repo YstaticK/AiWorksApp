@@ -16,7 +16,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '11' # AGP 7.x prefers JDK 11
 
       - name: Install Android SDK tools
         uses: android-actions/setup-android@v2
@@ -36,7 +36,7 @@ jobs:
           cat <<'EOT' > build.gradle
           buildscript {
               repositories { google(); mavenCentral() }
-              dependencies { classpath "com.android.tools.build:gradle:8.0.2" }
+              dependencies { classpath "com.android.tools.build:gradle:7.4.2" }
           }
           allprojects {
               repositories { google(); mavenCentral() }
@@ -99,25 +99,25 @@ jobs:
           }
           EOT
 
-          # Install Gradle wrapper files manually
+          # Install Gradle wrapper (7.6.2)
           mkdir -p gradle/wrapper
           cat <<'EOT' > gradle/wrapper/gradle-wrapper.properties
           distributionBase=GRADLE_USER_HOME
           distributionPath=wrapper/dists
-          distributionUrl=https\://services.gradle.org/distributions/gradle-8.0-bin.zip
+          distributionUrl=https\://services.gradle.org/distributions/gradle-7.6.2-bin.zip
           zipStoreBase=GRADLE_USER_HOME
           zipStorePath=wrapper/dists
           EOT
 
-          curl -sL https://raw.githubusercontent.com/gradle/gradle/master/gradle/wrapper/gradle-wrapper.jar -o gradle/wrapper/gradle-wrapper.jar
-          curl -sL https://raw.githubusercontent.com/gradle/gradle/master/gradlew -o gradlew
-          curl -sL https://raw.githubusercontent.com/gradle/gradle/master/gradlew.bat -o gradlew.bat
+          curl -sL https://raw.githubusercontent.com/gradle/gradle/v7.6.2/gradle/wrapper/gradle-wrapper.jar -o gradle/wrapper/gradle-wrapper.jar
+          curl -sL https://raw.githubusercontent.com/gradle/gradle/v7.6.2/gradlew -o gradlew
+          curl -sL https://raw.githubusercontent.com/gradle/gradle/v7.6.2/gradlew.bat -o gradlew.bat
           chmod +x gradlew
 
       - name: Build Debug APK
         run: |
           cd AIWorksApp
-          ./gradlew assembleDebug --stacktrace --debug
+          ./gradlew assembleDebug --stacktrace
 
       - name: Upload APK to Release
         uses: softprops/action-gh-release@v1
