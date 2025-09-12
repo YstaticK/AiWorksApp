@@ -21,7 +21,7 @@ jobs:
       - name: Install Android SDK tools
         uses: android-actions/setup-android@v2
 
-      - name: Bootstrap minimal Android project
+      - name: Bootstrap minimal Android project (stable + AndroidX + Kotlin fixed)
         run: |
           echo "⚙️ Creating Android project shell..."
           mkdir -p AIWorksApp/app/src/main/java/com/example/aiworks
@@ -33,98 +33,114 @@ jobs:
           echo 'rootProject.name = "AIWorksApp"' > settings.gradle
           echo 'include ":app"' >> settings.gradle
 
-          # ✅ Gradle properties (stability + AndroidX)
+          # gradle.properties (stability + AndroidX + recommended flags)
           cat <<'EOT' > gradle.properties
-          android.useAndroidX=true
-          android.enableJetifier=true
-          org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
-          android.defaults.buildfeatures.buildconfig=true
-          android.nonTransitiveRClass=true
-          EOT
+android.useAndroidX=true
+android.enableJetifier=true
+org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+android.defaults.buildfeatures.buildconfig=true
+android.nonTransitiveRClass=true
+EOT
 
+          # Top-level build.gradle with Kotlin Gradle plugin pinned
           cat <<'EOT' > build.gradle
-          buildscript {
-              repositories { google(); mavenCentral() }
-              dependencies { classpath "com.android.tools.build:gradle:7.4.2" }
-          }
-          allprojects {
-              repositories { google(); mavenCentral() }
-          }
-          EOT
+buildscript {
+    repositories { google(); mavenCentral() }
+    dependencies {
+        classpath "com.android.tools.build:gradle:7.4.2"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.10"
+    }
+}
+allprojects {
+    repositories { google(); mavenCentral() }
+}
+EOT
 
+          # App module build.gradle with pinned deps and Kotlin duplicate-exclusion
           mkdir -p app
           cat <<'EOT' > app/build.gradle
-          plugins {
-              id 'com.android.application'
-          }
-          android {
-              namespace "com.example.aiworks"
-              compileSdk 33
-              defaultConfig {
-                  applicationId "com.example.aiworks"
-                  minSdk 24
-                  targetSdk 33
-                  versionCode 1
-                  versionName "1.0"
-              }
-              compileOptions {
-                  sourceCompatibility JavaVersion.VERSION_11
-                  targetCompatibility JavaVersion.VERSION_11
-              }
-              buildTypes {
-                  release {
-                      minifyEnabled false
-                      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-                  }
-              }
-          }
-          dependencies {
-              implementation "androidx.core:core-ktx:1.10.1"
-              implementation "androidx.appcompat:appcompat:1.6.1"
-              implementation "com.google.android.material:material:1.9.0"
-          }
-          EOT
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android' version '1.8.10' apply false
+}
+android {
+    namespace "com.example.aiworks"
+    compileSdk 33
+    defaultConfig {
+        applicationId "com.example.aiworks"
+        minSdk 24
+        targetSdk 33
+        versionCode 1
+        versionName "1.0"
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+dependencies {
+    implementation "androidx.core:core-ktx:1.10.1"
+    implementation "androidx.appcompat:appcompat:1.6.1"
+    implementation "com.google.android.material:material:1.9.0"
 
+    // force single Kotlin stdlib version and avoid pulling older jdk7/jdk8 artifacts
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.8.10"
+
+    configurations.all {
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk7"
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib-jdk8"
+    }
+}
+EOT
+
+          # AndroidManifest: set android:exported and remove deprecated package attr
           cat <<'EOT' > app/src/main/AndroidManifest.xml
-          <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-              <application
-                  android:label="AIWorksApp"
-                  android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
-                  <activity
-                      android:name=".MainActivity"
-                      android:exported="true">
-                      <intent-filter>
-                          <action android:name="android.intent.action.MAIN"/>
-                          <category android:name="android.intent.category.LAUNCHER"/>
-                      </intent-filter>
-                  </activity>
-              </application>
-          </manifest>
-          EOT
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application
+        android:label="AIWorksApp"
+        android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>
+EOT
 
+          # Minimal MainActivity
+          mkdir -p app/src/main/java/com/example/aiworks
           cat <<'EOT' > app/src/main/java/com/example/aiworks/MainActivity.java
-          package com.example.aiworks;
-          import android.os.Bundle;
-          import androidx.appcompat.app.AppCompatActivity;
-          public class MainActivity extends AppCompatActivity {
-              @Override
-              protected void onCreate(Bundle savedInstanceState) {
-                  super.onCreate(savedInstanceState);
-                  setContentView(android.R.layout.simple_list_item_1);
-              }
-          }
-          EOT
+package com.example.aiworks;
+import android.os.Bundle;
+import androidx.appcompat.app.AppCompatActivity;
+public class MainActivity extends AppCompatActivity {
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(android.R.layout.simple_list_item_1);
+    }
+}
+EOT
 
-          # Gradle wrapper (7.6.2)
+          # Gradle wrapper (pinned to 7.6.2)
           mkdir -p gradle/wrapper
           cat <<'EOT' > gradle/wrapper/gradle-wrapper.properties
-          distributionBase=GRADLE_USER_HOME
-          distributionPath=wrapper/dists
-          distributionUrl=https\://services.gradle.org/distributions/gradle-7.6.2-bin.zip
-          zipStoreBase=GRADLE_USER_HOME
-          zipStorePath=wrapper/dists
-          EOT
-
+distributionBase=GRADLE_USER_HOME
+distributionPath=wrapper/dists
+distributionUrl=https\://services.gradle.org/distributions/gradle-7.6.2-bin.zip
+zipStoreBase=GRADLE_USER_HOME
+zipStorePath=wrapper/dists
+EOT
           curl -sL https://raw.githubusercontent.com/gradle/gradle/v7.6.2/gradle/wrapper/gradle-wrapper.jar -o gradle/wrapper/gradle-wrapper.jar
           curl -sL https://raw.githubusercontent.com/gradle/gradle/v7.6.2/gradlew -o gradlew
           curl -sL https://raw.githubusercontent.com/gradle/gradle/v7.6.2/gradlew.bat -o gradlew.bat
@@ -140,6 +156,9 @@ jobs:
         with:
           name: AIWorksApp-debug
           path: AIWorksApp/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          compression-level: 6
+          overwrite: true
 
       - name: Upload APK to Release
         uses: softprops/action-gh-release@v1
