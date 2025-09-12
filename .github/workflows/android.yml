@@ -33,6 +33,15 @@ jobs:
           echo 'rootProject.name = "AIWorksApp"' > settings.gradle
           echo 'include ":app"' >> settings.gradle
 
+          # ✅ Gradle properties (stability + AndroidX)
+          cat <<'EOT' > gradle.properties
+          android.useAndroidX=true
+          android.enableJetifier=true
+          org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+          android.defaults.buildfeatures.buildconfig=true
+          android.nonTransitiveRClass=true
+          EOT
+
           cat <<'EOT' > build.gradle
           buildscript {
               repositories { google(); mavenCentral() }
@@ -57,6 +66,10 @@ jobs:
                   targetSdk 33
                   versionCode 1
                   versionName "1.0"
+              }
+              compileOptions {
+                  sourceCompatibility JavaVersion.VERSION_11
+                  targetCompatibility JavaVersion.VERSION_11
               }
               buildTypes {
                   release {
