@@ -1,7 +1,7 @@
 name: Build Android APK
 
 on:
-  workflow_dispatch:   # Run manually from Actions tab
+  workflow_dispatch:   # allows manual run & script triggers
   push:
     branches: [ "main" ]
 
