@@ -1,31 +1,23 @@
-name: Android CI (idempotent + artifact commit)
+name: Android APK Build
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
+  pull_request:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v2
 
       - name: Patch Gradle files (idempotent)
         run: |
@@ -36,112 +28,54 @@ jobs:
 
           echo "=== Ensure root build.gradle contains kotlin-gradle-plugin ==="
           if [ ! -f "$ROOT_BUILD" ] || ! grep -q "kotlin-gradle-plugin" "$ROOT_BUILD"; then
-            cat > "$ROOT_BUILD" <<'EOF'
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath "com.android.tools.build:gradle:8.1.0"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0"
-    }
-}
+            cat > "$ROOT_BUILD" <<'GRADLE'
+            buildscript {
+                repositories {
+                    google()
+                    mavenCentral()
+                }
+                dependencies {
+                    classpath "com.android.tools.build:gradle:8.1.0"
+                    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0"
+                }
+            }
 
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-EOF
+            allprojects {
+                repositories {
+                    google()
+                    mavenCentral()
+                }
+            }
+GRADLE
             echo "WROTE $ROOT_BUILD"
           else
             echo "$ROOT_BUILD already contains kotlin-gradle-plugin - skipping"
           fi
 
-          echo "=== Ensure app module exists and is an application module ==="
-          if [ ! -f "$APP_BUILD" ]; then
-            echo "$APP_BUILD missing — creating a minimal app/build.gradle"
-            mkdir -p "$(dirname "$APP_BUILD")"
-            cat > "$APP_BUILD" <<'EOF'
-plugins {
-    id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
-}
-android {
-    namespace "com.example.aiworks"
-    compileSdk 33
-    defaultConfig {
-        applicationId "com.example.aiworks"
-        minSdk 24
-        targetSdk 33
-        versionCode 1
-        versionName "1.0"
-    }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
-    }
-}
-dependencies {
-    implementation "androidx.core:core-ktx:1.10.1"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.8.10"
-}
-EOF
-            echo "Created minimal $APP_BUILD"
-          else
-            if ! grep -q "com.android.application" "$APP_BUILD"; then
-              echo "Prepending 'com.android.application' plugin block into $APP_BUILD"
-              TMPFILE="$(mktemp)"
-              cat > "$TMPFILE" <<'EOF'
-plugins {
-    id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
-}
-EOF
-              cat "$APP_BUILD" >> "$TMPFILE"
-              mv "$TMPFILE" "$APP_BUILD"
-              echo "Patched $APP_BUILD"
-            else
-              echo "$APP_BUILD already declares com.android.application - skipping"
-            fi
+          echo "=== Ensure app/build.gradle uses plugins ==="
+          if [ -f "$APP_BUILD" ] && ! grep -q "org.jetbrains.kotlin.android" "$APP_BUILD"; then
+            sed -i '1iplugins { id "com.android.application" id "org.jetbrains.kotlin.android" }' "$APP_BUILD"
           fi
 
-          echo "=== Ensure Gradle wrapper distribution uses Gradle 8.x (if wrapper present) ==="
-          if [ -f "$WRAPPER" ]; then
-            sed -i 's#distributionUrl=.*#distributionUrl=https\\://services.gradle.org/distributions/gradle-8.0-all.zip#' "$WRAPPER" || true
-            echo "Updated $WRAPPER (if present)"
-          else
-            echo "$WRAPPER not present - skipping wrapper patch"
-          fi
+          echo "=== Ensure gradle.properties opts are set ==="
+          PROPS=./gradle.properties
+          grep -qxF 'android.useAndroidX=true' "$PROPS" || echo 'android.useAndroidX=true' >> "$PROPS"
+          grep -qxF 'android.enableJetifier=true' "$PROPS" || echo 'android.enableJetifier=true' >> "$PROPS"
 
-      - name: Make gradlew executable
+          echo "=== Lock Gradle wrapper version ==="
+          mkdir -p ./gradle/wrapper
+          cat > "$WRAPPER" <<GRADLE
+          distributionUrl=https\://services.gradle.org/distributions/gradle-8.2-bin.zip
+GRADLE
+
+      - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      - name: Build debug APK
-        run: ./gradlew :app:assembleDebug --no-daemon --stacktrace
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
 
-      - name: Upload APK artifact (Actions)
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug
+          name: app-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
-
-      - name: Commit APK back to repo (artifacts/app-debug.apk)
-        env:
-          GIT_NAME: "github-actions[bot]"
-          GIT_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
-        run: |
-          set -euo pipefail
-          if [ -f app/build/outputs/apk/debug/app-debug.apk ]; then
-            mkdir -p artifacts
-            cp app/build/outputs/apk/debug/app-debug.apk artifacts/app-debug.apk
-            git config user.name "$GIT_NAME"
-            git config user.email "$GIT_EMAIL"
-            git add artifacts/app-debug.apk
-            git commit -m "Add latest debug APK [skip ci]" || echo "No changes to commit"
-            git push origin HEAD:main || echo "Push failed (check repo permissions) — artifact still in Actions."
-          else
-            echo "APK not found; skipping commit-back."
-          fi
