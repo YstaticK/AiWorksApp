@@ -1,18 +1,72 @@
-name: Build Android Release APK
+name: Android CI
 
 on:
   push:
     branches:
-      - '**'
-  workflow_dispatch:
+      - main
+  pull_request:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Patch Gradle files automatically before build
+      - name: Patch Gradle files for Kotlin & Android
+        run: |
+          ROOT_BUILD=./temp_repo/build.gradle
+          APP_BUILD=./temp_repo/app/build.gradle
+          WRAPPER=./temp_repo/gradle/wrapper/gradle-wrapper.properties
+
+          echo "Patching Gradle files if needed..."
+
+          # --- Root build.gradle patch ---
+          if ! grep -q "kotlin-gradle-plugin" "$ROOT_BUILD"; then
+            echo "Injecting buildscript block into root build.gradle..."
+            cat <<'EOF' > "$ROOT_BUILD"
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:8.1.0"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0"
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+EOF
+          else
+            echo "Root build.gradle already has kotlin-gradle-plugin."
+          fi
+
+          # --- App build.gradle patch ---
+          if ! grep -q "org.jetbrains.kotlin.android" "$APP_BUILD"; then
+            echo "Adding Kotlin Android plugin to app/build.gradle..."
+            sed -i '1i\
+plugins {\
+    id "com.android.application"\
+    id "org.jetbrains.kotlin.android"\
+}\
+' "$APP_BUILD"
+          else
+            echo "App build.gradle already has Kotlin Android plugin."
+          fi
+
+          # --- Gradle Wrapper patch ---
+          if grep -q "distributionUrl" "$WRAPPER"; then
+            echo "Ensuring Gradle wrapper uses 8.0+..."
+            sed -i 's#distributionUrl=.*#distributionUrl=https\\://services.gradle.org/distributions/gradle-8.0-all.zip#' "$WRAPPER"
+          fi
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -20,19 +74,15 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v2
-
       - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-        working-directory: .
+        run: chmod +x ./temp_repo/gradlew
 
-      - name: Build Release APK
-        run: ./gradlew :app:assembleRelease --stacktrace
-        working-directory: .
+      - name: Build APK
+        working-directory: ./temp_repo
+        run: ./gradlew assembleDebug
 
       - name: Upload APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
-          name: AIWorksApp-release
-          path: app/build/outputs/apk/release/app-release.apk
+          name: app-debug
+          path: temp_repo/app/build/outputs/apk/debug/app-debug.apk
