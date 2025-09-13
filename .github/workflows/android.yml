@@ -141,7 +141,6 @@ EOF
             git config user.email "$GIT_EMAIL"
             git add artifacts/app-debug.apk
             git commit -m "Add latest debug APK [skip ci]" || echo "No changes to commit"
-            # best-effort push; may fail if token lacks push rights
             git push origin HEAD:main || echo "Push failed (check repo permissions) — artifact still in Actions."
           else
             echo "APK not found; skipping commit-back."
