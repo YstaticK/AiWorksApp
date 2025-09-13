@@ -23,6 +23,15 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v2
 
+      # Ensure gradlew exists (generate wrapper if missing)
+      - name: Generate Gradle wrapper if missing
+        run: |
+          cd temp_repo/app
+          if [ ! -f gradlew ]; then
+            echo "gradlew not found, generating wrapper..."
+            gradle wrapper --gradle-version 8.2.1
+          fi
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
         working-directory: temp_repo/app
