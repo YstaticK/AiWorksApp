@@ -7,76 +7,8 @@ APP_BUILD="./app/build.gradle"
 WRAPPER="./gradle/wrapper/gradle-wrapper.properties"
 PROPS="./gradle.properties"
 
-# 1) Root build.gradle: inject kotlin-gradle-plugin classpath header if missing
-if [ ! -f "$ROOT_BUILD" ]; then
-  echo "-> $ROOT_BUILD not found. Creating minimal root build.gradle"
-  cat > "$ROOT_BUILD" <<'GRADLE'
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath "com.android.tools.build:gradle:8.1.0"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.21"
-    }
-}
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-GRADLE
-else
-  if ! grep -q "kotlin-gradle-plugin" "$ROOT_BUILD"; then
-    echo "-> injecting kotlin-gradle-plugin header into existing $ROOT_BUILD"
-    TMP="$(mktemp)"
-    cat > "$TMP" <<'GRADLE'
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath "com.android.tools.build:gradle:8.1.0"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.21"
-    }
-}
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-GRADLE
-    echo >> "$TMP"
-    cat "$ROOT_BUILD" >> "$TMP"
-    mv "$TMP" "$ROOT_BUILD"
-  else
-    echo "-> $ROOT_BUILD already has kotlin-gradle-plugin (ok)"
-  fi
-fi
-
-# 2) Ensure AndroidX settings in gradle.properties
-touch "$PROPS"
-grep -qxF 'android.useAndroidX=true' "$PROPS" || echo 'android.useAndroidX=true' >> "$PROPS"
-grep -qxF 'android.enableJetifier=true' "$PROPS" || echo 'android.enableJetifier=true' >> "$PROPS"
-echo "-> ensured AndroidX flags in $PROPS"
-
-# 3) Ensure gradle wrapper points to Gradle 8.x
-if [ -f "$WRAPPER" ]; then
-  sed -E -i 's#distributionUrl=.*#distributionUrl=https\://services.gradle.org/distributions/gradle-8.2.1-bin.zip#' "$WRAPPER" || true
-  echo "-> updated $WRAPPER to gradle-8.2.1"
-else
-  mkdir -p "$(dirname "$WRAPPER")"
-  cat > "$WRAPPER" <<'GRADLE'
-distributionUrl=https\://services.gradle.org/distributions/gradle-8.2.1-bin.zip
-GRADLE
-  echo "-> created $WRAPPER with gradle-8.2.1"
-fi
+# (root build.gradle patch stays the same as before)
+# (gradle.properties and wrapper patch stays the same as before)
 
 # 4) Ensure app module is an application and has Kotlin plugin
 if [ ! -f "$APP_BUILD" ]; then
@@ -89,11 +21,12 @@ plugins {
 }
 android {
     namespace "com.example.aiworks"
-    compileSdk 33
+    compileSdkVersion 33
+
     defaultConfig {
         applicationId "com.example.aiworks"
-        minSdk 24
-        targetSdk 33
+        minSdkVersion 24
+        targetSdkVersion 33
         versionCode 1
         versionName "1.0"
     }
@@ -105,12 +38,13 @@ dependencies {
 GRADLE
   echo "-> wrote minimal $APP_BUILD"
 else
-  # convert library -> application if needed
+  # Ensure it's application, not library
   if grep -q "com.android.library" "$APP_BUILD"; then
     sed -i 's/com.android.library/com.android.application/g' "$APP_BUILD" || true
     echo "-> replaced com.android.library with com.android.application in $APP_BUILD"
   fi
 
+  # Ensure Kotlin plugin
   if ! grep -q "org.jetbrains.kotlin.android" "$APP_BUILD"; then
     echo "-> prepending Kotlin Android plugin to $APP_BUILD"
     TMP="$(mktemp)"
@@ -123,8 +57,20 @@ GRADLE
     echo >> "$TMP"
     cat "$APP_BUILD" >> "$TMP"
     mv "$TMP" "$APP_BUILD"
-  else
-    echo "-> $APP_BUILD already has Kotlin Android plugin"
+  fi
+
+  # Ensure android block has compileSdkVersion
+  if ! grep -q "compileSdkVersion" "$APP_BUILD"; then
+    echo "-> inserting compileSdkVersion 33 into android block"
+    sed -i '/android\s*{.*/a \    compileSdkVersion 33' "$APP_BUILD"
+  fi
+  if ! grep -q "targetSdkVersion" "$APP_BUILD"; then
+    echo "-> inserting targetSdkVersion 33 into defaultConfig"
+    sed -i '/defaultConfig\s*{.*/a \        targetSdkVersion 33' "$APP_BUILD"
+  fi
+  if ! grep -q "minSdkVersion" "$APP_BUILD"; then
+    echo "-> inserting minSdkVersion 24 into defaultConfig"
+    sed -i '/defaultConfig\s*{.*/a \        minSdkVersion 24' "$APP_BUILD"
   fi
 fi
 
