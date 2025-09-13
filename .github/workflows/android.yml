@@ -1,31 +1,41 @@
-name: Android CI
+name: Android CI (idempotent + artifact commit)
 
 on:
   push:
     branches:
       - main
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-      # Patch Gradle files automatically before build
-      - name: Patch Gradle files for Kotlin & Android
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v2
+
+      - name: Patch Gradle files for Kotlin & Android (idempotent)
         run: |
-          ROOT_BUILD=./temp_repo/build.gradle
-          APP_BUILD=./temp_repo/app/build.gradle
-          WRAPPER=./temp_repo/gradle/wrapper/gradle-wrapper.properties
+          set -e
+          ROOT_BUILD=./build.gradle
+          APP_BUILD=./app/build.gradle
+          WRAPPER=./gradle/wrapper/gradle-wrapper.properties
 
-          echo "Patching Gradle files if needed..."
-
-          # --- Root build.gradle patch ---
-          if ! grep -q "kotlin-gradle-plugin" "$ROOT_BUILD"; then
-            echo "Injecting buildscript block into root build.gradle..."
+          echo "=== Patch: ensure root build.gradle contains kotlin plugin classpath ==="
+          if [ ! -f "$ROOT_BUILD" ] || ! grep -q "kotlin-gradle-plugin" "$ROOT_BUILD"; then
             cat > "$ROOT_BUILD" <<'EOF'
 buildscript {
     repositories {
@@ -45,50 +55,92 @@ allprojects {
     }
 }
 EOF
+            echo "WROTE $ROOT_BUILD"
           else
-            echo "Root build.gradle already has kotlin-gradle-plugin."
+            echo "$ROOT_BUILD already contains kotlin-gradle-plugin - skipping"
           fi
 
-          # --- App build.gradle patch ---
-          if ! grep -q "org.jetbrains.kotlin.android" "$APP_BUILD"; then
-            echo "Adding Kotlin Android plugin to app/build.gradle..."
-            sed -i '1i plugins { id "com.android.application"\n    id "org.jetbrains.kotlin.android"\n }\n' "$APP_BUILD"
+          echo "=== Patch: ensure app/build.gradle is an application module ==="
+          if [ ! -f "$APP_BUILD" ]; then
+            echo "$APP_BUILD missing — creating minimal app/build.gradle"
+            mkdir -p $(dirname "$APP_BUILD")
+            cat > "$APP_BUILD" <<'EOF'
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+android {
+    namespace "com.example.aiworks"
+    compileSdk 33
+    defaultConfig {
+        applicationId "com.example.aiworks"
+        minSdk 24
+        targetSdk 33
+        versionCode 1
+        versionName "1.0"
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+}
+dependencies {
+    implementation "androidx.core:core-ktx:1.10.1"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.8.10"
+}
+EOF
+            echo "WROTE $APP_BUILD"
           else
-            echo "App build.gradle already has Kotlin Android plugin."
+            if ! grep -q "com.android.application" "$APP_BUILD"; then
+              echo "Adding 'com.android.application' plugin at top of $APP_BUILD"
+              mv "$APP_BUILD" "$APP_BUILD".bak || true
+              cat > "$APP_BUILD" <<'EOF'
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+EOF
+              cat "$APP_BUILD".bak >> "$APP_BUILD" || true
+              echo "Patched $APP_BUILD (prepended plugins block)"
+            else
+              echo "$APP_BUILD already declares com.android.application - skipping"
+            fi
           fi
 
-          # --- Gradle Wrapper patch ---
-          if grep -q "distributionUrl" "$WRAPPER"; then
-            echo "Ensuring Gradle wrapper uses 8.0+..."
-            sed -i 's#distributionUrl=.*#distributionUrl=https\\://services.gradle.org/distributions/gradle-8.0-all.zip#' "$WRAPPER"
+          echo "=== Patch: ensure gradle wrapper distributionUrl points to Gradle 8.x ==="
+          if [ -f "$WRAPPER" ]; then
+            sed -i 's#distributionUrl=.*#distributionUrl=https\\://services.gradle.org/distributions/gradle-8.0-all.zip#' "$WRAPPER" || true
+            echo "Updated $WRAPPER"
+          else
+            echo "$WRAPPER not present, skipping wrapper patch (gradlew should still work if present at root)."
           fi
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: temurin
-          java-version: 17
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x ./temp_repo/gradlew
+      - name: Build debug APK
+        run: ./gradlew :app:assembleDebug --no-daemon --stacktrace
 
-      - name: Build APK
-        working-directory: ./temp_repo
-        run: ./gradlew assembleDebug
-
-      - name: Upload APK as artifact
-        uses: actions/upload-artifact@v3
+      - name: Upload APK artifact (Actions)
+        uses: actions/upload-artifact@v4
         with:
           name: app-debug
-          path: temp_repo/app/build/outputs/apk/debug/app-debug.apk
+          path: app/build/outputs/apk/debug/app-debug.apk
 
-      - name: Commit APK to repo
+      - name: Commit APK back to repo (artifacts/app-debug.apk) and push
+        env:
+          GIT_AUTHOR_NAME: "github-actions[bot]"
+          GIT_AUTHOR_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
         run: |
-          mkdir -p temp_repo/artifacts
-          cp temp_repo/app/build/outputs/apk/debug/app-debug.apk temp_repo/artifacts/
-          cd temp_repo
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add artifacts/app-debug.apk
-          git commit -m "Add latest debug APK [skip ci]" || echo "No changes to commit"
-          git push
+          set -e
+          if [ -f app/build/outputs/apk/debug/app-debug.apk ]; then
+            mkdir -p artifacts
+            cp app/build/outputs/apk/debug/app-debug.apk artifacts/app-debug.apk
+            git config user.name "$GIT_AUTHOR_NAME"
+            git config user.email "$GIT_AUTHOR_EMAIL"
+            git add artifacts/app-debug.apk
+            git commit -m "Add latest debug APK [skip ci]" || echo "No changes to commit"
+            git push origin HEAD:main || echo "Push failed (maybe no permission) — artifact still available in Actions."
+          else
+            echo "APK not found; skipping commit-back step."
+          fi
