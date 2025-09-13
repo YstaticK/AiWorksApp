@@ -1,82 +1,94 @@
-#!/data/data/com.termux/files/usr/bin/bash
+#!/bin/bash
 set -e
 
-GITHUB_USER="YstaticK"
-REPO="AIWorksApp"
+# === CONFIG ===
+REPO="YstaticK/AIWorksApp"
 BRANCH="main"
-ZIP_FILE="$HOME/aiworks_app_patched_final.zip"
+WORKFLOW_FILE=".github/workflows/android.yml"
 
-echo "🔑 Enter your GitHub PAT:"
-read -s GITHUB_PAT
+# === Ensure git identity ===
+git config --global user.email "ystatick@users.noreply.github.com"
+git config --global user.name "YstaticK"
 
-echo "📦 Ensuring dependencies..."
-pkg update -y && pkg install -y git wget curl jq unzip -y
+# === Ensure Gradle wrapper ===
+rm -f settings.gradle build.gradle
 
-# Configure Git user identity if missing
-if ! git config --global user.name >/dev/null 2>&1; then
-  git config --global user.name "$GITHUB_USER"
-  git config --global user.email "$GITHUB_USER@example.com"
+echo 'rootProject.name = "AIWorksApp"' > settings.gradle
+echo 'include(":app")' >> settings.gradle
+
+cat > build.gradle <<'GRADLE'
+buildscript {
+    repositories { google(); mavenCentral() }
+    dependencies {
+        classpath "com.android.tools.build:gradle:8.0.2"
+    }
+}
+
+allprojects {
+    repositories { google(); mavenCentral() }
+}
+GRADLE
+
+if [ ! -f gradlew ]; then
+    echo "⚡ Bootstrapping Gradle wrapper..."
+    gradle wrapper --gradle-version 8.2.1 --distribution-type all
 fi
 
-# Configure GitHub credentials (store mode so no password prompts)
-echo "https://$GITHUB_USER:$GITHUB_PAT@github.com" > ~/.git-credentials
-git config --global credential.helper store
+# === Write fixed GitHub Actions workflow ===
+mkdir -p .github/workflows
+cat > "$WORKFLOW_FILE" <<'YAML'
+name: Build Android APK
 
-# Clone repo if not already present
-if [ ! -d ~/temp_repo ]; then
-  git clone https://github.com/$GITHUB_USER/$REPO.git ~/temp_repo
-fi
+on:
+  workflow_dispatch:
 
-cd ~/temp_repo
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-# Copy project ZIP and commit it
-cp "$ZIP_FILE" ./project.zip
-git add project.zip
-git commit -m "Upload project.zip for build" || true
-git push origin $BRANCH
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-echo "🚀 Triggering GitHub Actions build..."
-curl -X POST -H "Authorization: token $GITHUB_PAT" \
-     -H "Accept: application/vnd.github.v3+json" \
-     https://api.github.com/repos/$GITHUB_USER/$REPO/actions/workflows/android.yml/dispatches \
-     -d "{\"ref\":\"$BRANCH\"}"
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
 
-echo "⏳ Waiting for build to finish..."
-RUN_ID=""
-while [ -z "$RUN_ID" ]; do
-  sleep 10
-  RUN_ID=$(curl -s -H "Authorization: token $GITHUB_PAT" \
-     https://api.github.com/repos/$GITHUB_USER/$REPO/actions/runs \
-     | jq -r '.workflow_runs[0].id')
-done
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v2
 
-STATUS="in_progress"
-while [ "$STATUS" = "in_progress" ] || [ "$STATUS" = "queued" ]; do
-  sleep 20
-  STATUS=$(curl -s -H "Authorization: token $GITHUB_PAT" \
-     https://api.github.com/repos/$GITHUB_USER/$REPO/actions/runs/$RUN_ID \
-     | jq -r '.status')
-  echo "   → Status: $STATUS"
-done
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
 
-CONCLUSION=$(curl -s -H "Authorization: token $GITHUB_PAT" \
-   https://api.github.com/repos/$GITHUB_USER/$REPO/actions/runs/$RUN_ID \
-   | jq -r '.conclusion')
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug --stacktrace
 
-if [ "$CONCLUSION" != "success" ]; then
-  echo "❌ Build failed with status: $CONCLUSION"
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AIWorksApp-debug
+          path: app/build/outputs/apk/debug/app-debug.apk
+YAML
+
+# === Commit + push changes ===
+git add .
+git commit -m "Auto-patch: Gradle + Android workflow" || echo "No changes to commit"
+git push origin $BRANCH || echo "⚠️ Push skipped (no changes)"
+
+echo "✅ Repo updated. Now triggering GitHub Actions build..."
+
+# === Trigger GitHub Actions build ===
+PAT=${GITHUB_PAT:-""}
+if [ -z "$PAT" ]; then
+  echo "❌ No GitHub PAT found. Set GITHUB_PAT environment variable."
   exit 1
 fi
 
-echo "📥 Downloading built APK..."
-ARTIFACT_URL=$(curl -s -H "Authorization: token $GITHUB_PAT" \
-   https://api.github.com/repos/$GITHUB_USER/$REPO/actions/runs/$RUN_ID/artifacts \
-   | jq -r '.artifacts[0].archive_download_url')
+curl -X POST -H "Authorization: token $PAT" \
+  -H "Accept: application/vnd.github+json" \
+  https://api.github.com/repos/$REPO/actions/workflows/android.yml/dispatches \
+  -d "{\"ref\":\"$BRANCH\"}"
 
-curl -L -H "Authorization: token $GITHUB_PAT" "$ARTIFACT_URL" -o artifact.zip
-unzip -o artifact.zip -d artifact
-APK_FILE=$(find artifact -name "*.apk" | head -n 1)
-
-echo "📱 Installing APK..."
-pm install -r "$APK_FILE"
-echo "✅ Done! App installed."
+echo "🚀 Build triggered. Check the Actions tab on GitHub."
