@@ -51,9 +51,6 @@ allprojects {
     }
 }
 GRADLE
-            echo "WROTE $ROOT_BUILD"
-          else
-            echo "$ROOT_BUILD already contains kotlin-gradle-plugin - skipping"
           fi
 
           echo "=== Ensure gradle-wrapper.properties points to gradle-8.2.1 ==="
@@ -64,7 +61,6 @@ GRADLE
           echo "=== Ensure app/build.gradle has kotlin plugin ==="
           if [ -f "$APP_BUILD" ] && ! grep -q "org.jetbrains.kotlin.android" "$APP_BUILD"; then
             sed -i '1i plugins { id "org.jetbrains.kotlin.android" }' "$APP_BUILD"
-            echo "Added kotlin plugin to $APP_BUILD"
           fi
 
       - name: Build with Gradle
