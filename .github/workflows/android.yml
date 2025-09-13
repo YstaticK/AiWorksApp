@@ -26,7 +26,7 @@ jobs:
           # --- Root build.gradle patch ---
           if ! grep -q "kotlin-gradle-plugin" "$ROOT_BUILD"; then
             echo "Injecting buildscript block into root build.gradle..."
-            cat <<'EOF' > "$ROOT_BUILD"
+            cat > "$ROOT_BUILD" <<'EOF'
 buildscript {
     repositories {
         google()
@@ -52,12 +52,7 @@ EOF
           # --- App build.gradle patch ---
           if ! grep -q "org.jetbrains.kotlin.android" "$APP_BUILD"; then
             echo "Adding Kotlin Android plugin to app/build.gradle..."
-            sed -i '1i\
-plugins {\
-    id "com.android.application"\
-    id "org.jetbrains.kotlin.android"\
-}\
-' "$APP_BUILD"
+            sed -i '1i plugins { id "com.android.application"\n    id "org.jetbrains.kotlin.android"\n }\n' "$APP_BUILD"
           else
             echo "App build.gradle already has Kotlin Android plugin."
           fi
@@ -81,8 +76,19 @@ plugins {\
         working-directory: ./temp_repo
         run: ./gradlew assembleDebug
 
-      - name: Upload APK
+      - name: Upload APK as artifact
         uses: actions/upload-artifact@v3
         with:
           name: app-debug
           path: temp_repo/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Commit APK to repo
+        run: |
+          mkdir -p temp_repo/artifacts
+          cp temp_repo/app/build/outputs/apk/debug/app-debug.apk temp_repo/artifacts/
+          cd temp_repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add artifacts/app-debug.apk
+          git commit -m "Add latest debug APK [skip ci]" || echo "No changes to commit"
+          git push
