@@ -1,4 +1,20 @@
-plugins {
-    id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+
+android {
+    namespace "com.example.aiworks"
+    compileSdkVersion 33
+
+    defaultConfig {
+        applicationId "com.example.aiworks"
+        minSdkVersion 24
+        targetSdkVersion 33
+        versionCode 1
+        versionName "1.0"
+    }
+}
+
+dependencies {
+    implementation "androidx.core:core-ktx:1.10.1"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.8.22"
 }
