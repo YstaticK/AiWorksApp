@@ -134,5 +134,33 @@ GRADLE
     echo "Inserted targetSdkVersion 33 into $APP_BUILD"
   fi
 fi
+# 5) Ensure AndroidManifest.xml exists
+MANIFEST="./app/src/main/AndroidManifest.xml"
+if [ ! -f "$MANIFEST" ]; then
+  mkdir -p "$(dirname "$MANIFEST")"
+  cat > "$MANIFEST" <<'XML'
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.aiworks">
 
+    <application
+        android:label="AiWorksApp"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Material3.DayNight.NoActionBar">
+        <activity android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>
+XML
+  echo "Created $MANIFEST"
+else
+  echo "Manifest already exists at $MANIFEST"
+fi
 echo "=== patch_gradle.sh finished ==="
