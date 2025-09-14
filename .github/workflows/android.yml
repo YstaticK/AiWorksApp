@@ -1,40 +1,73 @@
-name: Android CI (safe)
+name: Android CI
 
 on:
   push:
     branches: [ "main" ]
-  workflow_dispatch:
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          distribution: temurin
           java-version: '17'
+          distribution: 'temurin'
 
-      - name: Make patch script executable
-        run: chmod +x ./scripts/patch_gradle.sh
-
-      - name: Run Gradle patch script
-        run: bash ./scripts/patch_gradle.sh
-
-      - name: Make gradlew executable
+      - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      - name: Build debug APK
-        run: ./gradlew :app:assembleDebug --stacktrace
+      - name: Patch Gradle files (idempotent)
+        run: |
+          set -euo pipefail
+          ROOT_BUILD=./build.gradle
+          APP_BUILD=./app/build.gradle
+          WRAPPER=./gradle/wrapper/gradle-wrapper.properties
+
+          echo "=== Ensure root build.gradle contains kotlin-gradle-plugin ==="
+          if [ ! -f "$ROOT_BUILD" ] || ! grep -q "kotlin-gradle-plugin" "$ROOT_BUILD"; then
+            cat > "$ROOT_BUILD" <<'GRADLE'
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:8.1.0"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.0"
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+GRADLE
+          fi
+
+          echo "=== Ensure gradle-wrapper.properties points to gradle-8.2.1 ==="
+          if [ -f "$WRAPPER" ]; then
+            sed -i 's/distributions\/gradle-[0-9.]\+/distributions\/gradle-8.2.1/' "$WRAPPER" || true
+          fi
+
+          echo "=== Ensure app/build.gradle has kotlin plugin ==="
+          if [ -f "$APP_BUILD" ] && ! grep -q "org.jetbrains.kotlin.android" "$APP_BUILD"; then
+            sed -i '1i plugins { id "org.jetbrains.kotlin.android" }' "$APP_BUILD"
+          fi
+
+      - name: Build with Gradle
+        run: ./gradlew assembleRelease
 
       - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
-          name: app-debug
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: app-release-apk
+          path: app/build/outputs/apk/release/app-release.apk
