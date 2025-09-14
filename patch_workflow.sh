@@ -1,15 +1,22 @@
-#!/bin/bash
+#!/data/data/com.termux/files/usr/bin/bash
 set -e
 
-WORKFLOW_DIR=".github/workflows"
-WORKFLOW_FILE="$WORKFLOW_DIR/android.yml"
+cd ~/temp_repo
 
-mkdir -p "$WORKFLOW_DIR"
+# Ensure app module is included
+grep -q "include ':app'" settings.gradle || echo "include ':app'" >> settings.gradle
 
-cat > "$WORKFLOW_FILE" <<'YAML'
-name: Build Android APK
+# Create workflow dir
+mkdir -p .github/workflows
+
+# Write workflow
+cat > .github/workflows/android.yml <<'YAML'
+name: Build Android Release APK
 
 on:
+  push:
+    branches:
+      - '**'
   workflow_dispatch:
 
 jobs:
@@ -23,23 +30,28 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: temurin
+          java-version: 17
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v2
 
       - name: Grant execute permission for gradlew
-        run: chmod +x ./gradlew
+        run: chmod +x gradlew
+        working-directory: .
 
-      - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace
+      - name: Build Release APK
+        run: ./gradlew :app:assembleRelease --stacktrace
+        working-directory: .
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: AIWorksApp-debug
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: AIWorksApp-release
+          path: app/build/outputs/apk/release/app-release.apk
 YAML
 
-echo "✅ Workflow patched: $WORKFLOW_FILE"
+# Commit & push
+git add settings.gradle .github/workflows/android.yml
+git commit -m "Fix: include app module + build release APK"
+git push origin main
