@@ -41,6 +41,16 @@ jobs:
             echo "No changes to commit"
           fi
 
+- name: Build with Gradle (with retry)
+  run: |
+    set -e
+    echo "🚀 Starting Gradle build..."
+    ./gradlew :app:assembleDebug --no-daemon --stacktrace --info || {
+      echo "⚠️ Gradle failed, attempting dependency sync + retry..."
+      ./gradlew --refresh-dependencies || true
+      ./gradlew :app:assembleDebug --no-daemon --stacktrace --info
+    }
+
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
