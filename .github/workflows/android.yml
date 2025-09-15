@@ -41,24 +41,24 @@ jobs:
             echo "No changes to commit"
           fi
 
-- name: Build with Gradle (with retry)
-  run: |
-    set -e
-    echo "🚀 Starting Gradle build..."
-    ./gradlew :app:assembleDebug --no-daemon --stacktrace --info || {
-      echo "⚠️ Gradle failed, attempting dependency sync + retry..."
-      ./gradlew --refresh-dependencies || true
-      ./gradlew :app:assembleDebug --no-daemon --stacktrace --info
-    }
+      - name: Build with Gradle (with retry)
+        run: |
+          set -e
+          echo "🚀 Starting Gradle build..."
+          ./gradlew assembleDebug assembleRelease --no-daemon --stacktrace --info || {
+            echo "⚠️ Gradle failed, attempting dependency sync + retry..."
+            ./gradlew --refresh-dependencies || true
+            ./gradlew assembleDebug assembleRelease --no-daemon --stacktrace --info
+          }
 
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
-
-      - name: Build Debug APK
-        run: ./gradlew :app:assembleDebug --no-daemon --stacktrace
-
-      - name: Upload artifact
+      - name: Upload Debug APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
           path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload Release APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-unsigned
+          path: app/build/outputs/apk/release/app-release-unsigned.apk
