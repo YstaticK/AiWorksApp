@@ -7,10 +7,14 @@ plugins {
 }
 
 android {
+    compileSdkVersion 33
     namespace "com.example.aiworks"
+
     compileSdk 34
 
     defaultConfig {
+        targetSdkVersion 33
+        minSdkVersion 24
         applicationId "com.example.aiworks"
         minSdk 24
         targetSdk 34
