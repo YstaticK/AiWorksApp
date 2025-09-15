@@ -1,0 +1,2 @@
+# Always prefer our version of build.gradle during merges/rebases
+app/build.gradle merge=ours
