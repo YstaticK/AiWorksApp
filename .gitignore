@@ -1,0 +1,10 @@
+# Gradle cache
+.gradle/
+local.properties
+
+# Keystore
+my-release-key.jks
+my-release-key.jks.base64
+
+# Misc
+skip
