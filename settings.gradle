@@ -7,8 +7,8 @@ pluginManagement {
         maven {
             url = uri("https://maven.pkg.github.com/tanersener/ffmpeg-kit")
             credentials {
-                username = providers.gradleProperty("gpr.user").orElse(System.getenv("GPR_USER"))
-                password = providers.gradleProperty("gpr.key").orElse(System.getenv("GITHUB_TOKEN"))
+                username = System.getenv("GPR_USER") ?: findProperty("gpr.user")
+                password = System.getenv("GPR_KEY") ?: findProperty("gpr.key")
             }
         }
     }
@@ -23,8 +23,8 @@ dependencyResolutionManagement {
         maven {
             url = uri("https://maven.pkg.github.com/tanersener/ffmpeg-kit")
             credentials {
-                username = providers.gradleProperty("gpr.user").orElse(System.getenv("GPR_USER"))
-                password = providers.gradleProperty("gpr.key").orElse(System.getenv("GITHUB_TOKEN"))
+                username = System.getenv("GPR_USER") ?: findProperty("gpr.user")
+                password = System.getenv("GPR_KEY") ?: findProperty("gpr.key")
             }
         }
     }
