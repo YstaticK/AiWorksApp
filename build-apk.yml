@@ -1,0 +1,5 @@
+- name: Build with Gradle
+        env:
+          GPR_USER: ${{ secrets.GPR_USER }}
+          GPR_KEY: ${{ secrets.GPR_KEY }}
+        run: ./gradlew assembleDebug
