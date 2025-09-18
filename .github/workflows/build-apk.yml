@@ -27,3 +27,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GPR_USER: YstaticK
         run: ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: AiWorksApp-debug
+          path: app/build/outputs/apk/debug/*.apk
