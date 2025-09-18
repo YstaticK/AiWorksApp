@@ -3,12 +3,12 @@ pluginManagement {
         gradlePluginPortal()
         google()
         mavenCentral()
-        maven { url 'https://jitpack.io' }
+        maven { url = uri("https://jitpack.io") }
         maven {
             url = uri("https://maven.pkg.github.com/tanersener/ffmpeg-kit")
             credentials {
-                username = System.getenv("GPR_USER") ?: ""
-                password = System.getenv("GPR_KEY") ?: ""
+                username = System.getenv("GPR_USER") ?: "none"
+                password = System.getenv("GPR_KEY") ?: "none"
             }
         }
     }
@@ -19,16 +19,16 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven { url 'https://jitpack.io' }
+        maven { url = uri("https://jitpack.io") }
         maven {
             url = uri("https://maven.pkg.github.com/tanersener/ffmpeg-kit")
             credentials {
-                username = System.getenv("GPR_USER") ?: ""
-                password = System.getenv("GPR_KEY") ?: ""
+                username = System.getenv("GPR_USER") ?: "none"
+                password = System.getenv("GPR_KEY") ?: "none"
             }
         }
     }
 }
 
 rootProject.name = "AiWorksApp"
-include ':app'
+include(":app")
