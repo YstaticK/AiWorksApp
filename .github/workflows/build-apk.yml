@@ -3,9 +3,10 @@ name: Build APK
 on:
   push:
     branches: [ "main" ]
+              [ "ci/remove-ffmpeg" ]
   pull_request:
     branches: [ "main" ]
-
+              [ "ci/remove-ffmpeg" ]
 jobs:
   build:
     runs-on: ubuntu-latest
