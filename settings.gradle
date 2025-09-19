@@ -4,13 +4,7 @@ pluginManagement {
         google()
         mavenCentral()
         maven { url = uri("https://jitpack.io") }
-        maven {
-            url = uri("https://maven.pkg.github.com/tanersener/ffmpeg-kit")
-            credentials {
-                username = System.getenv("GPR_USER") ?: "none"
-                password = System.getenv("GPR_KEY") ?: "none"
-            }
-        }
+        maven { url = uri("https://maven.arthenica.com") }
     }
 }
 
@@ -20,13 +14,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url = uri("https://jitpack.io") }
-        maven {
-            url = uri("https://maven.pkg.github.com/tanersener/ffmpeg-kit")
-            credentials {
-                username = System.getenv("GPR_USER") ?: "none"
-                password = System.getenv("GPR_KEY") ?: "none"
-            }
-        }
+        maven { url = uri("https://maven.arthenica.com") }
     }
 }
 
