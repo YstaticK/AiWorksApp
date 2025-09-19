@@ -20,8 +20,9 @@ import kotlinx.coroutines.*
 import fi.iki.elonen.NanoHTTPD
 import java.io.*
 import okhttp3.*
-import com.arthenica.ffmpegkit.FFmpegKit
-import com.arthenica.ffmpegkit.ReturnCode
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.ResponseBody
 import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
@@ -205,13 +206,13 @@ class LocalServer(port: Int, val assetManager: android.content.res.AssetManager,
                 }
             }
 
-            // encode frames into mp4 using FFmpegKit
+//            // encode frames into mp4 using FFmpegKit
             val outVideo = File(jobDir, "out.mp4")
             val fps = Math.max(15, Math.round((savedPhotos.size * framesPerPhoto).toFloat() / duration).toInt())
             val ffmpegCmd = "-y -framerate $fps -i ${timelineDir.absolutePath}/frame_%06d.png -c:v libx264 -pix_fmt yuv420p ${outVideo.absolutePath}"
-            val sessionFF = FFmpegKit.execute(ffmpegCmd)
+//            val sessionFF = FFmpegKit.execute(ffmpegCmd)
             val returnCode = sessionFF.returnCode
-            if (!ReturnCode.isSuccess(returnCode)) {
+//            if (!ReturnCode.isSuccess(returnCode)) {
                 Log.e(TAG, "FFmpeg encode failed: " + sessionFF.failStackTrace)
                 val json = JSONObject()
                 json.put("status","error")
@@ -248,11 +249,11 @@ class LocalServer(port: Int, val assetManager: android.content.res.AssetManager,
     }
 
     fun computeMotionFromVideo(videoFile: File, framesNeeded: Int): List<MotionPoint> {
-        // Simple heuristic: use ffprobe via FFmpegKit to get duration, then craft a sine-based pan/zoom
+//        // Simple heuristic: use ffprobe via FFmpegKit to get duration, then craft a sine-based pan/zoom
         val motions = mutableListOf<MotionPoint>()
         try {
             val probeCmd = "-v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"${videoFile.absolutePath}\""
-            val probe = FFmpegKit.execute(probeCmd)
+//            val probe = FFmpegKit.execute(probeCmd)
             val out = probe.output ?: ""
             val dur = out.trim().toDoubleOrNull() ?: 2.0
             val panX = 0.06 * (Math.random() - 0.5)
@@ -290,9 +291,9 @@ class LocalServer(port: Int, val assetManager: android.content.res.AssetManager,
             val zoomExpr = mp.zoom
             // using simple scale and crop approach: scale larger then crop center using ffmpeg crop filter
             val cmd = "-y -loop 1 -i \"${photo.absolutePath}\" -vf \"scale=iw*${zoomExpr}:ih*${zoomExpr},crop=iw:ih\" -frames:v 1 \"${outPng.absolutePath}\""
-            val session = FFmpegKit.execute(cmd)
+//            val session = FFmpegKit.execute(cmd)
             val rc = session.returnCode
-            if (!ReturnCode.isSuccess(rc)) {
+//            if (!ReturnCode.isSuccess(rc)) {
                 // fallback: copy original image to outPng
                 try { photo.copyTo(outPng, overwrite = true) } catch(e:Exception){}
             } else {
@@ -338,7 +339,7 @@ class LocalServer(port: Int, val assetManager: android.content.res.AssetManager,
                 .build()
             val resp = client.newCall(req).execute()
             if (!resp.isSuccessful) return null
-            val respBody = resp.body()?.string() ?: return null
+            val respBody = resp.body?.string() ?: return null
             val job = JSONObject(respBody)
             // The Replicate API returns an output URL after processing; for simplicity poll until finished.
             val id = job.optString("id", "")
@@ -354,7 +355,7 @@ class LocalServer(port: Int, val assetManager: android.content.res.AssetManager,
                     .build()
                 val statusResp = client.newCall(statusReq).execute()
                 if (!statusResp.isSuccessful) continue
-                val statusBody = statusResp.body()?.string() ?: continue
+                val statusBody = statusResp.body?.string() ?: continue
                 val statusJson = JSONObject(statusBody)
                 val st = statusJson.optString("status", "")
                 if (st == "succeeded") {
@@ -372,7 +373,7 @@ class LocalServer(port: Int, val assetManager: android.content.res.AssetManager,
                 val r = Request.Builder().url(resultUrl).get().build()
                 val rresp = client.newCall(r).execute()
                 if (!rresp.isSuccessful) return null
-                val bytesOut = rresp.body()?.bytes()
+                val bytesOut = rresp.body?.bytes()
                 return bytesOut
             }
             return null
