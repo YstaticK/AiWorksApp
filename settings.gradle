@@ -4,7 +4,7 @@ pluginManagement {
         google()
         mavenCentral()
         maven { url = uri("https://jitpack.io") }
-        maven { url = uri("https://maven.arthenica.com") }
+        maven { url = uri("https://repository.arthenica.com/release") }
     }
 }
 
@@ -14,7 +14,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven { url = uri("https://jitpack.io") }
-        maven { url = uri("https://maven.arthenica.com") }
+        maven { url = uri("https://repository.arthenica.com/release") }
     }
 }
 
