@@ -29,18 +29,39 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         // permissions
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                    1001
-                )
+        // permissions (READ photos/videos or external storage depending on Android version)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+
+            val neededPermissions = mutableListOf<String>()
+
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) != PackageManager.PERMISSION_GRANTED) {
+
+                neededPermissions.add(Manifest.permission.READ_MEDIA_IMAGES)
+
             }
+
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO) != PackageManager.PERMISSION_GRANTED) {
+
+                neededPermissions.add(Manifest.permission.READ_MEDIA_VIDEO)
+
+            }
+
+            if (neededPermissions.isNotEmpty()) {
+
+                ActivityCompat.requestPermissions(this, neededPermissions.toTypedArray(), 1002)
+
+            }
+
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), 1001)
+
+            }
+
+        }
         }
 
         webView = WebView(this)
