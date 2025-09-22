@@ -10,27 +10,35 @@ import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
 
+    private val PERMISSION_REQUEST_CODE = 100
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        checkPermissions()
+        requestAppPermissions()
     }
 
-    private fun checkPermissions() {
+    private fun requestAppPermissions() {
         val permissions = arrayOf(
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.CAMERA,
-            Manifest.permission.INTERNET
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
         )
 
-        val missing = permissions.filter {
+        val denied = permissions.filter {
             ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
         }
 
-        if (missing.isNotEmpty()) {
-            ActivityCompat.requestPermissions(this, missing.toTypedArray(), 123)
+        if (denied.isNotEmpty()) {
+            ActivityCompat.requestPermissions(
+                this,
+                denied.toTypedArray(),
+                PERMISSION_REQUEST_CODE
+            )
+        } else {
+            Toast.makeText(this, "All permissions already granted!", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -40,11 +48,16 @@ class MainActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 123) {
+
+        if (requestCode == PERMISSION_REQUEST_CODE) {
             if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
                 Toast.makeText(this, "All permissions granted!", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(this, "Some permissions denied. App may not work properly.", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    this,
+                    "Some permissions denied. App may not work properly.",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
     }
