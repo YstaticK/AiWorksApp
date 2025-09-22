@@ -42,6 +42,13 @@
         <activity android:name=".InfoActivity" android:exported="false" />
         <activity android:name=".GenerateImageActivity" android:exported="false" />
         <activity android:name=".GenerateVideoActivity" android:exported="false" />
+        <activity android:name=".GenerateImageActivity" android:exported="false"/>
+
+        <activity android:name=".GeneratedResultsActivity" android:exported="false"/>
+
+        <activity android:name=".GenerateVideoActivity" android:exported="false"/>
+
+        <activity android:name=".GeneratedVideoResultsActivity" android:exported="false"/>
 </application>
 
 </manifest>
