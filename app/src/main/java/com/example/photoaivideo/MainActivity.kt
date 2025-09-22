@@ -1,12 +1,10 @@
+
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-
 package com.example.photoaivideo
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Base64
@@ -14,8 +12,6 @@ import android.util.Log
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import kotlinx.coroutines.*
 import fi.iki.elonen.NanoHTTPD
 import java.io.*
@@ -25,6 +21,16 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 123) {
+            if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
+                Toast.makeText(this, "All permissions granted!", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Some permissions were denied. App may not work properly.", Toast.LENGTH_LONG).show()
+            }
+        }
+    }
     lateinit var webView: WebView
     var server: LocalServer? = null
     private val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
@@ -71,6 +77,7 @@ class MainActivity : AppCompatActivity() {
 
         webView = WebView(this)
         setContentView(webView)
+        checkAndRequestPermissions()
         webView.settings.javaScriptEnabled = true
         webView.webViewClient = WebViewClient()
 
@@ -89,6 +96,31 @@ class MainActivity : AppCompatActivity() {
         coroutineScope.cancel()
         server?.stop()
     }
+
+    private fun checkAndRequestPermissions() {
+        val permissions = arrayOf(
+            Manifest.permission.READ_MEDIA_IMAGES,
+            Manifest.permission.READ_MEDIA_VIDEO,
+            Manifest.permission.READ_MEDIA_AUDIO,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.INTERNET
+        )
+
+        val missing = permissions.filter {
+            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+        }
+
+        if (missing.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, missing.toTypedArray(), 123)
+        }
+    }
+
+        if (missing.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, missing.toTypedArray(), 123)
+        }
+    }
+
 }
 
 // LocalServer
@@ -225,6 +257,31 @@ class LocalServer(
         val i = name.lastIndexOf('.')
         return if (i >= 0) name.substring(i) else ".bin"
     }
+
+    private fun checkAndRequestPermissions() {
+        val permissions = arrayOf(
+            Manifest.permission.READ_MEDIA_IMAGES,
+            Manifest.permission.READ_MEDIA_VIDEO,
+            Manifest.permission.READ_MEDIA_AUDIO,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.INTERNET
+        )
+
+        val missing = permissions.filter {
+            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+        }
+
+        if (missing.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, missing.toTypedArray(), 123)
+        }
+    }
+
+        if (missing.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, missing.toTypedArray(), 123)
+        }
+    }
+
 }
 
 data class MotionPoint(val panX: Double, val panY: Double, val zoom: Double)
