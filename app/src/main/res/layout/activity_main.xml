@@ -2,8 +2,51 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:gravity="center"
-    android:orientation="vertical">
+    android:padding="16dp">
+
+    <Button
+        android:id="@+id/btnGenerateImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Generate Image" />
+
+    <Button
+        android:id="@+id/btnGenerateVideo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Generate Video" />
+
+    <Button
+        android:id="@+id/btnLibrary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Library" />
+
+    <Button
+        android:id="@+id/btnReferenceLibrary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Reference Library" />
+
+    <Button
+        android:id="@+id/btnSettings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Settings" />
+
+    <Button
+        android:id="@+id/btnInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Info" />
+
+    <Button
+        android:id="@+id/btnQuit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Quit" />
 
     <TextView
         android:id="@+id/helloText"
