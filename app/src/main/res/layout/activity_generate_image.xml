@@ -2,14 +2,42 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
     android:orientation="vertical"
     android:padding="16dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Generate Image Placeholder"
-        android:textSize="20sp"
-        android:textStyle="bold"/>
+        android:text="Image Generation"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:paddingBottom="12dp"/>
+
+    <EditText
+        android:id="@+id/etImagePrompt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter prompt for image"/>
+
+    <Spinner
+        android:id="@+id/spinnerImageSize"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/image_sizes"
+        android:paddingTop="8dp"/>
+
+    <Spinner
+        android:id="@+id/spinnerImageQuality"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/image_qualities"
+        android:paddingTop="8dp"/>
+
+    <Button
+        android:id="@+id/btnGenerateImageNow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Generate Image"
+        android:layout_gravity="center"
+        android:paddingTop="16dp"/>
 </LinearLayout>
