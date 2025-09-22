@@ -40,6 +40,19 @@
         </intent-filter>
     </activity>
 
+        <activity android:name=".LibraryActivity" android:exported="false" />
+
+        <activity android:name=".ReferenceLibraryActivity" android:exported="false" />
+
+        <activity android:name=".SettingsActivity" android:exported="false" />
+
+        <activity android:name=".InfoActivity" android:exported="false" />
+        <activity android:name=".GenerateImageActivity" android:exported="false" />
+        <activity android:name=".GenerateVideoActivity" android:exported="false" />
+        <activity android:name=".LibraryActivity" android:exported="false" />
+        <activity android:name=".ReferenceLibraryActivity" android:exported="false" />
+        <activity android:name=".SettingsActivity" android:exported="false" />
+        <activity android:name=".InfoActivity" android:exported="false" />
 </application>
 
 </manifest>
