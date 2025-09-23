@@ -1,43 +1,84 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:padding="16dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Video Generation"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        android:paddingBottom="12dp"/>
-
-    <EditText
-        android:id="@+id/etVideoPrompt"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter prompt for video"/>
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
 
-    <Spinner
-        android:id="@+id/spinnerVideoLength"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:entries="@array/video_lengths"
-        android:paddingTop="8dp"/>
+        <!-- Reference image -->
+        <ImageView
+            android:id="@+id/imgReferenceVideo"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:background="@android:color/darker_gray"
+            android:contentDescription="Reference Image" />
 
-    <Spinner
-        android:id="@+id/spinnerVideoQuality"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:entries="@array/video_qualities"
-        android:paddingTop="8dp"/>
+        <Button
+            android:id="@+id/btnSelectImageReference"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select Reference Image" />
 
-    <Button
-        android:id="@+id/btnGenerateVideoNow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Generate Video"
-        android:layout_gravity="center"
-        android:paddingTop="16dp"/>
-</LinearLayout>
+        <!-- Reference video -->
+        <VideoView
+            android:id="@+id/videoReference"
+            android:layout_width="200dp"
+            android:layout_height="150dp"
+            android:background="@android:color/darker_gray" />
+
+        <Button
+            android:id="@+id/btnSelectVideoReference"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select Reference Video" />
+
+        <!-- Save checkbox -->
+        <CheckBox
+            android:id="@+id/chkSaveReferences"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save references to library" />
+
+        <!-- Prompts -->
+        <EditText
+            android:id="@+id/txtPromptVideo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter prompt" />
+
+        <EditText
+            android:id="@+id/txtNegativePromptVideo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter negative prompt (optional)" />
+
+        <!-- Video options -->
+        <Spinner
+            android:id="@+id/spinnerLength"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/video_lengths" />
+
+        <Spinner
+            android:id="@+id/spinnerQualityVideo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/video_qualities" />
+
+        <Button
+            android:id="@+id/btnGenerateVideoNow"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Generate Video" />
+
+        <ProgressBar
+            android:id="@+id/progressVideoGeneration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone" />
+    </LinearLayout>
+</ScrollView>
