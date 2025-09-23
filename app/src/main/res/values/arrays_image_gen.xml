@@ -1,28 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="ref_image">Reference image</string>
-    <string name="hint_prompt">Enter prompt</string>
-
-    <string-array name="image_ratios">
-        <item>1:1</item>
-        <item>16:9</item>
-        <item>9:16</item>
-        <item>4:3</item>
-        <item>3:4</item>
-    </string-array>
-
-    <string-array name="qualities">
-        <item>Low</item>
-        <item>Medium</item>
-        <item>High</item>
-        <item>Ultra</item>
-    </string-array>
-
-    <string-array name="batch_sizes">
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-        <item>5</item>
-        <item>10</item>
+    <string-array name="image_generation_models">
+        <item>Stable Diffusion</item>
+        <item>DALL·E 3</item>
+        <item>Runway ML</item>
+        <item>Custom Model</item>
     </string-array>
 </resources>
