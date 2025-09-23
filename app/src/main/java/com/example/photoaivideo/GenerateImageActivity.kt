@@ -48,6 +48,16 @@ class GenerateImageActivity : AppCompatActivity() {
         progressGeneration = findViewById(R.id.progressGeneration)
 
 val spinnerModelImage = findViewById<Spinner>(R.id.spinnerModelImage)
+spinnerModelImage.setSelection(0) // ✅ Default: Stable Diffusion
+spinnerModelImage.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+    override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+        val selectedModel = parent.getItemAtPosition(position).toString()
+        // Use selectedModel for image generation
+    }
+    override fun onNothingSelected(parent: AdapterView<*>) {}
+}
+
+val spinnerModelImage = findViewById<Spinner>(R.id.spinnerModelImage)
 spinnerModelImage.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
     override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
         val selectedModel = parent.getItemAtPosition(position).toString()

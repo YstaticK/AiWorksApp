@@ -12,6 +12,16 @@ class GenerateVideoActivity : AppCompatActivity() {
         setContentView(R.layout.activity_generate_video)
 
 val spinnerModelVideo = findViewById<Spinner>(R.id.spinnerModelVideo)
+spinnerModelVideo.setSelection(0) // ✅ Default: Runway Gen-2
+spinnerModelVideo.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+    override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+        val selectedModel = parent.getItemAtPosition(position).toString()
+        // Use selectedModel for video generation
+    }
+    override fun onNothingSelected(parent: AdapterView<*>) {}
+}
+
+val spinnerModelVideo = findViewById<Spinner>(R.id.spinnerModelVideo)
 spinnerModelVideo.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
     override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
         val selectedModel = parent.getItemAtPosition(position).toString()
