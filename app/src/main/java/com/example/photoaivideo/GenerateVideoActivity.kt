@@ -1,31 +1,22 @@
 package com.example.photoaivideo
 
-import android.content.Intent
 import android.os.Bundle
-import android.widget.*
+import android.widget.Button
+import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
 
 class GenerateVideoActivity : AppCompatActivity() {
-
-    private lateinit var spinnerModelVideo: Spinner
-    private lateinit var btnGenerateVideo: Button
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_generate_video)
 
-        spinnerModelVideo = findViewById(R.id.spinnerModelVideo)
-        btnGenerateVideo = findViewById(R.id.btnVideo)
+        // Hook up spinner (model selection)
+        val spinnerModel: Spinner = findViewById(R.id.spinnerModelVideo)
 
-        // Example spinner values
-        val models = listOf("Video Model 1", "Video Model 2")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, models)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerModelVideo.adapter = adapter
-
+        // Hook up button (safe for now, no crash)
+        val btnGenerateVideo: Button = findViewById(R.id.btnVideo)
         btnGenerateVideo.setOnClickListener {
-            val intent = Intent(this, GeneratedVideoResultsActivity::class.java)
-            startActivity(intent)
+            // TODO: Add video generation logic
         }
     }
 }
