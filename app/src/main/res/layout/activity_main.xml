@@ -18,13 +18,13 @@
 
     <!-- Keep your buttons here -->
 <Button
-    android:id="@+id/btnGenerateImage"
+    android:id="@+id/btnImage"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:text="Generate Image" />
 
 <Button
-    android:id="@+id/btnGenerateVideo"
+    android:id="@+id/btnVideo"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:text="Generate Video" />
