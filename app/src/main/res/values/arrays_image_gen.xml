@@ -1,8 +1,0 @@
-<resources>
-    <string-array name="image_generation_models">
-        <item>Stable Diffusion</item>
-        <item>DALL·E 3</item>
-        <item>Runway ML</item>
-        <item>Custom Model</item>
-    </string-array>
-</resources>

@@ -1,0 +1,30 @@
+<resources>
+    <!-- Image Options -->
+    <string-array name="image_sizes">
+        <item>512x512</item>
+        <item>768x768</item>
+        <item>1024x1024</item>
+    </string-array>
+
+    <string-array name="image_qualities">
+        <item>Standard</item>
+        <item>High</item>
+    </string-array>
+
+    <!-- Video Options -->
+    <string-array name="video_lengths">
+        <item>5 seconds</item>
+        <item>10 seconds</item>
+        <item>30 seconds</item>
+        <item>1 minute</item>
+        <item>2 minutes</item>
+        <item>5 minutes</item>
+    </string-array>
+
+    <string-array name="video_qualities">
+        <item>480p</item>
+        <item>720p HD</item>
+        <item>1080p Full HD</item>
+        <item>4K Ultra HD</item>
+    </string-array>
+</resources>
