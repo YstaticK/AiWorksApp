@@ -1,126 +1,32 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:padding="16dp">
 
-    <LinearLayout
+    <!-- Dropdown for model selection -->
+    <Spinner
+        android:id="@+id/spinnerModelImage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:entries="@array/image_generation_models"
+        android:spinnerMode="dropdown"
+        android:layout_marginBottom="16dp"/>
 
-        <!-- Reference selector -->
-        <ImageView
-            android:id="@+id/imgReference"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:layout_gravity="center_horizontal"
-            android:background="@android:color/darker_gray"
-            android:scaleType="centerCrop"
-            android:contentDescription="@string/ref_image" />
+    <!-- Optional reference picture -->
+    <ImageView
+        android:id="@+id/ivReference"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/placeholder"
+        android:contentDescription="@string/reference_image"
+        android:layout_marginBottom="16dp"/>
 
-        <Button
-            android:id="@+id/btnSelectReference"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_gravity="center_horizontal"
-            android:text="Choose reference (optional)" />
-
-        <CheckBox
-            android:id="@+id/chkSaveReference"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Save this reference to library"
-            android:visibility="gone"
-            android:layout_marginTop="6dp" />
-
-        <!-- Prompt -->
-        <EditText
-            android:id="@+id/txtPrompt"
-            android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:layout_marginTop="12dp"
-            android:hint="@string/hint_prompt"
-            android:inputType="textMultiLine"
-            android:gravity="top"
-            android:padding="8dp" />
-
-        <!-- Negative prompt (autocomplete) -->
-        <AutoCompleteTextView
-            android:id="@+id/txtNegativePrompt"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Negative prompt (optional)"
-            android:layout_marginTop="8dp" />
-
-        <!-- Similarity -->
-        <TextView
-            android:id="@+id/txtSimilarityLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Reference similarity: 50%"
-            android:layout_marginTop="12dp" />
-
-        <SeekBar
-            android:id="@+id/seekSimilarity"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:max="100"
-            android:progress="50" />
-
-        <!-- Ratio -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Image ratio"
-            android:layout_marginTop="12dp" />
-        <Spinner
-            android:id="@+id/spinnerRatio"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:entries="@array/image_ratios" />
-
-        <!-- Quality -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Quality"
-            android:layout_marginTop="8dp" />
-        <Spinner
-            android:id="@+id/spinnerQuality"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:entries="@array/qualities" />
-
-        <!-- Batch size -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Batch size (max 10)"
-            android:layout_marginTop="8dp" />
-        <Spinner
-            android:id="@+id/spinnerBatchSize"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:entries="@array/batch_sizes" />
-
-        <!-- Generate button -->
-        <Button
-            android:id="@+id/btnGenerateNow"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Generate Images"
-            android:layout_marginTop="16dp" />
-
-        <!-- simple progress -->
-        <ProgressBar
-            android:id="@+id/progressGeneration"
-            style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            android:layout_marginTop="8dp" />
-
-    </LinearLayout>
-</ScrollView>
+    <!-- Generate button -->
+    <Button
+        android:id="@+id/btnGenerateImage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Generate Image"/>
+</LinearLayout>

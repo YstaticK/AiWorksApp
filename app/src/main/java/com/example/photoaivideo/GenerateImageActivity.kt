@@ -47,6 +47,15 @@ class GenerateImageActivity : AppCompatActivity() {
         btnGenerateNow = findViewById(R.id.btnGenerateNow)
         progressGeneration = findViewById(R.id.progressGeneration)
 
+val spinnerModelImage = findViewById<Spinner>(R.id.spinnerModelImage)
+spinnerModelImage.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+    override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+        val selectedModel = parent.getItemAtPosition(position).toString()
+        // ✅ Use selectedModel when generating image
+    }
+    override fun onNothingSelected(parent: AdapterView<*>) {}
+}
+
         // select reference button
         btnSelectReference.setOnClickListener {
             val intent = Intent(Intent.ACTION_GET_CONTENT)

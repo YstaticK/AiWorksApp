@@ -11,6 +11,15 @@ class GenerateVideoActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_generate_video)
 
+val spinnerModelVideo = findViewById<Spinner>(R.id.spinnerModelVideo)
+spinnerModelVideo.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+    override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+        val selectedModel = parent.getItemAtPosition(position).toString()
+        // ✅ Use selectedModel when generating video
+    }
+    override fun onNothingSelected(parent: AdapterView<*>) {}
+}
+
         val generateButton: Button = findViewById(R.id.btnGenerateVideo)
         generateButton.setOnClickListener {
             // Navigate to video results screen (placeholder for now)
