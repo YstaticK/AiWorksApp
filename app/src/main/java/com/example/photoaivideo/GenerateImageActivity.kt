@@ -96,7 +96,7 @@ class GenerateImageActivity : AppCompatActivity() {
         btnGenerateNow.isEnabled = true
 
         // go to results activity
-        val intent = Intent(this, GeneratedResultsActivity::class.java)
+        val intent = Intent(this, GeneratedImageResultsActivity::class.java)
         intent.putStringArrayListExtra("generatedUris", fakeUris)
         startActivity(intent)
     }
