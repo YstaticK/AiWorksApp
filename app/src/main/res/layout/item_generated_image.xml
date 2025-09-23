@@ -2,12 +2,24 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="4dp">
+    android:layout_margin="4dp">
 
     <ImageView
-        android:id="@+id/imgGenerated"
+        android:id="@+id/imageGenerated"
         android:layout_width="match_parent"
-        android:layout_height="160dp"
+        android:layout_height="200dp"
         android:scaleType="centerCrop"
-        android:background="@android:color/darker_gray" />
+        android:contentDescription="Generated image" />
+
+    <TextView
+        android:id="@+id/txtImageOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="#AA000000"
+        android:text="Generated"
+        android:textColor="@android:color/white"
+        android:gravity="center"
+        android:padding="4dp" />
+
 </FrameLayout>

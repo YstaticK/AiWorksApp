@@ -3,23 +3,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:padding="16dp">
 
     <TextView
-        android:id="@+id/tvResultsTitle"
-        android:layout_width="match_parent"
+        android:id="@+id/tvImageResultsTitle"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Generated Results"
+        android:text="Generated Images"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:padding="8dp" />
+        android:layout_gravity="center_horizontal"
+        android:paddingBottom="8dp" />
 
-    <GridView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/gridGeneratedImages"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:numColumns="2"
-        android:verticalSpacing="8dp"
-        android:horizontalSpacing="8dp"
-        android:stretchMode="columnWidth" />
+        android:clipToPadding="false"
+        android:padding="4dp" />
+
 </LinearLayout>
