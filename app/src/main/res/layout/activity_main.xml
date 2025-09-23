@@ -58,14 +58,4 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:text="Quit" />
-    <Button
-        android:id="@+id/btnImage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Generate Image" />
-    <Button
-        android:id="@+id/btnVideo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Generate Video" />
 </LinearLayout>
