@@ -41,6 +41,7 @@
         <activity android:name=".GenerateVideoActivity" android:exported="false" />
         <activity android:name=".GeneratedResultsActivity" android:exported="false"/>
         <activity android:name=".GeneratedVideoResultsActivity" android:exported="false"/>
+        <activity android:name=".GeneratedImageResultsActivity" android:exported="false" />
 </application>
 
 </manifest>
