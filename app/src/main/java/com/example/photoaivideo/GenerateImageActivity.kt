@@ -1,3 +1,12 @@
+import android.view.View
+import android.widget.Spinner
+import android.widget.AdapterView
+import android.view.View
+import android.widget.Spinner
+import android.widget.AdapterView
+import android.view.View
+import android.widget.Spinner
+import android.widget.AdapterView
 package com.example.photoaivideo
 
 import android.app.Activity
@@ -41,13 +50,13 @@ class GenerateImageActivity : AppCompatActivity() {
         txtNegativePrompt = findViewById(R.id.txtNegativePrompt)
         seekSimilarity = findViewById(R.id.seekSimilarity)
         txtSimilarityLabel = findViewById(R.id.txtSimilarityLabel)
+    private lateinit var spinnerModelImage: Spinner
         spinnerRatio = findViewById(R.id.spinnerRatio)
         spinnerQuality = findViewById(R.id.spinnerQuality)
         spinnerBatchSize = findViewById(R.id.spinnerBatchSize)
         btnGenerateNow = findViewById(R.id.btnGenerateNow)
         progressGeneration = findViewById(R.id.progressGeneration)
 
-val spinnerModelImage = findViewById<Spinner>(R.id.spinnerModelImage)
 spinnerModelImage.setSelection(0) // ✅ Default: Stable Diffusion
 spinnerModelImage.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
     override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
@@ -57,7 +66,6 @@ spinnerModelImage.onItemSelectedListener = object : AdapterView.OnItemSelectedLi
     override fun onNothingSelected(parent: AdapterView<*>) {}
 }
 
-val spinnerModelImage = findViewById<Spinner>(R.id.spinnerModelImage)
 spinnerModelImage.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
     override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
         val selectedModel = parent.getItemAtPosition(position).toString()
