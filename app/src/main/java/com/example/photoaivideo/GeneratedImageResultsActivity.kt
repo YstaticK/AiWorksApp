@@ -15,12 +15,13 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
         val title: TextView = findViewById(R.id.tvImageResultsTitle)
         val recyclerView: RecyclerView = findViewById(R.id.gridGeneratedImages)
 
-        // Placeholder data (replace with actual generated images later)
+        // Placeholder image resources (replace later with actual generated images)
         val sampleImages = listOf(
+            R.drawable.ic_launcher_foreground,
             R.drawable.ic_launcher_foreground,
             R.drawable.ic_launcher_foreground
         )
-        val sampleCaptions = listOf("Image 1", "Image 2")
+        val sampleCaptions = listOf("Preview 1", "Preview 2", "Preview 3")
 
         val adapter = GeneratedImageAdapter(sampleImages, sampleCaptions)
         recyclerView.layoutManager = GridLayoutManager(this, 2)
