@@ -15,7 +15,7 @@ class GenerateVideoActivity : AppCompatActivity() {
         setContentView(R.layout.activity_generate_video)
 
         spinnerModelVideo = findViewById(R.id.spinnerModelVideo)
-        btnGenerateVideo = findViewById(R.id.btnGenerateVideo)
+        btnGenerateVideo = findViewById(R.id.btnVideo)
 
         // Example spinner values
         val models = listOf("Video Model 1", "Video Model 2")

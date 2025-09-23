@@ -17,7 +17,7 @@ class GenerateImageActivity : AppCompatActivity() {
 
         spinnerModelImage = findViewById(R.id.spinnerModelImage)
         ivReference = findViewById(R.id.ivReference)
-        btnGenerateImage = findViewById(R.id.btnGenerateImage)
+        btnGenerateImage = findViewById(R.id.btnImage)
 
         // Example spinner values
         val models = listOf("Model A", "Model B", "Model C")
