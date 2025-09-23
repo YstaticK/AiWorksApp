@@ -1,32 +1,32 @@
 package com.example.photoaivideo
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 
 class GeneratedImageAdapter(
-    private val ctx: Context,
-    private val uris: List<String>
-) : BaseAdapter() {
+    private val images: List<Int>, // for now, use drawable resource IDs or placeholder
+    private val captions: List<String>
+) : RecyclerView.Adapter<GeneratedImageAdapter.ImageViewHolder>() {
 
-    override fun getCount(): Int = uris.size
-    override fun getItem(position: Int): Any = uris[position]
-    override fun getItemId(position: Int): Long = position.toLong()
-
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val view = convertView ?: LayoutInflater.from(ctx).inflate(R.layout.item_generated_image, parent, false)
-        val img = view.findViewById<ImageView>(R.id.imgGenerated)
-        // For now just show placeholder color/text
-        img.setBackgroundColor(0xFFCCCCCC.toInt())
-
-        val overlay = TextView(ctx)
-        overlay.text = uris[position]
-        overlay.setTextColor(0xFF000000.toInt())
-
-        return view
+    class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val imageGenerated: ImageView = itemView.findViewById(R.id.imageGenerated)
+        val txtImageOverlay: TextView = itemView.findViewById(R.id.txtImageOverlay)
     }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_generated_image, parent, false)
+        return ImageViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
+        holder.imageGenerated.setImageResource(images[position])
+        holder.txtImageOverlay.text = captions[position]
+    }
+
+    override fun getItemCount(): Int = images.size
 }
