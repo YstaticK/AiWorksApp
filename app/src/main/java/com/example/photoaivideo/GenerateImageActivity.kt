@@ -1,3 +1,6 @@
+import android.widget.CheckBox
+import android.widget.EditText
+import android.view.View
 package com.example.photoaivideo
 
 import android.os.Bundle
