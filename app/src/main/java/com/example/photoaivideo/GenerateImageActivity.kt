@@ -28,6 +28,7 @@ class GenerateImageActivity : AppCompatActivity() {
         }
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_generate_image)
+        Toast.makeText(this, "GenerateImageActivity opened", Toast.LENGTH_SHORT).show()
 
         // Hook up spinner (model selection)
         val spinnerModel: Spinner = findViewById(R.id.spinnerModelImage)
