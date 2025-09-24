@@ -7,6 +7,14 @@ import androidx.appcompat.app.AppCompatActivity
 
 class GenerateImageActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        val cbSaveReference = findViewById<CheckBox>(R.id.cbSaveReference)
+        val etReferenceName = findViewById<EditText>(R.id.etReferenceName)
+        val spinnerReferenceDestination = findViewById<Spinner>(R.id.spinnerReferenceDestination)
+
+        cbSaveReference.setOnCheckedChangeListener { _, isChecked ->
+            etReferenceName.visibility = if (isChecked) View.VISIBLE else View.GONE
+            spinnerReferenceDestination.visibility = if (isChecked) View.VISIBLE else View.GONE
+        }
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_generate_image)
 
