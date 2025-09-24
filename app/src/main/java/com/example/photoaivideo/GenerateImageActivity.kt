@@ -33,7 +33,7 @@ class GenerateImageActivity : AppCompatActivity() {
         val spinnerModel: Spinner = findViewById(R.id.spinnerModelImage)
 
         // Hook up button (safe for now, no crash)
-        val btnGenerateImage: Button = findViewById(R.id.btnImage)
+        val btnGenerateImage: Button = findViewById(R.id.btnStartGeneration)
         btnGenerateImage.setOnClickListener {
             // TODO: Add image generation logic
         }
