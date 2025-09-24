@@ -133,7 +133,7 @@
             android:id="@+id/btnStartGeneration"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Generate Image" />
+            android:text="Start Generation" />
 
     </LinearLayout>
 </ScrollView>
