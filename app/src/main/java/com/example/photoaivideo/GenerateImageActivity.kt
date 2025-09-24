@@ -1,11 +1,19 @@
-import android.widget.CheckBox
-import android.widget.EditText
-import android.view.View
 package com.example.photoaivideo
 
+
+
 import android.os.Bundle
+
 import android.widget.Button
+
 import android.widget.Spinner
+
+import android.widget.CheckBox
+
+import android.widget.EditText
+
+import android.view.View
+
 import androidx.appcompat.app.AppCompatActivity
 
 class GenerateImageActivity : AppCompatActivity() {
