@@ -19,12 +19,6 @@
     </string-array>
 
     <!-- Image Sizes (depend on ratio in future) -->
-    <string-array name="image_sizes">
-        <item>256x256</item>
-        <item>512x512</item>
-        <item>768x768</item>
-        <item>1024x1024</item>
-    </string-array>
 
     <!-- Batch Sizes -->
     <string-array name="batch_sizes">
