@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import java.io.File
 
 class FolderAdapter(
-    private val folders: List<File>
+    private val folders: MutableList<File>
 ) : RecyclerView.Adapter<FolderAdapter.ViewHolder>() {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -35,4 +35,11 @@ class FolderAdapter(
     }
 
     override fun getItemCount(): Int = folders.size
+
+    /** Replace current list and refresh the RecyclerView */
+    fun updateData(newFolders: List<File>) {
+        folders.clear()
+        folders.addAll(newFolders)
+        notifyDataSetChanged()
+    }
 }
