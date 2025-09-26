@@ -47,5 +47,6 @@
         <activity android:name=".VideosActivity" android:exported="false" />
         <activity android:name=".ImagesLibraryActivity" android:exported="false" />
         <activity android:name=".VideosLibraryActivity" android:exported="false" />
+        <activity android:name=".FolderDetailActivity" android:exported="false" />
       </application>
 </manifest>
