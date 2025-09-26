@@ -1,3 +1,4 @@
+import android.view.ViewGroup
 package com.example.photoaivideo
 
 import android.graphics.BitmapFactory
