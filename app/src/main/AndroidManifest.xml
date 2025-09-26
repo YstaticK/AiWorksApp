@@ -43,6 +43,10 @@
         <activity android:name=".GeneratedImageResultsActivity" android:exported="false" />
         <activity android:name=".GenerateImageActivity" />
         <activity android:name=".GenerationResultActivity" />
+        <activity android:name=".LibraryActivity" />
+        <activity android:name=".ImagesLibraryActivity" />
+        <activity android:name=".VideosLibraryActivity" />
+
 </application>
 
 </manifest>

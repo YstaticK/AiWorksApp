@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="batch_sizes">
+        <item>1</item>
+        <item>2</item>
+        <item>4</item>
+        <item>6</item>
+        <item>8</item>
+        <item>10</item>
+    </string-array>
+    <string-array name="image_generation_models">
+        <item>Stable Diffusion</item>
+        <item>DALL·E 3</item>
+        <item>Runway ML</item>
+        <item>Custom Model</item>
+    </string-array>
+    <string-array name="image_qualities">
+        <item>Standard</item>
+        <item>High</item>
+    </string-array>
+    <string-array name="image_ratios">
+        <item>1:1 (Square)</item>
+        <item>16:9 (Widescreen)</item>
+        <item>9:16 (Portrait)</item>
+        <item>4:3</item>
+        <item>3:4</item>
+    </string-array>
+    <string-array name="image_sizes">
+        <item>512x512</item>
+        <item>768x768</item>
+        <item>1024x1024</item>
+    </string-array>
+    <string-array name="reference_library_destinations">
+        <item>Faces</item>
+        <item>Objects</item>
+        <item>Backgrounds</item>
+        <item>Other</item>
+    </string-array>
+    <string-array name="video_generation_models">
+        <item>Runway Gen-2</item>
+        <item>Pika Labs</item>
+        <item>Kaiber</item>
+        <item>Custom Video Model</item>
+    </string-array>
+    <string-array name="video_lengths">
+        <item>10 seconds</item>
+        <item>30 seconds</item>
+        <item>1 minute</item>
+        <item>2 minutes</item>
+        <item>5 minutes</item>
+    </string-array>
+    <string-array name="video_qualities">
+        <item>480p</item>
+        <item>720p</item>
+        <item>1080p</item>
+        <item>4K</item>
+    </string-array>
+    <string name="app_name">AiWorksApp</string>
+    <string name="generate_now">Generate Now</string>
+    <string name="generate_video">Generate Video</string>
+    <string name="negative_prompt">Negative Prompt</string>
+    <string name="prompt">Prompt</string>
+    <string name="reference_image">Reference image</string>
+    <string name="save_reference">Save Reference</string>
+    <string name="select_reference">Select Reference</string>
+    <style name="Theme.AiWorks" parent="Theme.Material3.DayNight.NoActionBar">
+        
+        <item name="colorPrimary">@android:color/holo_blue_dark</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+    </style>
+</resources>
