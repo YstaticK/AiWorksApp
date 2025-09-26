@@ -43,7 +43,6 @@
         <activity android:name=".GeneratedImageResultsActivity" android:exported="false" />
         <activity android:name=".GenerateImageActivity" />
         <activity android:name=".GenerationResultActivity" />
-        <activity android:name=".LibraryActivity" android:exported="false" />
         <activity android:name=".ImagesActivity" android:exported="false" />
         <activity android:name=".VideosActivity" android:exported="false" />
         <activity android:name=".ImagesLibraryActivity" android:exported="false" />
