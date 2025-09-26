@@ -1,6 +1,5 @@
 package com.example.photoaivideo
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.ViewGroup
 import android.widget.ImageView
@@ -16,12 +15,17 @@ class FolderDetailActivity : AppCompatActivity() {
         val folderName = intent.getStringExtra("FOLDER_NAME") ?: "Unknown"
         title = folderName
 
-        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
-        recyclerView.layoutManager = GridLayoutManager(this, 3)
+        val rv = findViewById<RecyclerView>(R.id.recycler_view)
+        rv.layoutManager = GridLayoutManager(this, 3)
 
-        recyclerView.adapter = object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+        // Placeholder empty adapter for now
+        rv.adapter = object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
                 val view = ImageView(parent.context)
+                view.layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
                 return object : RecyclerView.ViewHolder(view) {}
             }
             override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {}
