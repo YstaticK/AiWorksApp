@@ -1,46 +1,55 @@
 package com.example.photoaivideo
 
 import android.os.Bundle
-import android.widget.Toast
+import android.widget.Button
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import java.io.File
 
 class VideosLibraryActivity : AppCompatActivity() {
+
+    private lateinit var adapter: FolderAdapter
+    private lateinit var folderDir: File
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_videos_library)
 
-        // Always ensure misc. Videos exists
-        ensureDefaultFolder("VideosLibrary/misc. Videos")
+        folderDir = File(getExternalFilesDir(null), "Videos")
+        if (!folderDir.exists()) folderDir.mkdirs()
 
-        // Show dialog immediately to create new video folders
-        showCreateFolderDialog("VideosLibrary", "Video")
-    }
+        val misc = File(folderDir, "Misc. Videos")
+        if (!misc.exists()) misc.mkdirs()
 
-    private fun ensureDefaultFolder(path: String) {
-        val folder = File(getExternalFilesDir(null), path)
-        if (!folder.exists()) {
-            folder.mkdirs()
-            Toast.makeText(this, "Created: ${folder.absolutePath}", Toast.LENGTH_SHORT).show()
+        val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewFolders)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+
+        adapter = FolderAdapter(getFolders())
+        recyclerView.adapter = adapter
+
+        val btnCreate = findViewById<Button>(R.id.btnCreateFolder)
+        btnCreate.setOnClickListener {
+            showCreateFolderDialog()
         }
     }
 
-    private fun showCreateFolderDialog(base: String, type: String) {
+    private fun getFolders(): List<File> {
+        return folderDir.listFiles()?.filter { it.isDirectory }?.sortedBy { it.name } ?: emptyList()
+    }
+
+    private fun showCreateFolderDialog() {
         val input = android.widget.EditText(this)
         AlertDialog.Builder(this)
-            .setTitle("Create New $type Folder")
+            .setTitle("New Video Folder")
             .setView(input)
             .setPositiveButton("Create") { _, _ ->
-                val name = input.text.toString().trim()
-                if (name.isNotEmpty()) {
-                    val newFolder = File(getExternalFilesDir(null), "$base/$name")
-                    if (!newFolder.exists()) {
-                        newFolder.mkdirs()
-                        Toast.makeText(this, "Created: ${newFolder.absolutePath}", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(this, "Folder already exists", Toast.LENGTH_SHORT).show()
-                    }
+                val folderName = input.text.toString().trim()
+                if (folderName.isNotEmpty()) {
+                    val newFolder = File(folderDir, folderName)
+                    if (!newFolder.exists()) newFolder.mkdirs()
+                    adapter.updateData(getFolders())
                 }
             }
             .setNegativeButton("Cancel", null)
