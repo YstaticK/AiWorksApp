@@ -5,6 +5,17 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
+    <TextView
+        android:id="@+id/appTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="AIWorksApp"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/holo_green_dark"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
+
     <Button
         android:id="@+id/btnImage"
         android:layout_width="match_parent"
@@ -34,19 +45,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Models"
-        android:layout_marginTop="8dp" />
-        android:id="@+id/btnModels"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Models"
-        android:layout_marginTop="8dp" />
-        android:text="Reference Library" />
-
-    <Button
-        android:id="@+id/btnModels"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Models" />
 
     <Button
         android:id="@+id/btnRecycleBin"
