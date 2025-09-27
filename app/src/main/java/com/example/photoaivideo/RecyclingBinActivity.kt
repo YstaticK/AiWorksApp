@@ -22,7 +22,7 @@ class RecyclingBinActivity : AppCompatActivity() {
         if (!recycleDir.exists()) recycleDir.mkdirs()
 
         deletedFolders.addAll(recycleDir.listFiles()?.toList() ?: emptyList())
-        adapter = FolderAdapter(deletedFolders.toMutableList())
+        adapter = FolderAdapter(deletedFolders.toMutableList()) { }
         recyclerView.adapter = adapter
     }
 }

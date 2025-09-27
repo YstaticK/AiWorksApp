@@ -26,7 +26,7 @@ class VideosLibraryActivity : AppCompatActivity() {
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewFolders)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        adapter = FolderAdapter(getFolders().toMutableList())
+        adapter = FolderAdapter(getFolders().toMutableList()) { }
         recyclerView.adapter = adapter
 
         val btnCreate = findViewById<Button>(R.id.btnCreateFolder)
@@ -49,7 +49,7 @@ class VideosLibraryActivity : AppCompatActivity() {
                 if (folderName.isNotEmpty()) {
                     val newFolder = File(folderDir, folderName)
                     if (!newFolder.exists()) newFolder.mkdirs()
-                    adapter.updateData(getFolders())
+                    adapter.updateData(getFolders().toMutableList())
                 }
             }
             .setNegativeButton("Cancel", null)
