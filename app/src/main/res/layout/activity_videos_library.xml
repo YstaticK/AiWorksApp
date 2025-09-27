@@ -9,7 +9,6 @@
         android:id="@+id/btnCreateFolder"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Create New Video Folder" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewFolders"
@@ -23,3 +22,11 @@
         android:layout_width="match_parent" 
         android:layout_height="match_parent" />
 </LinearLayout>
+<com.google.android.material.floatingactionbutton.FloatingActionButton
+    android:id="@+id/btnAddVideoFolder"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom|end"
+    android:layout_margin="16dp"
+    android:contentDescription="Add Video Folder"
+    app:srcCompat="@android:drawable/ic_input_add" />

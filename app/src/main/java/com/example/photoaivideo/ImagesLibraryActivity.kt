@@ -16,6 +16,24 @@ class ImagesLibraryActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_images_library)
+        val btnAddImageFolder = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.btnAddImageFolder)
+        btnAddImageFolder.setOnClickListener {
+            val builder = androidx.appcompat.app.AlertDialog.Builder(this)
+            builder.setTitle("New Image Folder")
+            val input = android.widget.EditText(this)
+            input.hint = "Folder name"
+            builder.setView(input)
+            builder.setPositiveButton("Create") { _, _ ->
+                val folderName = input.text.toString().trim()
+                if (folderName.isNotEmpty()) {
+                    val newFolder = java.io.File(filesDir, "images/$folderName")
+                    if (!newFolder.exists()) newFolder.mkdirs()
+                    adapter.updateData(getFolders().toMutableList())
+                }
+            }
+            builder.setNegativeButton("Cancel", null)
+            builder.show()
+        }
 
         recyclerView = findViewById(R.id.recyclerViewImagesLibrary)
         recyclerView.layoutManager = LinearLayoutManager(this)
