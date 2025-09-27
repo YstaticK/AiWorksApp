@@ -11,7 +11,7 @@ import java.io.File
 
 class ReferenceVideosActivity : AppCompatActivity() {
 
-    private lateinit var recyclerView: RecyclerView
+    private lateinit var recyclerViewReferenceVideos: RecyclerView
     private lateinit var adapter: FolderAdapter
     private val folders = mutableListOf<File>()
 
@@ -19,10 +19,10 @@ class ReferenceVideosActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reference_videos)
 
-        recyclerView = findViewById(R.id.recyclerViewReferenceVideos)
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerViewReferenceVideos = findViewById(R.id.recyclerViewReferenceVideos)
+        recyclerViewReferenceVideos.layoutManager = LinearLayoutManager(this)
         adapter = FolderAdapter(folders)
-        recyclerView.adapter = adapter
+        recyclerViewReferenceVideos.adapter = adapter
 
         val btnAddReferenceVideoFolder = findViewById<Button>(R.id.btnAddReferenceVideoFolder)
 

@@ -11,7 +11,7 @@ import java.io.File
 
 class ReferenceImagesActivity : AppCompatActivity() {
 
-    private lateinit var recyclerView: RecyclerView
+    private lateinit var recyclerViewReferenceImages: RecyclerView
     private lateinit var adapter: FolderAdapter
     private val folders = mutableListOf<File>()
 
@@ -19,10 +19,10 @@ class ReferenceImagesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reference_images)
 
-        recyclerView = findViewById(R.id.recyclerViewReferenceImages)
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        recyclerViewReferenceImages = findViewById(R.id.recyclerViewReferenceImages)
+        recyclerViewReferenceImages.layoutManager = LinearLayoutManager(this)
         adapter = FolderAdapter(folders)
-        recyclerView.adapter = adapter
+        recyclerViewReferenceImages.adapter = adapter
 
         val btnAddReferenceImageFolder = findViewById<Button>(R.id.btnAddReferenceImageFolder)
 
