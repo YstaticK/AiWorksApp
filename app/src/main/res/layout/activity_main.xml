@@ -42,6 +42,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Recycle Bin"/>
+    <Button
+    <Button
+        android:id="@+id/btnRecycleBin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Recycle Bin" />
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:text="Reference Library" />
