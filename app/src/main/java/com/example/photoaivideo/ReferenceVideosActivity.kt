@@ -32,6 +32,18 @@ class ReferenceVideosActivity : AppCompatActivity() {
         val exampleDir = File(rootDir, "Example Videos");
         if (!exampleDir.exists()) exampleDir.mkdirs()
 
+        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+
+        if (!prefs.getBoolean("exampleVideosCreated", false)) {
+
+            val exampleDir = File(rootDir, "example_videos")
+
+            if (!exampleDir.exists()) exampleDir.mkdirs()
+
+            prefs.edit().putBoolean("exampleVideosCreated", true).apply()
+
+        }
+
         loadFolders(rootDir)
 
         btnAddReferenceVideoFolder.setOnClickListener {
@@ -45,6 +57,18 @@ class ReferenceVideosActivity : AppCompatActivity() {
             builder.setPositiveButton("Create") { _, _ ->
                 val newFolder = File(rootDir, input.text.toString());
                 if (!newFolder.exists()) newFolder.mkdirs();
+        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+
+        if (!prefs.getBoolean("exampleVideosCreated", false)) {
+
+            val exampleDir = File(rootDir, "example_videos")
+
+            if (!exampleDir.exists()) exampleDir.mkdirs()
+
+            prefs.edit().putBoolean("exampleVideosCreated", true).apply()
+
+        }
+
                 loadFolders(rootDir);
                 adapter.updateData(folders.toMutableList())
                 val folderName = input.text.toString().trim()

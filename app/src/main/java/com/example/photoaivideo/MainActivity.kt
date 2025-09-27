@@ -12,6 +12,13 @@ class MainActivity : AppCompatActivity() {
         val btnReferenceLibrary = findViewById<Button>(R.id.btnReferenceLibrary)
 
         btnReferenceLibrary.setOnClickListener {
+        val btnRecycleBin = findViewById<Button>(R.id.btnRecycleBin)
+
+        btnRecycleBin.setOnClickListener {
+
+            startActivity(Intent(this, RecyclingBinActivity::class.java))
+
+        }
 
             startActivity(Intent(this, ReferenceLibraryActivity::class.java))
 

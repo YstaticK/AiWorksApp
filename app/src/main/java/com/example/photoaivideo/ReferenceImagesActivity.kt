@@ -32,6 +32,18 @@ class ReferenceImagesActivity : AppCompatActivity() {
         val exampleDir = File(rootDir, "Example Images");
         if (!exampleDir.exists()) exampleDir.mkdirs()
 
+        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+
+        if (!prefs.getBoolean("exampleImagesCreated", false)) {
+
+            val exampleDir = File(rootDir, "example_images")
+
+            if (!exampleDir.exists()) exampleDir.mkdirs()
+
+            prefs.edit().putBoolean("exampleImagesCreated", true).apply()
+
+        }
+
         loadFolders(rootDir)
 
         btnAddReferenceImageFolder.setOnClickListener {
@@ -45,6 +57,18 @@ class ReferenceImagesActivity : AppCompatActivity() {
             builder.setPositiveButton("Create") { _, _ ->
                 val newFolder = File(rootDir, input.text.toString());
                 if (!newFolder.exists()) newFolder.mkdirs();
+        val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
+
+        if (!prefs.getBoolean("exampleImagesCreated", false)) {
+
+            val exampleDir = File(rootDir, "example_images")
+
+            if (!exampleDir.exists()) exampleDir.mkdirs()
+
+            prefs.edit().putBoolean("exampleImagesCreated", true).apply()
+
+        }
+
                 loadFolders(rootDir);
                 adapter.updateData(folders.toMutableList())
                 val folderName = input.text.toString().trim()
