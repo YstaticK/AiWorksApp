@@ -1,73 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:padding="16dp">
 
-    <TextView
-        android:id="@+id/appTitle"
+    <Button
+        android:id="@+id/btnImage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="AiWorksApp"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/holo_green_dark"
-        android:gravity="center"
-        android:padding="16dp"/>
+        android:text="Generate Image" />
 
-    <!-- Keep your buttons here -->
-<Button
-    android:id="@+id/btnImage"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Generate Image" />
+    <Button
+        android:id="@+id/btnVideo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Generate Video" />
 
-<Button
-    android:id="@+id/btnVideo"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Generate Video" />
-
-<Button
-    android:id="@+id/btnLibrary"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Library" />
+    <Button
+        android:id="@+id/btnLibrary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Library" />
 
     <Button
         android:id="@+id/btnReferenceLibrary"
+    <Button
+        android:id="@+id/btnModels"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Reference Library"
+        android:text="Models"
         android:layout_marginTop="8dp" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Reference Library" />
+
+    <Button
+        android:id="@+id/btnModels"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Models" />
 
     <Button
         android:id="@+id/btnRecycleBin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Recycle Bin"
-        android:layout_marginTop="8dp" />
+        android:text="Recycle Bin" />
+
     <Button
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Reference Library" />
+        android:id="@+id/btnSettings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Settings" />
 
-<Button
-    android:id="@+id/btnSettings"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Settings" />
+    <Button
+        android:id="@+id/btnInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Info" />
 
-<Button
-    android:id="@+id/btnInfo"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Info" />
+    <Button
+        android:id="@+id/btnQuit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Quit" />
 
-<Button
-    android:id="@+id/btnQuit"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Quit" />
 </LinearLayout>
