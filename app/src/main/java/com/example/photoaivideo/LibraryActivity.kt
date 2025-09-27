@@ -2,25 +2,34 @@ package com.example.photoaivideo
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import java.io.File
 
 class LibraryActivity : AppCompatActivity() {
+
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: FolderAdapter
+    private val folders = mutableListOf<File>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_library)
 
-        val btnImages = findViewById<Button>(R.id.btnImages)
-        val btnVideos = findViewById<Button>(R.id.btnVideos)
+        recyclerView = findViewById(R.id.recyclerViewLibrary)
+        recyclerView.layoutManager = LinearLayoutManager(this)
 
-        btnImages.setOnClickListener {
-            val intent = Intent(this, ImagesLibraryActivity::class.java)
+        val rootDir = File(filesDir, "library")
+        if (!rootDir.exists()) rootDir.mkdirs()
+
+        folders.addAll(rootDir.listFiles()?.filter { it.isDirectory } ?: emptyList())
+
+        adapter = FolderAdapter(folders.toMutableList()) { folder ->
+            val intent = Intent(this, FolderDetailActivity::class.java)
+            intent.putExtra("path", folder.absolutePath)
             startActivity(intent)
         }
-
-        btnVideos.setOnClickListener {
-            val intent = Intent(this, VideosLibraryActivity::class.java)
-            startActivity(intent)
-        }
+        recyclerView.adapter = adapter
     }
 }
