@@ -12,3 +12,4 @@
     <!-- Generate Video Screen -->
     <string name="generate_video">Generate Video</string>
 </resources>
+    <string name="folder_icon">Folder icon</string>

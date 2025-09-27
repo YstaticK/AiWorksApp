@@ -1,23 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="72dp"
     android:orientation="horizontal"
-    android:padding="12dp">
+    android:padding="8dp">
 
     <ImageView
-        android:id="@+id/ivFolderPreview"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:src="@drawable/ic_folder_placeholder"
+        android:id="@+id/folderImage"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:contentDescription="@string/folder_icon"
+        android:src="@drawable/ic_folder"
         android:scaleType="centerCrop"
         android:layout_marginEnd="12dp"/>
 
     <TextView
-        android:id="@+id/tvFolderName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="18sp"
+        android:id="@+id/folderName"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
         android:gravity="center_vertical"
-        android:textColor="@android:color/black"/>
+        android:text="Folder Name"
+        android:textSize="16sp"
+        android:textStyle="bold"/>
 </LinearLayout>
