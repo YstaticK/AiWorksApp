@@ -9,6 +9,13 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val btnReferenceLibrary = findViewById<Button>(R.id.btnReferenceLibrary)
+
+        btnReferenceLibrary.setOnClickListener {
+
+            startActivity(Intent(this, ReferenceLibraryActivity::class.java))
+
+        }
         val btnLibrary = findViewById<Button>(R.id.btnLibrary)
         btnLibrary.setOnClickListener {
             startActivity(Intent(this, LibraryActivity::class.java))
