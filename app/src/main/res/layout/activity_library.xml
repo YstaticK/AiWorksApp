@@ -1,28 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center"
     android:orientation="vertical"
-    android:padding="16dp">
+    tools:context=".LibraryActivity">
 
     <Button
-        android:id="@+id/btnImages"
+        android:id="@+id/btnImagesLibrary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Images" />
-        android:onClick="openImagesLibrary"
+        android:text="Images Library"
+        android:layout_marginBottom="16dp"/>
 
     <Button
-        android:id="@+id/btnVideos"
+        android:id="@+id/btnVideosLibrary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Videos"
-        android:onClick="openVideosLibrary"
-        android:layout_marginTop="16dp" />
+        android:text="Videos Library"/>
 
-    <androidx.recyclerview.widget.RecyclerView 
-        android:id="@+id/recyclerViewLibrary" 
-        android:layout_width="match_parent" 
-        android:layout_height="match_parent" />
 </LinearLayout>

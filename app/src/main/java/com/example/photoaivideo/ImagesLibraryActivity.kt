@@ -1,53 +1,64 @@
 package com.example.photoaivideo
 
-import android.content.Intent
 import android.os.Bundle
+import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.File
 
 class ImagesLibraryActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: FolderAdapter
+    private lateinit var currentDir: File
     private val folders = mutableListOf<File>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_images_library)
-        val btnAddImageFolder = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.btnAddImageFolder)
+
+        currentDir = File(filesDir, "images_library")
+        if (!currentDir.exists()) currentDir.mkdirs()
+
+        recyclerView = findViewById(R.id.recyclerViewImagesLibrary)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        adapter = FolderAdapter(folders.toMutableList()) { /* no subfolders here */ }
+        recyclerView.adapter = adapter
+
+        val btnAddImageFolder = findViewById<FloatingActionButton>(R.id.btnAddImageFolder)
         btnAddImageFolder.setOnClickListener {
-            val builder = androidx.appcompat.app.AlertDialog.Builder(this)
-            builder.setTitle("New Image Folder")
-            val input = android.widget.EditText(this)
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("New Folder")
+
+            val input = EditText(this)
             input.hint = "Folder name"
             builder.setView(input)
+
             builder.setPositiveButton("Create") { _, _ ->
                 val folderName = input.text.toString().trim()
                 if (folderName.isNotEmpty()) {
-                    val newFolder = java.io.File(filesDir, "images/$folderName")
-                    if (!newFolder.exists()) newFolder.mkdirs()
-                    adapter.updateData(getFolders().toMutableList())
+                    val newFolder = File(currentDir, folderName)
+                    if (!newFolder.exists()) {
+                        newFolder.mkdirs()
+                        folders.add(newFolder)
+                        adapter.updateData(folders.toMutableList())
+                    }
                 }
             }
+
             builder.setNegativeButton("Cancel", null)
             builder.show()
         }
 
-        recyclerView = findViewById(R.id.recyclerViewImagesLibrary)
-        recyclerView.layoutManager = LinearLayoutManager(this)
+        loadFolders()
+    }
 
-        val rootDir = File(filesDir, "images_library")
-        if (!rootDir.exists()) rootDir.mkdirs()
-
-        folders.addAll(rootDir.listFiles()?.filter { it.isDirectory } ?: emptyList())
-
-        adapter = FolderAdapter(folders.toMutableList()) { folder ->
-            val intent = Intent(this, FolderDetailActivity::class.java)
-            intent.putExtra("path", folder.absolutePath)
-            startActivity(intent)
-        }
-        recyclerView.adapter = adapter
+    private fun loadFolders() {
+        folders.clear()
+        currentDir.listFiles()?.filter { it.isDirectory }?.let { folders.addAll(it) }
+        adapter.updateData(folders.toMutableList())
     }
 }
