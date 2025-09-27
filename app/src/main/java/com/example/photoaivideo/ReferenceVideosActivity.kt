@@ -21,7 +21,7 @@ class ReferenceVideosActivity : AppCompatActivity() {
 
         recyclerViewReferenceVideos = findViewById(R.id.recyclerViewReferenceVideos)
         recyclerViewReferenceVideos.layoutManager = LinearLayoutManager(this)
-        adapter = FolderAdapter(folders)
+        adapter = FolderAdapter(folders.toMutableList())
         recyclerViewReferenceVideos.adapter = adapter
 
         val btnAddReferenceVideoFolder = findViewById<Button>(R.id.btnAddReferenceVideoFolder)

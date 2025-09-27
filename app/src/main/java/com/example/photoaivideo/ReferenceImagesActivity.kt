@@ -21,7 +21,7 @@ class ReferenceImagesActivity : AppCompatActivity() {
 
         recyclerViewReferenceImages = findViewById(R.id.recyclerViewReferenceImages)
         recyclerViewReferenceImages.layoutManager = LinearLayoutManager(this)
-        adapter = FolderAdapter(folders)
+        adapter = FolderAdapter(folders.toMutableList())
         recyclerViewReferenceImages.adapter = adapter
 
         val btnAddReferenceImageFolder = findViewById<Button>(R.id.btnAddReferenceImageFolder)
