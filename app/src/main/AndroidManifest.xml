@@ -17,7 +17,6 @@
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
 
     <application
-        <activity android:name=".RecycleBinActivity" android:exported="false"/>
     android:allowBackup="true"
     android:label="AI Works"
     android:icon="@mipmap/ic_launcher"
@@ -52,7 +51,6 @@
         <activity android:name=".ReferenceImagesActivity" android:exported="false" />
         <activity android:name=".ReferenceVideosActivity" android:exported="false" />
         <activity android:name=".ReferenceUrlsActivity" android:exported="false" />
-        <activity android:name=".RecyclingBinActivity" android:exported="false" />
         <activity android:name=".RecycleBinActivity" android:exported="false" />
       </application>
 </manifest>
