@@ -1,21 +1,19 @@
 package com.example.photoaivideo
-import android.content.Intent
-import android.net.Uri
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import java.io.File
 
-class FolderAdapter(private val folders: MutableList<File>) :
-    RecyclerView.Adapter<FolderAdapter.FolderViewHolder>() {
+class FolderAdapter(
+    private var folders: MutableList<File>,
+    private val onFolderClick: (File) -> Unit
+) : RecyclerView.Adapter<FolderAdapter.FolderViewHolder>() {
 
-    class FolderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val name: TextView = view.findViewById(R.id.folderName)
-        val image: ImageView = view.findViewById(R.id.folderImage)
+    class FolderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val folderName: TextView = itemView.findViewById(R.id.folderName)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FolderViewHolder {
@@ -26,32 +24,14 @@ class FolderAdapter(private val folders: MutableList<File>) :
 
     override fun onBindViewHolder(holder: FolderViewHolder, position: Int) {
         val folder = folders[position]
-        holder.name.text = folder.name
-
-    holder.itemView.setOnClickListener {
-        val intent = Intent(holder.itemView.context, FolderDetailActivity::class.java)
-        intent.putExtra("folderPath", folder.absolutePath)
-        holder.itemView.context.startActivity(intent)
-    }
-
-        val files = folder.listFiles()
-        if (files.isNullOrEmpty()) {
-            holder.image.setImageResource(R.drawable.ic_folder)
-        } else {
-            val lastFile = files.lastOrNull()
-            if (lastFile != null && lastFile.extension.lowercase() in listOf("jpg", "jpeg", "png")) {
-                holder.image.setImageURI(Uri.fromFile(lastFile))
-            } else {
-                holder.image.setImageResource(R.drawable.ic_folder)
-            }
-        }
+        holder.folderName.text = folder.name
+        holder.itemView.setOnClickListener { onFolderClick(folder) }
     }
 
     override fun getItemCount(): Int = folders.size
 
-    fun updateData(newFolders: List<File>) {
-        folders.clear()
-        folders.addAll(newFolders)
+    fun updateData(newFolders: MutableList<File>) {
+        folders = newFolders
         notifyDataSetChanged()
     }
 }
