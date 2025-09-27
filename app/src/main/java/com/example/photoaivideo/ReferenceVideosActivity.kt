@@ -29,18 +29,17 @@ class ReferenceVideosActivity : AppCompatActivity() {
         // Ensure base dir exists
         val rootDir = File(filesDir, "reference_videos")
         if (!rootDir.exists()) rootDir.mkdirs()
-        val exampleDir = File(rootDir, "Example Videos");
-        if (!exampleDir.exists()) exampleDir.mkdirs()
-
         val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
 
         if (!prefs.getBoolean("exampleVideosCreated", false)) {
 
-            val exampleDir = File(rootDir, "example_videos")
+            val exampleDir = File(rootDir, "Example Videos")
 
             if (!exampleDir.exists()) exampleDir.mkdirs()
 
             prefs.edit().putBoolean("exampleVideosCreated", true).apply()
+
+        }
 
         }
 
@@ -68,18 +67,6 @@ class ReferenceVideosActivity : AppCompatActivity() {
             prefs.edit().putBoolean("exampleVideosCreated", true).apply()
 
         }
-
-                loadFolders(rootDir);
-                adapter.updateData(folders.toMutableList())
-                val folderName = input.text.toString().trim()
-                if (folderName.isNotEmpty()) {
-                    val newFolder = File(rootDir, folderName)
-                    if (!newFolder.exists()) {
-                        newFolder.mkdirs()
-                        folders.add(newFolder)
-                        adapter.notifyDataSetChanged()
-                    }
-                }
             }
 
             builder.setNegativeButton("Cancel", null)
