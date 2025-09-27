@@ -26,7 +26,7 @@ class VideosLibraryActivity : AppCompatActivity() {
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewFolders)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        adapter = FolderAdapter(getFolders())
+        adapter = FolderAdapter(getFolders().toMutableList())
         recyclerView.adapter = adapter
 
         val btnCreate = findViewById<Button>(R.id.btnCreateFolder)
