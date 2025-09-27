@@ -29,6 +29,8 @@ class ReferenceImagesActivity : AppCompatActivity() {
         // Ensure base dir exists
         val rootDir = File(filesDir, "reference_images")
         if (!rootDir.exists()) rootDir.mkdirs()
+        val exampleDir = File(rootDir, "Example Images");
+        if (!exampleDir.exists()) exampleDir.mkdirs()
 
         loadFolders(rootDir)
 

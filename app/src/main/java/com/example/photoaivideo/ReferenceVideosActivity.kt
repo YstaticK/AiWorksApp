@@ -29,6 +29,8 @@ class ReferenceVideosActivity : AppCompatActivity() {
         // Ensure base dir exists
         val rootDir = File(filesDir, "reference_videos")
         if (!rootDir.exists()) rootDir.mkdirs()
+        val exampleDir = File(rootDir, "Example Videos");
+        if (!exampleDir.exists()) exampleDir.mkdirs()
 
         loadFolders(rootDir)
 
