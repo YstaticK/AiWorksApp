@@ -11,42 +11,34 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         val btnReferenceLibrary = findViewById<Button>(R.id.btnReferenceLibrary)
         val btnRecycleBin = findViewById<Button>(R.id.btnRecycleBin)
-
         btnRecycleBin.setOnClickListener {
-
             startActivity(Intent(this, RecycleBinActivity::class.java))
+        }
+
+
+
 
         }
 
 
-            startActivity(Intent(this, RecycleBinActivity::class.java))
 
         }
-            startActivity(Intent(this, RecycleBinActivity::class.java))
         }
-            startActivity(Intent(this, RecycleBinActivity::class.java))
         }
 
         btnReferenceLibrary.setOnClickListener {
-        val btnRecycleBin = findViewById<Button>(R.id.btnRecycleBin)
 
-        btnRecycleBin.setOnClickListener {
 
-            startActivity(Intent(this, RecycleBinActivity::class.java))
 
         }
 
 
-            startActivity(Intent(this, RecycleBinActivity::class.java))
 
         }
-            startActivity(Intent(this, RecycleBinActivity::class.java))
         }
-            startActivity(Intent(this, RecycleBinActivity::class.java))
         }
 
 
-            startActivity(Intent(this, RecyclingBinActivity::class.java))
 
         }
 
