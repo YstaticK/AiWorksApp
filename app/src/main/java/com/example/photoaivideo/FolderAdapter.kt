@@ -27,6 +27,12 @@ class FolderAdapter(private val folders: MutableList<File>) :
         val folder = folders[position]
         holder.name.text = folder.name
 
+    holder.itemView.setOnClickListener {
+        val intent = Intent(holder.itemView.context, FolderDetailActivity::class.java)
+        intent.putExtra("folderPath", folder.absolutePath)
+        holder.itemView.context.startActivity(intent)
+    }
+
         val files = folder.listFiles()
         if (files.isNullOrEmpty()) {
             holder.image.setImageResource(R.drawable.ic_folder)
