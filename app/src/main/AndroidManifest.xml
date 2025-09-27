@@ -48,5 +48,8 @@
         <activity android:name=".ImagesLibraryActivity" android:exported="false" />
         <activity android:name=".VideosLibraryActivity" android:exported="false" />
         <activity android:name=".FolderDetailActivity" android:exported="false" />
+        <activity android:name=".ReferenceImagesActivity" android:exported="false" />
+        <activity android:name=".ReferenceVideosActivity" android:exported="false" />
+        <activity android:name=".ReferenceUrlsActivity" android:exported="false" />
       </application>
 </manifest>

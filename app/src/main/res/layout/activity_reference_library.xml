@@ -3,11 +3,28 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center">
+    android:padding="24dp"
+    android:gravity="center"
+    android:background="@android:color/white">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <Button
+        android:id="@+id/btnReferenceImages"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="activity_reference_library"
-        android:textSize="24sp"/>
+        android:text="Reference Images" />
+
+    <Button
+        android:id="@+id/btnReferenceVideos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Reference Videos"
+        android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/btnReferenceUrls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Reference URLs"
+        android:layout_marginTop="16dp" />
+
 </LinearLayout>
