@@ -20,26 +20,25 @@ class ReferenceImagesActivity : AppCompatActivity() {
 
         recyclerViewReferenceImages = findViewById(R.id.recyclerViewReferenceImages)
         recyclerViewReferenceImages.layoutManager = LinearLayoutManager(this)
-        adapter = FolderAdapter(folders.toMutableList())
+        adapter = FolderAdapter(folders)
         recyclerViewReferenceImages.adapter = adapter
 
         val btnAddReferenceImageFolder =
             findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.btnAddReferenceImageFolder)
 
-        // Ensure base dir exists
         val rootDir = File(filesDir, "reference_images")
         if (!rootDir.exists()) rootDir.mkdirs()
 
         val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
 
-        // Create example folder once, only on first install
+        // Create Example Images folder only once after installation
         if (!prefs.getBoolean("exampleImagesCreated", false)) {
             val exampleDir = File(rootDir, "Example Images")
             if (!exampleDir.exists()) exampleDir.mkdirs()
-
             prefs.edit().putBoolean("exampleImagesCreated", true).apply()
         }
 
+        // Load initial folders
         loadFolders(rootDir)
 
         btnAddReferenceImageFolder.setOnClickListener {

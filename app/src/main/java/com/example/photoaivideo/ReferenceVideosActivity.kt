@@ -20,26 +20,25 @@ class ReferenceVideosActivity : AppCompatActivity() {
 
         recyclerViewReferenceVideos = findViewById(R.id.recyclerViewReferenceVideos)
         recyclerViewReferenceVideos.layoutManager = LinearLayoutManager(this)
-        adapter = FolderAdapter(folders.toMutableList())
+        adapter = FolderAdapter(folders)
         recyclerViewReferenceVideos.adapter = adapter
 
         val btnAddReferenceVideoFolder =
             findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.btnAddReferenceVideoFolder)
 
-        // Ensure base dir exists
         val rootDir = File(filesDir, "reference_videos")
         if (!rootDir.exists()) rootDir.mkdirs()
 
         val prefs = getSharedPreferences("AppPrefs", MODE_PRIVATE)
 
-        // Create example folder once, only on first install
+        // Create Example Videos folder only once after installation
         if (!prefs.getBoolean("exampleVideosCreated", false)) {
             val exampleDir = File(rootDir, "Example Videos")
             if (!exampleDir.exists()) exampleDir.mkdirs()
-
             prefs.edit().putBoolean("exampleVideosCreated", true).apply()
         }
 
+        // Load initial folders
         loadFolders(rootDir)
 
         btnAddReferenceVideoFolder.setOnClickListener {
