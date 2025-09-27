@@ -22,16 +22,47 @@ class FolderAdapter(
         return ViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: FolderViewHolder, position: Int) {
+
         val folder = folders[position]
-        holder.title.text = folder.name
-        holder.itemView.setOnClickListener {
-            val ctx = holder.itemView.context
-            val intent = Intent(ctx, FolderDetailActivity::class.java)
-            intent.putExtra("FOLDER_NAME", folder.name)
-            intent.putExtra("FOLDER_PATH", folder.absolutePath)
-            ctx.startActivity(intent)
+
+        holder.name.text = folder.name
+
+
+
+        // If folder is empty → show folder icon
+
+        if (folder.listFiles()?.isEmpty() != false) {
+
+            holder.image.setImageResource(R.drawable.ic_folder)
+
+        } else {
+
+            // Otherwise show the last item inside as preview
+
+            val lastFile = folder.listFiles()?.lastOrNull()
+
+            if (lastFile != null) {
+
+                if (lastFile.extension.lowercase() in listOf("jpg", "jpeg", "png")) {
+
+                    holder.image.setImageURI(Uri.fromFile(lastFile))
+
+                } else {
+
+                    holder.image.setImageResource(R.drawable.ic_folder) // fallback
+
+                }
+
+            } else {
+
+                holder.image.setImageResource(R.drawable.ic_folder)
+
+            }
+
         }
+
+    }
     }
 
     override fun getItemCount(): Int = folders.size
