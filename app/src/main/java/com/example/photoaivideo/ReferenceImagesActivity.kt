@@ -26,6 +26,8 @@ class ReferenceImagesActivity : AppCompatActivity() {
         currentDir = if (path != null) File(path) else File(filesDir, "reference_images")
 
         if (!currentDir.exists()) currentDir.mkdirs()
+        val exampleDir = File(currentDir, "Example Images")
+        if (!exampleDir.exists()) exampleDir.mkdirs()
 
         recyclerViewReferenceImages = findViewById(R.id.recyclerViewReferenceImages)
         recyclerViewReferenceImages.layoutManager = LinearLayoutManager(this)

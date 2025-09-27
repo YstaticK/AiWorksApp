@@ -26,6 +26,8 @@ class ReferenceVideosActivity : AppCompatActivity() {
         currentDir = if (path != null) File(path) else File(filesDir, "reference_videos")
 
         if (!currentDir.exists()) currentDir.mkdirs()
+        val exampleDir = File(currentDir, "Example Videos")
+        if (!exampleDir.exists()) exampleDir.mkdirs()
 
         recyclerViewReferenceVideos = findViewById(R.id.recyclerViewReferenceVideos)
         recyclerViewReferenceVideos.layoutManager = LinearLayoutManager(this)
