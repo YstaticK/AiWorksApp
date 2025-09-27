@@ -1,0 +1,51 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.photoaivideo">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="AIWorksApp"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+
+        <activity android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <!-- Core activities -->
+        <activity android:name=".LibraryActivity" android:exported="false"/>
+        <activity android:name=".ReferenceLibraryActivity" android:exported="false"/>
+        <activity android:name=".SettingsActivity" android:exported="false"/>
+        <activity android:name=".InfoActivity" android:exported="false"/>
+        <activity android:name=".GenerateVideoActivity" android:exported="false"/>
+        <activity android:name=".GenerateImageActivity" android:exported="false"/>
+        <activity android:name=".GeneratedResultsActivity" android:exported="false"/>
+        <activity android:name=".GeneratedVideoResultsActivity" android:exported="false"/>
+        <activity android:name=".GeneratedImageResultsActivity" android:exported="false"/>
+        <activity android:name=".GenerationResultActivity" android:exported="false"/>
+
+        <!-- Media Browsing -->
+        <activity android:name=".ImagesActivity" android:exported="false"/>
+        <activity android:name=".VideosActivity" android:exported="false"/>
+        <activity android:name=".ImagesLibraryActivity" android:exported="false"/>
+        <activity android:name=".VideosLibraryActivity" android:exported="false"/>
+        <activity android:name=".FolderDetailActivity" android:exported="false"/>
+
+        <!-- Reference -->
+        <activity android:name=".ReferenceImagesActivity" android:exported="false"/>
+        <activity android:name=".ReferenceVideosActivity" android:exported="false"/>
+        <activity android:name=".ReferenceUrlsActivity" android:exported="false"/>
+
+        <!-- Bin -->
+        <activity android:name=".RecycleBinActivity" android:exported="false"/>
+
+        <!-- Models -->
+        <activity android:name=".ModelsActivity" android:exported="false"/>
+
+    </application>
+</manifest>
