@@ -11,12 +11,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Images" />
+        android:onClick="openImagesLibrary"
 
     <Button
         android:id="@+id/btnVideos"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Videos"
+        android:onClick="openVideosLibrary"
         android:layout_marginTop="16dp" />
 
     <androidx.recyclerview.widget.RecyclerView 

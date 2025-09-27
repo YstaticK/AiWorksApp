@@ -32,4 +32,11 @@ class LibraryActivity : AppCompatActivity() {
         }
         recyclerView.adapter = adapter
     }
+    fun openImagesLibrary(view: android.view.View) {
+        startActivity(Intent(this, ImagesLibraryActivity::class.java))
+    }
+    
+    fun openVideosLibrary(view: android.view.View) {
+        startActivity(Intent(this, VideosLibraryActivity::class.java))
+    }
 }
