@@ -23,6 +23,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Library button
+        val btnModels = findViewById<Button>(R.id.btnModels)
+        btnModels.setOnClickListener {
+            startActivity(Intent(this, ModelsActivity::class.java))
+        }
+
         val btnLibrary = findViewById<Button>(R.id.btnLibrary)
         btnLibrary.setOnClickListener {
             startActivity(Intent(this, LibraryActivity::class.java))
