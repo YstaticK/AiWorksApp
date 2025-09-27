@@ -24,7 +24,7 @@ class ReferenceVideosActivity : AppCompatActivity() {
         adapter = FolderAdapter(folders.toMutableList())
         recyclerViewReferenceVideos.adapter = adapter
 
-        val btnAddReferenceVideoFolder = findViewById<Button>(R.id.btnAddReferenceVideoFolder)
+        val btnAddReferenceVideoFolder = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.btnAddReferenceVideoFolder)
 
         // Ensure base dir exists
         val rootDir = File(filesDir, "reference_videos")
@@ -43,6 +43,10 @@ class ReferenceVideosActivity : AppCompatActivity() {
             builder.setView(input)
 
             builder.setPositiveButton("Create") { _, _ ->
+                val newFolder = File(rootDir, input.text.toString());
+                if (!newFolder.exists()) newFolder.mkdirs();
+                loadFolders(rootDir);
+                adapter.updateData(folders.toMutableList())
                 val folderName = input.text.toString().trim()
                 if (folderName.isNotEmpty()) {
                     val newFolder = File(rootDir, folderName)

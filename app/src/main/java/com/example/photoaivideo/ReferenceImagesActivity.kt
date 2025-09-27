@@ -24,7 +24,7 @@ class ReferenceImagesActivity : AppCompatActivity() {
         adapter = FolderAdapter(folders.toMutableList())
         recyclerViewReferenceImages.adapter = adapter
 
-        val btnAddReferenceImageFolder = findViewById<Button>(R.id.btnAddReferenceImageFolder)
+        val btnAddReferenceImageFolder = findViewById<com.google.android.material.floatingactionbutton.FloatingActionButton>(R.id.btnAddReferenceImageFolder)
 
         // Ensure base dir exists
         val rootDir = File(filesDir, "reference_images")
@@ -43,6 +43,10 @@ class ReferenceImagesActivity : AppCompatActivity() {
             builder.setView(input)
 
             builder.setPositiveButton("Create") { _, _ ->
+                val newFolder = File(rootDir, input.text.toString());
+                if (!newFolder.exists()) newFolder.mkdirs();
+                loadFolders(rootDir);
+                adapter.updateData(folders.toMutableList())
                 val folderName = input.text.toString().trim()
                 if (folderName.isNotEmpty()) {
                     val newFolder = File(rootDir, folderName)
