@@ -17,12 +17,13 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, RecycleBinActivity::class.java))
 
         }
-        val btnRecycleBin = findViewById<Button>(R.id.btnRecycleBin)
-        btnRecycleBin.setOnClickListener {
+
+
+            startActivity(Intent(this, RecycleBinActivity::class.java))
+
+        }
             startActivity(Intent(this, RecycleBinActivity::class.java))
         }
-        val btnRecycleBin = findViewById<Button>(R.id.btnRecycleBin)
-        btnRecycleBin.setOnClickListener {
             startActivity(Intent(this, RecycleBinActivity::class.java))
         }
 
@@ -34,17 +35,16 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, RecycleBinActivity::class.java))
 
         }
-        val btnRecycleBin = findViewById<Button>(R.id.btnRecycleBin)
-        btnRecycleBin.setOnClickListener {
-            startActivity(Intent(this, RecycleBinActivity::class.java))
-        }
-        val btnRecycleBin = findViewById<Button>(R.id.btnRecycleBin)
-        btnRecycleBin.setOnClickListener {
-            startActivity(Intent(this, RecycleBinActivity::class.java))
-        }
-        val btnRecycleBin = findViewById<Button>(R.id.btnRecycleBin)
 
-        btnRecycleBin.setOnClickListener {
+
+            startActivity(Intent(this, RecycleBinActivity::class.java))
+
+        }
+            startActivity(Intent(this, RecycleBinActivity::class.java))
+        }
+            startActivity(Intent(this, RecycleBinActivity::class.java))
+        }
+
 
             startActivity(Intent(this, RecyclingBinActivity::class.java))
 
