@@ -43,6 +43,10 @@ class MainActivity : AppCompatActivity() {
         // Video generation button
         val btnVideo: Button = findViewById(R.id.btnVideo)
         btnVideo.setOnClickListener {
+        val btnModels = findViewById<Button>(R.id.btnModels)
+        btnModels.setOnClickListener {
+            startActivity(Intent(this, ModelsActivity::class.java))
+        }
             val intent = Intent(this, GenerateVideoActivity::class.java)
             startActivity(intent)
         }

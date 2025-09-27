@@ -51,6 +51,7 @@
         <activity android:name=".ReferenceImagesActivity" android:exported="false" />
         <activity android:name=".ReferenceVideosActivity" android:exported="false" />
         <activity android:name=".ReferenceUrlsActivity" android:exported="false" />
+        <activity android:name=".ModelsActivity" android:exported="false" />
         <activity android:name=".RecycleBinActivity" android:exported="false" />
         <activity android:name=".ModelsActivity" android:exported="false" />
       </application>
