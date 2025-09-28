@@ -19,7 +19,6 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
 
         // Get request from intent
         val request = intent.getSerializableExtra("generationRequest") as? GenerationRequest
-
         if (request != null) {
             tvImageResultsTitle.text = """
                 Prompt: ${request.prompt}

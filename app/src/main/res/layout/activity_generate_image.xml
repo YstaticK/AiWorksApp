@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Model selection (already present) -->
+        <!-- Model selection -->
         <Spinner
             android:id="@+id/spinnerModelImage"
             android:layout_width="match_parent"
@@ -58,82 +58,54 @@
             android:id="@+id/etPrompts"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter prompts"
-            android:inputType="textMultiLine"
-            android:minLines="3"
-            android:gravity="top"/>
+            android:hint="Enter prompts" />
 
-        <!-- Advanced Options Drop-down -->
-        <LinearLayout
-            android:id="@+id/layoutAdvancedOptions"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Advanced Options"
-                android:textStyle="bold"/>
-
-            <EditText
-                android:id="@+id/etNegativePrompts"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Negative prompts"
-                android:inputType="textMultiLine"
-                android:minLines="2"
-                android:gravity="top"/>
-
-            <SeekBar
-                android:id="@+id/seekSimilarity"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:max="100"/>
-
-            <EditText
-                android:id="@+id/etSimilarity"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Similarity (%)"
-                android:inputType="number"/>
-
-            <EditText
-                android:id="@+id/etSeed"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Seed (optional)"
-                android:inputType="number"/>
-
-        </LinearLayout>
-
-        <!-- Image Ratio -->
-        <Spinner
-            android:id="@+id/spinnerRatio"
+        <!-- Similarity slider -->
+        <SeekBar
+            android:id="@+id/seekSimilarity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:entries="@array/image_ratios"/>
+            android:max="100" />
 
-        <!-- Image Size -->
+        <EditText
+            android:id="@+id/etSimilarity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Similarity %"/>
+
+        <!-- Seed -->
+        <EditText
+            android:id="@+id/etSeed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Seed (optional)" />
+
+        <!-- Size -->
         <Spinner
             android:id="@+id/spinnerSize"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:entries="@array/image_sizes"/>
+            android:entries="@array/image_sizes" />
 
-        <!-- Batch Size -->
+        <!-- Quality -->
+        <Spinner
+            android:id="@+id/spinnerQuality"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/image_quality" />
+
+        <!-- Batch size -->
         <Spinner
             android:id="@+id/spinnerBatchSize"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:entries="@array/batch_sizes"/>
+            android:entries="@array/batch_sizes" />
 
-        <!-- Generate Button -->
+        <!-- Start generation -->
         <Button
             android:id="@+id/btnStartGeneration"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Start Generation" />
-
     </LinearLayout>
 </ScrollView>
