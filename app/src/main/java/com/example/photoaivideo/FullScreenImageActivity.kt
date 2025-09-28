@@ -1,12 +1,10 @@
+import android.widget.Spinner
+import android.widget.ArrayAdapter
 package com.example.photoaivideo
 
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.widget.ImageView
-import android.widget.Spinner
-import android.widget.ArrayAdapter
-import android.widget.Spinner
-import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 
 class FullScreenImageActivity : AppCompatActivity() {
