@@ -57,10 +57,22 @@
         <!-- Prompts -->
         <EditText
             android:id="@+id/etPrompts"
+        <!-- Negative Prompts -->
+        <EditText
+            android:id="@+id/etNegativePrompts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter negative prompts" />
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Enter prompts" />
             android:id="@+id/etPrompts"
+        <!-- Negative Prompts -->
+        <EditText
+            android:id="@+id/etNegativePrompts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter negative prompts" />
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Enter prompts" />
