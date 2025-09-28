@@ -25,6 +25,9 @@ android {
         } else {
             buildConfigField "String", "OPENAI_API_KEY", "\"\""
         }
+        buildFeatures {
+            buildConfig true
+        }
     }
 
     buildTypes {
