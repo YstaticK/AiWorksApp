@@ -10,4 +10,10 @@
         android:scaleType="fitCenter"
         android:contentDescription="Full screen image" />
 
+    <Spinner
+        android:id="@+id/spinnerGenerationDetails"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"/>
+
 </FrameLayout>
