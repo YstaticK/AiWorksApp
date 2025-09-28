@@ -43,7 +43,7 @@
             android:id="@+id/etReferenceName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Reference Name"
+            android:hint="Reference name (optional)" />
             android:visibility="gone"/>
 
         <Spinner
@@ -57,6 +57,9 @@
         <!-- Prompts -->
         <EditText
             android:id="@+id/etPrompts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter prompts" />
         <!-- Negative Prompts -->
         <EditText
             android:id="@+id/etNegativePrompts"
@@ -68,10 +71,6 @@
             android:hint="Enter prompts" />
             android:id="@+id/etPrompts"
         <!-- Negative Prompts -->
-        <EditText
-            android:id="@+id/etNegativePrompts"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:hint="Enter negative prompts" />
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -86,11 +85,6 @@
             android:hint="Enter negative prompts" />
 
         <!-- Seed -->
-        <EditText
-            android:id="@+id/etSeed"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Seed (optional)"
             android:inputType="number" />
 
         <!-- Size -->
@@ -128,14 +122,9 @@
             android:id="@+id/etSimilarity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Similarity %"/>
+            android:hint="Similarity (0–100)" />
 
         <!-- Seed -->
-        <EditText
-            android:id="@+id/etSeed"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Seed (optional)" />
 
         <!-- Size -->
         <Spinner
