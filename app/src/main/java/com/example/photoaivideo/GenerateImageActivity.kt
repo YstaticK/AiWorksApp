@@ -33,21 +33,12 @@ class GenerateImageActivity : AppCompatActivity() {
         val spinnerBatchSize: Spinner = findViewById(R.id.spinnerBatchSize)
         val spinnerProvider: Spinner = findViewById(R.id.spinnerProvider)
         val spinnerModel: Spinner = findViewById(R.id.spinnerModel)
+                }
+            }
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
 
         // Link provider spinner to model spinner
-        spinnerProvider.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                val provider = parent.getItemAtPosition(position).toString()
-                val modelsArrayId = when (provider) {
-                    "OpenAI" -> R.array.models_openai
-                    "Stability AI" -> R.array.models_stability
-                    "Runway" -> R.array.models_runway
-                    else -> R.array.models_openai
-                }
-                val adapter = ArrayAdapter.createFromResource(
-                    this@GenerateImageActivity,
-                    modelsArrayId,
-                    android.R.layout.simple_spinner_item
                 )
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 spinnerModel.adapter = adapter
@@ -113,6 +104,7 @@ class GenerateImageActivity : AppCompatActivity() {
         }
 
         spinnerProvider.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        spinnerProvider.setSelection(0)
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 updateModelSpinner(parent.getItemAtPosition(position).toString())
             }
@@ -126,7 +118,9 @@ class GenerateImageActivity : AppCompatActivity() {
             val request = GenerationRequest(
                 provider = spinnerProvider.selectedItem.toString(),
                 model = spinnerModel.selectedItem.toString(),
-                model = spinnerModel.selectedItem.toString(),
+
+
+
                 prompts = etPrompts.text.toString(),
                 negativePrompt = etNegativePrompts.text.toString(),
                 similarity = seekSimilarity.progress,
