@@ -9,7 +9,6 @@ import androidx.core.content.ContextCompat
 import android.graphics.PorterDuff
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import java.io.File
 
 class GeneratedImageResultsActivity : AppCompatActivity() {
 
@@ -17,45 +16,61 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_generated_image_results)
 
-        // Progress bar setup
+        // Progress bar
         val progressBar: ProgressBar = findViewById(R.id.progressBarGeneration)
         progressBar.max = 100
         progressBar.visibility = View.VISIBLE
 
+        // Recycler
         val recyclerView: RecyclerView = findViewById(R.id.gridGeneratedImages)
         recyclerView.layoutManager = GridLayoutManager(this, 2)
 
+        // Get request + API key
         val request = intent.getSerializableExtra("generationRequest") as? GenerationRequest
-        val apiKey = intent.getStringExtra("apiKey")
+        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        val apiKey = prefs.getString("api_key", null)
 
-        if (request == null || apiKey.isNullOrEmpty()) {
-            Toast.makeText(this, "Missing request or API key", Toast.LENGTH_LONG).show()
+        if (request == null) {
+            Toast.makeText(this, "No generation request found.", Toast.LENGTH_LONG).show()
+            finish()
+            return
+        }
+        if (apiKey.isNullOrBlank()) {
+            Toast.makeText(this, "Missing API key. Please enter it on the previous screen.", Toast.LENGTH_LONG).show()
             finish()
             return
         }
 
-        // Prepare placeholder files (null values mean not yet generated)
-        val placeholderList = MutableList<File?>(request.batchSize) { null }
-        val adapter = GeneratedImageAdapter(this, placeholderList.mapNotNull { it }, request)
-        recyclerView.adapter = adapter
+        // Kick a small fake animation while we wait (optional polish)
+        Thread {
+            for (i in 1..100) {
+                Thread.sleep(40)
+                runOnUiThread {
+                    progressBar.progress = i
+                    if (i == 100) {
+                        progressBar.progressDrawable.setColorFilter(
+                            ContextCompat.getColor(this, android.R.color.holo_green_light),
+                            PorterDuff.Mode.SRC_IN
+                        )
+                    }
+                }
+            }
+        }.start()
 
-        // Call OpenAI service to generate images
+        // Call the service
         val service = OpenAIService(this, apiKey)
         service.generateImage(
             prompt = request.prompts,
             width = request.width,
-            height = request.height
-        ) { files ->
+            height = request.height,
+            n = request.batchSize
+        ) { files: List<java.io.File>? ->
             runOnUiThread {
                 progressBar.visibility = View.GONE
                 if (files != null && files.isNotEmpty()) {
-                    adapter.updateData(files) // refresh with generated files
-                    progressBar.progressDrawable.setColorFilter(
-                        ContextCompat.getColor(this, android.R.color.holo_green_light),
-                        PorterDuff.Mode.SRC_IN
-                    )
+                    recyclerView.adapter = GeneratedImageAdapter(this, files, request)
                 } else {
-                    Toast.makeText(this, "Image generation failed", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Image generation failed.", Toast.LENGTH_LONG).show()
                 }
             }
         }

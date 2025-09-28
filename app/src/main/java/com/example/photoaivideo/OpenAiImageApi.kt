@@ -1,25 +1,32 @@
 package com.example.photoaivideo
 
-import okhttp3.*
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
 
-class OpenAiImageApi(private val client: OkHttpClient, private val apiKey: String) {
+/**
+ * Simple synchronous helper (not used by the UI flow right now),
+ * kept updated to OkHttp 4.x API so it won't break the build.
+ */
+class OpenAiImageApi(private val apiKey: String) {
 
-    fun generateImage(prompt: String, size: String, outputDir: File): File? {
-        val url = "https://api.openai.com/v1/images/generations"
+    private val client = OkHttpClient()
+    private val url = "https://api.openai.com/v1/images/generations"
 
-        val jsonBody = JSONObject()
-        jsonBody.put("prompt", prompt)
-        jsonBody.put("n", 1)
-        jsonBody.put("size", size)
+    fun generateOne(prompt: String, size: String, outputDir: File): File? {
+        val jsonBody = JSONObject().apply {
+            put("prompt", prompt)
+            put("n", 1)
+            put("size", size)
+        }
 
-        val body = RequestBody.create(
-            "application/json".toMediaType(),
-            jsonBody.toString()
-        )
+        val body: RequestBody =
+            jsonBody.toString().toRequestBody("application/json".toMediaType())
 
         val request = Request.Builder()
             .url(url)
@@ -29,10 +36,11 @@ class OpenAiImageApi(private val client: OkHttpClient, private val apiKey: Strin
 
         client.newCall(request).execute().use { response ->
             if (!response.isSuccessful) return null
+
             val json = JSONObject(response.body?.string() ?: return null)
             val imageUrl = json.getJSONArray("data").getJSONObject(0).getString("url")
 
-            // Download image
+            // Download the image
             val imgRequest = Request.Builder().url(imageUrl).build()
             client.newCall(imgRequest).execute().use { imgResponse ->
                 if (!imgResponse.isSuccessful) return null
