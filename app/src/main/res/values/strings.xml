@@ -16,11 +16,6 @@
     <string name="select_model">Select model</string>
 
     <!-- Providers -->
-    <string-array name="image_generation_providers">
-        <item>OpenAI</item>
-        <item>Stability AI</item>
-        <item>Runway</item>
-    </string-array>
 
     <!-- Models for each provider -->
     <string-array name="models_openai">
