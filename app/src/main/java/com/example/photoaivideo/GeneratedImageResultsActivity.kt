@@ -72,7 +72,7 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
             width = request.width,
             height = request.height,
             n = request.batchSize
-        ) { files: List<java.io.File>? ->
+        ) { files ->
             runOnUiThread {
                 progressBar.visibility = View.GONE
                 if (files != null && files.isNotEmpty()) {
@@ -116,7 +116,6 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
 
-        // Intent depends on success/failure
         val intent = if (success) {
             Intent(this, ImagesLibraryActivity::class.java)
         } else {
@@ -130,7 +129,7 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
             0,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
         )
 
         builder.setContentIntent(pendingIntent)

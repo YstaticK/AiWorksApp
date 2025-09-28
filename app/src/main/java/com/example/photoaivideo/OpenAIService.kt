@@ -2,12 +2,14 @@ package com.example.photoaivideo
 
 import android.content.Context
 import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import org.json.JSONObject
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
-import java.io.FileOutputStream
 import java.io.IOException
 
 class OpenAIService(private val context: Context, private val apiKey: String) {
+
     private val client = OkHttpClient()
     private val apiUrl = "https://api.openai.com/v1/images/generations"
 
@@ -15,16 +17,14 @@ class OpenAIService(private val context: Context, private val apiKey: String) {
         prompt: String,
         width: Int,
         height: Int,
-        n: Int,
+        n: Int = 1,
         callback: (List<File>?) -> Unit
     ) {
         val body = JSONObject()
         body.put("prompt", prompt)
         body.put("n", n)
         body.put("size", "${width}x${height}")
-
-        val requestBody = RequestBody.create(
-            "application/json".toMediaTypeOrNull(),
+        val requestBody = body.toString().toRequestBody("application/json".toMediaTypeOrNull())
             body.toString()
         )
 
@@ -53,17 +53,15 @@ class OpenAIService(private val context: Context, private val apiKey: String) {
                 if (dataArray != null) {
                     for (i in 0 until dataArray.length()) {
                         val imageUrl = dataArray.getJSONObject(i).getString("url")
-
-                        // Always save to misc folder
                         val saveDir = File(context.getExternalFilesDir("images"), "misc")
                         if (!saveDir.exists()) saveDir.mkdirs()
-
                         val file = File(saveDir, "ai_${System.currentTimeMillis()}_$i.png")
+
                         try {
                             val imgReq = Request.Builder().url(imageUrl).build()
                             client.newCall(imgReq).execute().use { resp ->
                                 resp.body?.byteStream()?.use { input ->
-                                    FileOutputStream(file).use { output -> input.copyTo(output) }
+                                    file.outputStream().use { output -> input.copyTo(output) }
                                 }
                             }
                             files.add(file)
@@ -72,6 +70,7 @@ class OpenAIService(private val context: Context, private val apiKey: String) {
                         }
                     }
                 }
+
                 callback(files)
             }
         })
