@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.RecyclerView
 import java.io.File
 
 class ImagesLibraryActivity : AppCompatActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_images_library)
@@ -15,19 +14,21 @@ class ImagesLibraryActivity : AppCompatActivity() {
         val recyclerView: RecyclerView = findViewById(R.id.recyclerImages)
         recyclerView.layoutManager = GridLayoutManager(this, 3)
 
-        // Root images dir
         val rootDir = File(getExternalFilesDir("images")!!.absolutePath)
         if (!rootDir.exists()) rootDir.mkdirs()
 
-        // Ensure misc folder always exists
         val miscDir = File(rootDir, "misc")
         if (!miscDir.exists()) miscDir.mkdirs()
 
-        // Get all subfolders
-        val folders = rootDir.listFiles()
-            ?.filter { it.isDirectory && it.listFiles()?.isNotEmpty() == true }
+        val folders = mutableListOf<File>()
+        folders.add(miscDir)
+
+        val otherFolders = rootDir.listFiles()
+            ?.filter { it.isDirectory && it.name != "misc" && it.listFiles()?.isNotEmpty() == true }
             ?.toMutableList()
             ?: mutableListOf()
+
+        folders.addAll(otherFolders)
 
         recyclerView.adapter = LibraryFolderAdapter(this, folders)
     }

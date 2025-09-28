@@ -1,14 +1,12 @@
 package com.example.photoaivideo
 
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
+import android.widget.*
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 
 class GenerateImageActivity : AppCompatActivity() {
@@ -23,7 +21,6 @@ class GenerateImageActivity : AppCompatActivity() {
 
         val apiKeyInput: EditText = findViewById(R.id.etApiKey)
         val cbRemember: CheckBox = findViewById(R.id.cbRememberKey)
-
         val savedKey = prefs.getString("api_key", "")
         if (!savedKey.isNullOrEmpty()) {
             apiKeyInput.setText(savedKey)
@@ -46,7 +43,7 @@ class GenerateImageActivity : AppCompatActivity() {
         val spinnerModel: Spinner = findViewById(R.id.spinnerModel)
 
         // Default provider + models
-        spinnerProvider.setSelection(0) // OpenAI
+        spinnerProvider.setSelection(0)
         val defaultAdapter = ArrayAdapter.createFromResource(
             this,
             R.array.models_openai,
@@ -64,6 +61,7 @@ class GenerateImageActivity : AppCompatActivity() {
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
+
         etSimilarity.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 val value = s.toString().replace("%", "").toIntOrNull()
@@ -74,31 +72,6 @@ class GenerateImageActivity : AppCompatActivity() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
-
-        // Provider → Models map
-        val providerModels = mapOf(
-            "OpenAI" to R.array.image_models_openai,
-            "Replicate" to R.array.image_models_replicate,
-            "Automatic1111" to R.array.image_models_automatic1111,
-            "Local" to R.array.image_models_local
-        )
-        fun updateModelSpinner(selected: String?) {
-            val resId = providerModels[selected] ?: R.array.image_models_openai
-            val modelAdapter = ArrayAdapter.createFromResource(
-                this,
-                resId,
-                android.R.layout.simple_spinner_item
-            )
-            modelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            spinnerModel.adapter = modelAdapter
-        }
-        spinnerProvider.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                updateModelSpinner(parent.getItemAtPosition(position).toString())
-            }
-            override fun onNothingSelected(parent: AdapterView<*>) {}
-        }
-        updateModelSpinner(spinnerProvider.selectedItem?.toString())
 
         // Select reference image
         btnSelectReference.setOnClickListener {

@@ -36,7 +36,6 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
         val request = intent.getSerializableExtra("generationRequest") as? GenerationRequest
         val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
 
-        // Prefer API key from Intent, fallback to SharedPreferences
         val apiKey = intent.getStringExtra("apiKey") ?: prefs.getString("api_key", null)
 
         if (request == null) {
@@ -52,7 +51,7 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
 
         createNotificationChannel()
 
-        // Fake loading animation while waiting
+        // Fake loading animation
         Thread {
             for (i in 1..100) {
                 Thread.sleep(40)
