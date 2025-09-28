@@ -1,7 +1,6 @@
 package com.example.photoaivideo
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -10,7 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 
 class GenerateImageActivity : AppCompatActivity() {
 
-    private var selectedImageUri: Uri? = null
+    private var selectedReferencePath: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,7 +19,12 @@ class GenerateImageActivity : AppCompatActivity() {
         val seekSimilarity: SeekBar = findViewById(R.id.seekSimilarity)
         val etSimilarity: EditText = findViewById(R.id.etSimilarity)
         val btnSelectReference: Button = findViewById(R.id.btnSelectReference)
-        val ivReference: ImageView = findViewById(R.id.ivReference)
+        val spinnerModel: Spinner = findViewById(R.id.spinnerModelImage)
+        val spinnerSize: Spinner = findViewById(R.id.spinnerSize)
+        val spinnerQuality: Spinner = findViewById(R.id.spinnerQuality)
+        val spinnerBatchSize: Spinner = findViewById(R.id.spinnerBatchSize)
+        val etPrompts: EditText = findViewById(R.id.etPrompts)
+        val etSeed: EditText = findViewById(R.id.etSeed)
 
         // --- Sync SeekBar and EditText ---
         seekSimilarity.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -42,8 +46,7 @@ class GenerateImageActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
-        // --- Select Reference Image (optional) ---
-        btnSelectReference.text = "Select Reference Image (Optional)"
+        // --- Select Reference Image ---
         btnSelectReference.setOnClickListener {
             val intent = Intent(Intent.ACTION_GET_CONTENT)
             intent.type = "image/*"
@@ -52,32 +55,23 @@ class GenerateImageActivity : AppCompatActivity() {
 
         // --- Start Generation ---
         btnStartGeneration.setOnClickListener {
-            val prompt = findViewById<EditText>(R.id.etPrompts).text.toString()
-            val negativePrompt = findViewById<EditText>(R.id.etNegativePrompts)?.text?.toString()
+            val model = spinnerModel.selectedItem.toString()
+            val prompt = etPrompts.text.toString()
             val similarity = seekSimilarity.progress
-            val seed = findViewById<EditText>(R.id.etSeed)?.text?.toString()?.toLongOrNull()
-
-            val spinnerSize = findViewById<Spinner>(R.id.spinnerSize)
-            val size = spinnerSize.selectedItem.toString().split("x")
-            val width = size[0].trim().toInt()
-            val height = size[1].trim().toInt()
-
-            val spinnerQuality = findViewById<Spinner>(R.id.spinnerQuality)
+            val size = spinnerSize.selectedItem.toString()
             val quality = spinnerQuality.selectedItem.toString()
-
-            val spinnerBatch = findViewById<Spinner>(R.id.spinnerBatchSize)
-            val batchSize = spinnerBatch.selectedItem.toString().toInt()
+            val batchSize = spinnerBatchSize.selectedItem.toString().toInt()
+            val seed = etSeed.text.toString().toIntOrNull()
 
             val request = GenerationRequest(
+                model = model,
                 prompt = prompt,
-                negativePrompt = negativePrompt,
                 similarity = similarity,
+                referenceImagePath = selectedReferencePath,
                 seed = seed,
-                width = width,
-                height = height,
+                size = size,
                 quality = quality,
-                batchSize = batchSize,
-                referenceImageUri = selectedImageUri?.toString()
+                batchSize = batchSize
             )
 
             val intent = Intent(this, GeneratedImageResultsActivity::class.java)
@@ -89,9 +83,10 @@ class GenerateImageActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 1001 && resultCode == RESULT_OK && data != null) {
-            selectedImageUri = data.data
+            val imageUri = data.data
+            selectedReferencePath = imageUri.toString()
             val ivReference: ImageView = findViewById(R.id.ivReference)
-            ivReference.setImageURI(selectedImageUri)
+            ivReference.setImageURI(imageUri)
         }
     }
 }
