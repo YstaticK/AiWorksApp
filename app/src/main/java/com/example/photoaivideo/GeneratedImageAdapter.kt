@@ -22,24 +22,17 @@ class GeneratedImageAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_generated_image, parent, false)
-        return ImageViewHolder(view)
-    }
-
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
         val file = images[position]
-              holder.imageView.setOnClickListener {
-                  val intent = Intent(context, FullScreenImageActivity::class.java)
-                  intent.putExtra("imagePath", file.absolutePath)
-                  intent.putExtra("generationRequest", request)
-                  context.startActivity(intent)
-              }
+        if (file.exists()) {
+            val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+            holder.imageView.setImageBitmap(bitmap)
+
+            holder.imageView.setOnClickListener {
+                val intent = Intent(context, FullScreenImageActivity::class.java)
                 intent.putExtra("imagePath", file.absolutePath)
                 intent.putExtra("generationRequest", request)
                 context.startActivity(intent)
             }
         }
     }
-
-    override fun getItemCount(): Int = images.size
-}
