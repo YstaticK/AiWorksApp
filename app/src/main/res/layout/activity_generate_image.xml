@@ -56,6 +56,41 @@
         <!-- Prompts -->
         <EditText
             android:id="@+id/etPrompts"
+        <!-- Negative Prompts -->
+        <EditText
+            android:id="@+id/etNegativePrompts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter negative prompts" />
+
+        <!-- Seed -->
+        <EditText
+            android:id="@+id/etSeed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Seed (optional)"
+            android:inputType="number" />
+
+        <!-- Size -->
+        <Spinner
+            android:id="@+id/spinnerSize"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/image_sizes" />
+
+        <!-- Quality -->
+        <Spinner
+            android:id="@+id/spinnerQuality"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/image_quality" />
+
+        <!-- Batch Size -->
+        <Spinner
+            android:id="@+id/spinnerBatchSize"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/batch_sizes" />
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Enter prompts" />
