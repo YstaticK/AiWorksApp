@@ -9,6 +9,7 @@ import android.graphics.PorterDuff
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.io.File
+import android.widget.Toast
 
 class GeneratedImageResultsActivity : AppCompatActivity() {
 

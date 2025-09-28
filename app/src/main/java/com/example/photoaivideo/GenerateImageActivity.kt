@@ -119,6 +119,12 @@ class GenerateImageActivity : AppCompatActivity() {
             startActivityForResult(intent, 1001)
         }
 
+        val apiKey = etApiKey.text.toString().trim()
+        if (apiKey.isEmpty()) {
+            Toast.makeText(this, "Please enter API key", Toast.LENGTH_SHORT).show()
+            return@setOnClickListener
+        }
+
         // Start Generation
         btnStartGeneration.setOnClickListener {
         val apiKeyInput: EditText = findViewById(R.id.etApiKey)
