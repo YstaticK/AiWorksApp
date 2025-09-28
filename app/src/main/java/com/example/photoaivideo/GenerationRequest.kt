@@ -12,5 +12,6 @@ data class GenerationRequest(
     val height: Int,
     val quality: String,
     val batchSize: Int,
+    val model: String,
     val referenceImageUri: String?
 ) : Serializable
