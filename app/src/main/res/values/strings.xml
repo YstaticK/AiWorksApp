@@ -1,4 +1,5 @@
 <resources>
+    <string name="select_provider">Select Provider</string>
     <!-- App Name -->
     <string name="app_name">AiWorksApp</string>
 
@@ -12,4 +13,28 @@
     <!-- Generate Video Screen -->
     <string name="generate_video">Generate Video</string>
     <string name="folder_icon">Folder icon</string>
+    <string name="select_model">Select model</string>
 </resources>
+
+    <!-- Providers -->
+    <string-array name="image_generation_providers">
+        <item>OpenAI</item>
+        <item>Stability AI</item>
+        <item>Runway</item>
+    </string-array>
+
+    <!-- Models for each provider -->
+    <string-array name="models_openai">
+        <item>DALL·E 2</item>
+        <item>DALL·E 3</item>
+    </string-array>
+
+    <string-array name="models_stability">
+        <item>Stable Diffusion v1.5</item>
+        <item>Stable Diffusion XL</item>
+    </string-array>
+
+    <string-array name="models_runway">
+        <item>Gen-2</item>
+        <item>Custom Runway Model</item>
+    </string-array>

@@ -1,4 +1,7 @@
 package com.example.photoaivideo
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 
 import android.content.Intent
 import android.net.Uri
@@ -28,6 +31,8 @@ class GenerateImageActivity : AppCompatActivity() {
         val spinnerSize: Spinner = findViewById(R.id.spinnerSize)
         val spinnerQuality: Spinner = findViewById(R.id.spinnerQuality)
         val spinnerBatchSize: Spinner = findViewById(R.id.spinnerBatchSize)
+        val spinnerProvider: Spinner = findViewById(R.id.spinnerProvider)
+        val spinnerModel: Spinner = findViewById(R.id.spinnerModel)
 
         // Sync SeekBar and EditText
         seekSimilarity.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -57,8 +62,39 @@ class GenerateImageActivity : AppCompatActivity() {
         }
 
         // Start Generation
+        // --- Provider -> Model cascade ---
+        val providerModels = mapOf(
+            "OpenAI" to R.array.image_models_openai,
+            "Replicate" to R.array.image_models_replicate,
+            "Automatic1111" to R.array.image_models_automatic1111,
+            "Local" to R.array.image_models_local
+        )
+
+        fun updateModelSpinner(selected: String?) {
+            val resId = providerModels[selected] ?: R.array.image_models_openai
+            val modelAdapter = ArrayAdapter.createFromResource(
+                this,
+                resId,
+                android.R.layout.simple_spinner_item
+            )
+            modelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            spinnerModel.adapter = modelAdapter
+        }
+
+        spinnerProvider.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                updateModelSpinner(parent.getItemAtPosition(position).toString())
+            }
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
+
+        // initialize models for current provider
+        updateModelSpinner(spinnerProvider.selectedItem?.toString())
+
         btnStartGeneration.setOnClickListener {
             val request = GenerationRequest(
+                provider = spinnerProvider.selectedItem.toString(),
+                model = spinnerModel.selectedItem.toString(),
                 prompts = etPrompts.text.toString(),
                 negativePrompt = etNegativePrompts.text.toString(),
                 similarity = seekSimilarity.progress,
