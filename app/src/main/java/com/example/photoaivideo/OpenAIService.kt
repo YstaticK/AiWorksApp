@@ -2,17 +2,14 @@ package com.example.photoaivideo
 
 import android.content.Context
 import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaType
 import org.json.JSONObject
 import java.io.File
 import java.io.IOException
-import java.util.concurrent.TimeUnit
 
 class OpenAIService(private val context: Context) {
-    private val client = OkHttpClient.Builder()
-        .connectTimeout(60, TimeUnit.SECONDS)
-        .readTimeout(60, TimeUnit.SECONDS)
-        .build()
 
+    private val client = OkHttpClient()
     private val apiKey = BuildConfig.OPENAI_API_KEY
     private val apiUrl = "https://api.openai.com/v1/images/generations"
 
@@ -23,7 +20,7 @@ class OpenAIService(private val context: Context) {
         body.put("size", "${width}x${height}")
 
         val requestBody = RequestBody.create(
-            MediaType.parse("application/json"),
+            "application/json".toMediaType(),
             body.toString()
         )
 
@@ -45,7 +42,7 @@ class OpenAIService(private val context: Context) {
                     return
                 }
 
-                val json = JSONObject(response.body()?.string() ?: "{}")
+                val json = JSONObject(response.body?.string() ?: "{}")
                 val dataArray = json.optJSONArray("data")
                 val files = mutableListOf<File>()
 
@@ -58,7 +55,7 @@ class OpenAIService(private val context: Context) {
                         try {
                             val imgReq = Request.Builder().url(imageUrl).build()
                             client.newCall(imgReq).execute().use { resp ->
-                                resp.body()?.byteStream()?.use { input ->
+                                resp.body?.byteStream()?.use { input ->
                                     file.outputStream().use { output -> input.copyTo(output) }
                                 }
                             }

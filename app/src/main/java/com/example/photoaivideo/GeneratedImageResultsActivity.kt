@@ -16,18 +16,34 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_generated_image_results)
 
+        // Progress bar setup
         val progressBar: ProgressBar = findViewById(R.id.progressBarGeneration)
         progressBar.max = 100
         progressBar.visibility = View.VISIBLE
 
+        Thread {
+            for (i in 1..100) {
+                Thread.sleep(50)
+                runOnUiThread {
+                    progressBar.progress = i
+                    if (i == 100) {
+                        progressBar.progressDrawable.setColorFilter(
+                            ContextCompat.getColor(this, android.R.color.holo_green_light),
+                            PorterDuff.Mode.SRC_IN
+                        )
+                    }
+                }
+            }
+        }.start()
+
+        // RecyclerView setup
         val recyclerView: RecyclerView = findViewById(R.id.gridGeneratedImages)
         recyclerView.layoutManager = GridLayoutManager(this, 2)
 
-        // Load request
+        // Load request if available
         val request = intent.getSerializableExtra("generationRequest") as? GenerationRequest
-        val service = OpenAIService(this)
-
         if (request != null) {
+            val service = OpenAIService(this)
             service.generateImage(
                 prompt = request.prompts,
                 width = request.width,
@@ -36,7 +52,7 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
                 runOnUiThread {
                     progressBar.visibility = View.GONE
                     if (files != null && files.isNotEmpty()) {
-                        recyclerView.adapter = GeneratedImageAdapter(this, files, request)
+                        recyclerView.adapter = GeneratedImageAdapter(this, files.toMutableList(), request)
                     }
                 }
             }
