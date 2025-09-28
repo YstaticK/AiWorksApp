@@ -54,16 +54,22 @@
             android:visibility="gone"/>
 
         <!-- Prompts -->
-        <EditText
+        <!-- Prompts -->
         <EditText
             android:id="@+id/etPrompts"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Enter prompts" />
-        <!-- Negative Prompts -->
-        <EditText
-            android:id="@+id/etNegativePrompts"
+            android:id="@+id/etPrompts"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter prompts" />
+        <!-- Seed -->
+        <EditText
+            android:id="@+id/etSeed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Seed (optional)" />
             android:layout_height="wrap_content"
             android:hint="Enter negative prompts" />
 
