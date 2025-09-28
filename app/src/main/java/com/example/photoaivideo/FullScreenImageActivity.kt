@@ -10,9 +10,8 @@ class FullScreenImageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_full_screen_image)
 
-        val imageView = findViewById<ImageView>(R.id.ivFullScreenImage)
+        val imageView: ImageView = findViewById(R.id.ivFullScreen)
         val path = intent.getStringExtra("imagePath")
-
         if (path != null) {
             val bitmap = BitmapFactory.decodeFile(path)
             imageView.setImageBitmap(bitmap)

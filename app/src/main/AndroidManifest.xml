@@ -47,7 +47,9 @@
         <!-- Models -->
         <activity android:name=".ModelsActivity" android:exported="false"/>
 
-    </application>
-</manifest>
+        <!-- Fullscreen image -->
         <activity android:name=".FullScreenImageActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+    <activity android:name=".FullScreenImageActivity" android:exported="false"/>
+    </application>
+</manifest>

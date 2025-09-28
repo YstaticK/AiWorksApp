@@ -1,10 +1,15 @@
 package com.example.photoaivideo
 
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import java.io.File
+import java.io.FileOutputStream
 
 class GenerateImageActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,7 +32,7 @@ class GenerateImageActivity : AppCompatActivity() {
 
         etSimilarity.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                val value = s.toString().replace("%","").toIntOrNull()
+                val value = s.toString().replace("%", "").toIntOrNull()
                 if (value != null && value in 0..100) {
                     seekSimilarity.progress = value
                 }
@@ -46,7 +51,21 @@ class GenerateImageActivity : AppCompatActivity() {
 
         // --- Start Generation ---
         btnStartGeneration.setOnClickListener {
-            Toast.makeText(this, "Generation started!", Toast.LENGTH_SHORT).show()
+            // Save a dummy image into generated_images
+            val generatedDir = File(filesDir, "generated_images")
+            if (!generatedDir.exists()) generatedDir.mkdirs()
+
+            val placeholder = BitmapFactory.decodeResource(resources, R.drawable.placeholder)
+            val outFile = File(generatedDir, "generated_${System.currentTimeMillis()}.png")
+            FileOutputStream(outFile).use { fos ->
+                placeholder.compress(Bitmap.CompressFormat.PNG, 100, fos)
+            }
+
+            Toast.makeText(this, "Image generated!", Toast.LENGTH_SHORT).show()
+
+            // Open results activity
+            val intent = Intent(this, GeneratedImageResultsActivity::class.java)
+            startActivity(intent)
         }
     }
 
@@ -55,7 +74,6 @@ class GenerateImageActivity : AppCompatActivity() {
         if (requestCode == 1001 && resultCode == RESULT_OK && data != null) {
             val imageUri = data.data
             Toast.makeText(this, "Selected reference: $imageUri", Toast.LENGTH_SHORT).show()
-            // TODO: preview or save selected image if needed
         }
     }
 }

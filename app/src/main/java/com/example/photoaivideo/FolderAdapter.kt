@@ -12,13 +12,12 @@ class FolderAdapter(
     private val onFolderClick: (File) -> Unit
 ) : RecyclerView.Adapter<FolderAdapter.FolderViewHolder>() {
 
-    class FolderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class FolderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val folderName: TextView = itemView.findViewById(R.id.folderName)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FolderViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_folder, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_folder, parent, false)
         return FolderViewHolder(view)
     }
 
