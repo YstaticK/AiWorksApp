@@ -1,17 +1,17 @@
 package com.example.photoaivideo
 
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import java.io.File
-import java.io.FileOutputStream
 
 class GenerateImageActivity : AppCompatActivity() {
+
+    private var selectedImageUri: Uri? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_generate_image)
@@ -20,6 +20,7 @@ class GenerateImageActivity : AppCompatActivity() {
         val seekSimilarity: SeekBar = findViewById(R.id.seekSimilarity)
         val etSimilarity: EditText = findViewById(R.id.etSimilarity)
         val btnSelectReference: Button = findViewById(R.id.btnSelectReference)
+        val ivReference: ImageView = findViewById(R.id.ivReference)
 
         // --- Sync SeekBar and EditText ---
         seekSimilarity.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -32,7 +33,7 @@ class GenerateImageActivity : AppCompatActivity() {
 
         etSimilarity.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                val value = s.toString().replace("%", "").toIntOrNull()
+                val value = s.toString().replace("%","").toIntOrNull()
                 if (value != null && value in 0..100) {
                     seekSimilarity.progress = value
                 }
@@ -44,36 +45,28 @@ class GenerateImageActivity : AppCompatActivity() {
         // --- Select Reference Image (optional) ---
         btnSelectReference.text = "Select Reference Image (Optional)"
         btnSelectReference.setOnClickListener {
-            val intent = android.content.Intent(android.content.Intent.ACTION_GET_CONTENT)
+            val intent = Intent(Intent.ACTION_GET_CONTENT)
             intent.type = "image/*"
             startActivityForResult(intent, 1001)
         }
 
         // --- Start Generation ---
         btnStartGeneration.setOnClickListener {
-            // Save a dummy image into generated_images
-            val generatedDir = File(filesDir, "generated_images")
-            if (!generatedDir.exists()) generatedDir.mkdirs()
-
-            val placeholder = BitmapFactory.decodeResource(resources, R.drawable.placeholder)
-            val outFile = File(generatedDir, "generated_${System.currentTimeMillis()}.png")
-            FileOutputStream(outFile).use { fos ->
-                placeholder.compress(Bitmap.CompressFormat.PNG, 100, fos)
-            }
-
-            Toast.makeText(this, "Image generated!", Toast.LENGTH_SHORT).show()
-
-            // Open results activity
             val intent = Intent(this, GeneratedImageResultsActivity::class.java)
+            selectedImageUri?.let {
+                intent.putExtra("referenceImageUri", it.toString())
+            }
             startActivity(intent)
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: android.content.Intent?) {
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 1001 && resultCode == RESULT_OK && data != null) {
             val imageUri = data.data
-            Toast.makeText(this, "Selected reference: $imageUri", Toast.LENGTH_SHORT).show()
+            selectedImageUri = imageUri
+            val ivReference: ImageView = findViewById(R.id.ivReference)
+            ivReference.setImageURI(imageUri)
         }
     }
 }
