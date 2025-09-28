@@ -35,7 +35,9 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
 
         val request = intent.getSerializableExtra("generationRequest") as? GenerationRequest
         val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
-        val apiKey = prefs.getString("api_key", null)
+
+        // Prefer API key from Intent, fallback to SharedPreferences
+        val apiKey = intent.getStringExtra("apiKey") ?: prefs.getString("api_key", null)
 
         if (request == null) {
             Toast.makeText(this, "No generation request found.", Toast.LENGTH_LONG).show()
@@ -129,11 +131,10 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
             0,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
         )
 
         builder.setContentIntent(pendingIntent)
-
         with(NotificationManagerCompat.from(this)) {
             notify(1001, builder.build())
         }
