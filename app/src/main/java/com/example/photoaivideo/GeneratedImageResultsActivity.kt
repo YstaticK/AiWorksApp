@@ -14,6 +14,14 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
         val tvTitle: TextView = findViewById(R.id.tvImageResultsTitle)
         val ivReferencePreview: ImageView = findViewById(R.id.ivReferencePreview)
 
+        val progressBar: ProgressBar = findViewById(R.id.progressBarGeneration)
+
+        // Show progress bar when generation starts
+        progressBar.visibility = View.VISIBLE
+
+        // TODO: Call this when generation is finished
+        progressBar.visibility = View.GONE
+
         val request = intent.getSerializableExtra("generationRequest") as? GenerationRequest
 
         if (request != null) {

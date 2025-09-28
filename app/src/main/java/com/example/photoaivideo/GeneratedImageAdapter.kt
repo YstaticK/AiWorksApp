@@ -28,6 +28,13 @@ class GeneratedImageAdapter(private val images: List<File>) :
             val bitmap = BitmapFactory.decodeFile(file.absolutePath)
             holder.imageView.setImageBitmap(bitmap)
 
+            holder.imageView.setOnClickListener {
+                val intent = Intent(context, FullScreenImageActivity::class.java)
+                intent.putExtra("imagePath", file.absolutePath)
+                intent.putExtra("generationRequest", request) // pass request for dropdown
+                context.startActivity(intent)
+}
+
             holder.itemView.setOnClickListener {
                 val context = holder.itemView.context
                 val intent = Intent(context, FullScreenImageActivity::class.java)
