@@ -4,13 +4,21 @@
     android:layout_height="wrap_content"
     android:padding="4dp">
 
+    <!-- Image placeholder / final image -->
     <ImageView
         android:id="@+id/ivGeneratedImage"
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:scaleType="centerCrop"
-        android:clickable="true"
-        android:focusable="true"
-        android:contentDescription="Generated Image" />
+        android:contentDescription="Generated Image"
+        android:background="@android:color/darker_gray" />
 
+    <!-- Spinner overlay -->
+    <ProgressBar
+        android:id="@+id/pbLoading"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center"
+        android:visibility="visible" />
 </FrameLayout>
