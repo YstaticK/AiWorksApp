@@ -7,35 +7,25 @@ import androidx.recyclerview.widget.RecyclerView
 import java.io.File
 
 class ImagesLibraryActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_images_library)
 
-        // Setup RecyclerView
         val recyclerView: RecyclerView = findViewById(R.id.recyclerImages)
         recyclerView.layoutManager = GridLayoutManager(this, 3)
 
-        // Load images from misc
-        val miscDir = File(getExternalFilesDir("images"), "misc")
+        // Root images dir
+        val rootDir = File(getExternalFilesDir("images")!!.absolutePath)
+        if (!rootDir.exists()) rootDir.mkdirs()
+
+        // Ensure misc folder always exists
+        val miscDir = File(rootDir, "misc")
         if (!miscDir.exists()) miscDir.mkdirs()
-        val images = miscDir.listFiles()?.toMutableList() ?: mutableListOf()
 
-        // Dummy request (since library images don’t carry request metadata)
-        val dummyRequest = GenerationRequest(
-            provider = "N/A",
-            model = "N/A",
-            prompts = "",
-            negativePrompt = "",
-            similarity = 0,
-            seed = null,
-            width = 0,
-            height = 0,
-            quality = "",
-            batchSize = 1,
-            referenceImageUri = null
-        )
+        // Get all subfolders
+        val folders = rootDir.listFiles()?.filter { it.isDirectory }?.toMutableList() ?: mutableListOf()
 
-        val adapter = GeneratedImageAdapter(this, images, dummyRequest)
-        recyclerView.adapter = adapter
+        recyclerView.adapter = LibraryFolderAdapter(this, folders)
     }
 }
