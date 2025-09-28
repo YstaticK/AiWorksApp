@@ -1,5 +1,6 @@
 package com.example.photoaivideo
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.view.LayoutInflater
@@ -9,8 +10,11 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import java.io.File
 
-class GeneratedImageAdapter(private val images: List<File>) :
-    RecyclerView.Adapter<GeneratedImageAdapter.ImageViewHolder>() {
+class GeneratedImageAdapter(
+    private val context: Context,
+    private val images: List<File>,
+    private val request: GenerationRequest
+) : RecyclerView.Adapter<GeneratedImageAdapter.ImageViewHolder>() {
 
     class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val imageView: ImageView = itemView.findViewById(R.id.ivGeneratedImage)
@@ -31,14 +35,7 @@ class GeneratedImageAdapter(private val images: List<File>) :
             holder.imageView.setOnClickListener {
                 val intent = Intent(context, FullScreenImageActivity::class.java)
                 intent.putExtra("imagePath", file.absolutePath)
-                intent.putExtra("generationRequest", request) // pass request for dropdown
-                context.startActivity(intent)
-}
-
-            holder.itemView.setOnClickListener {
-                val context = holder.itemView.context
-                val intent = Intent(context, FullScreenImageActivity::class.java)
-                intent.putExtra("imagePath", file.absolutePath)
+                intent.putExtra("generationRequest", request)
                 context.startActivity(intent)
             }
         }
