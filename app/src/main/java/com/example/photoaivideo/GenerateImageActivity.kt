@@ -18,6 +18,21 @@ class GenerateImageActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_generate_image)
+        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+
+        val apiKeyInput: EditText = findViewById(R.id.etApiKey)
+
+        val cbRemember: CheckBox = findViewById(R.id.cbRememberKey)
+
+        val savedKey = prefs.getString("api_key", "")
+
+        if (!savedKey.isNullOrEmpty()) {
+
+            apiKeyInput.setText(savedKey)
+
+            cbRemember.isChecked = true
+
+        }
 
         val btnStartGeneration: Button = findViewById(R.id.btnStartGeneration)
         val seekSimilarity: SeekBar = findViewById(R.id.seekSimilarity)
@@ -106,6 +121,26 @@ class GenerateImageActivity : AppCompatActivity() {
 
         // Start Generation
         btnStartGeneration.setOnClickListener {
+        val apiKeyInput: EditText = findViewById(R.id.etApiKey)
+
+        val apiKey = apiKeyInput.text.toString().trim()
+        if (cbRemember.isChecked) {
+
+            prefs.edit().putString("api_key", apiKey).apply()
+
+        } else {
+
+            prefs.edit().remove("api_key").apply()
+
+        }
+
+        if (apiKey.isEmpty()) {
+
+            Toast.makeText(this, "Please enter your OpenAI API key", Toast.LENGTH_LONG).show()
+
+            return@setOnClickListener
+
+        }
             val request = GenerationRequest(
                 provider = spinnerProvider.selectedItem.toString(),
                 model = spinnerModel.selectedItem.toString(),

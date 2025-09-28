@@ -41,6 +41,17 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
         recyclerView.layoutManager = GridLayoutManager(this, 2)
 
         // Load request if available
+        val apiKey = intent.getStringExtra("apiKey") ?: ""
+
+        if (apiKey.isEmpty()) {
+
+            Toast.makeText(this, "API key missing!", Toast.LENGTH_LONG).show()
+
+            finish()
+
+            return
+
+        }
         val request = intent.getSerializableExtra("generationRequest") as? GenerationRequest
         if (request != null) {
             val service = OpenAIService(this)
