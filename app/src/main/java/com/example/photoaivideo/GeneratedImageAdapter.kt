@@ -28,12 +28,12 @@ class GeneratedImageAdapter(
 
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
         val file = images[position]
-        if (file.exists()) {
-            val bitmap = BitmapFactory.decodeFile(file.absolutePath)
-            holder.imageView.setImageBitmap(bitmap)
-
-            holder.imageView.setOnClickListener {
-                val intent = Intent(context, FullScreenImageActivity::class.java)
+              holder.imageView.setOnClickListener {
+                  val intent = Intent(context, FullScreenImageActivity::class.java)
+                  intent.putExtra("imagePath", file.absolutePath)
+                  intent.putExtra("generationRequest", request)
+                  context.startActivity(intent)
+              }
                 intent.putExtra("imagePath", file.absolutePath)
                 intent.putExtra("generationRequest", request)
                 context.startActivity(intent)

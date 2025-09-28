@@ -1,5 +1,7 @@
 package com.example.photoaivideo
 
+import android.view.View
+import android.widget.ProgressBar
 import android.net.Uri
 import android.os.Bundle
 import android.widget.ImageView
@@ -12,6 +14,11 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_generated_image_results)
+        val progressBar: ProgressBar = findViewById(R.id.progressBarGeneration)
+        progressBar.visibility = View.VISIBLE
+
+        // TODO: hide it once generation completes
+
         val recyclerView: androidx.recyclerview.widget.RecyclerView = findViewById(R.id.gridGeneratedImages)
 
         recyclerView.layoutManager = androidx.recyclerview.widget.GridLayoutManager(this, 2)
@@ -37,27 +44,6 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
 
         val progressBar: ProgressBar = findViewById(R.id.progressBarGeneration)
 
-            // Show progress bar
-            progressBar.visibility = View.VISIBLE
-
-            // Later, when generation finishes:
-            progressBar.visibility = View.GONE
-
-            // Show progress bar when generation starts
-            progressBar.visibility = View.VISIBLE
-
-            // TODO: Call this when generation is finished
-            progressBar.visibility = View.GONE
-
-
-        if (request != null) {
-            tvTitle.text = """
-                Prompts: ${request.prompts}
-                Negative: ${request.negativePrompt}
-                Similarity: ${request.similarity}%
-                Size: ${request.width}x${request.height}
-                Quality: ${request.quality}
-                Batch: ${request.batchSize}
                 Seed: ${request.seed ?: "Auto"}
             """.trimIndent()
 
