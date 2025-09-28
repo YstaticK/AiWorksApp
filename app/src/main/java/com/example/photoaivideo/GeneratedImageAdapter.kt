@@ -1,20 +1,19 @@
 package com.example.photoaivideo
 
+import android.content.Intent
+import android.graphics.BitmapFactory
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import java.io.File
 
-class GeneratedImageAdapter(
-    private val images: List<Int>,
-    private val captions: List<String>
-) : RecyclerView.Adapter<GeneratedImageAdapter.ImageViewHolder>() {
+class GeneratedImageAdapter(private val images: List<File>) :
+    RecyclerView.Adapter<GeneratedImageAdapter.ImageViewHolder>() {
 
     class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val imageView: ImageView = itemView.findViewById(R.id.generatedImage)
-        val captionView: TextView = itemView.findViewById(R.id.generatedCaption)
+        val imageView: ImageView = itemView.findViewById(R.id.ivGeneratedImage)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
@@ -24,8 +23,18 @@ class GeneratedImageAdapter(
     }
 
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
-        holder.imageView.setImageResource(images[position])
-        holder.captionView.text = captions[position]
+        val file = images[position]
+        if (file.exists()) {
+            val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+            holder.imageView.setImageBitmap(bitmap)
+
+            holder.itemView.setOnClickListener {
+                val context = holder.itemView.context
+                val intent = Intent(context, FullScreenImageActivity::class.java)
+                intent.putExtra("imagePath", file.absolutePath)
+                context.startActivity(intent)
+            }
+        }
     }
 
     override fun getItemCount(): Int = images.size

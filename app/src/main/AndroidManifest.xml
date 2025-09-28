@@ -49,3 +49,5 @@
 
     </application>
 </manifest>
+        <activity android:name=".FullScreenImageActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
