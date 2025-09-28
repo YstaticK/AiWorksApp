@@ -1,5 +1,6 @@
 package com.example.photoaivideo
 
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.View
 import android.widget.ProgressBar
@@ -9,6 +10,7 @@ import android.graphics.PorterDuff
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.io.File
+import java.io.FileOutputStream
 
 class GeneratedImageResultsActivity : AppCompatActivity() {
 
@@ -40,14 +42,33 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
         val recyclerView: RecyclerView = findViewById(R.id.gridGeneratedImages)
         recyclerView.layoutManager = GridLayoutManager(this, 2)
 
-        // Load generated images
+        // Load request if available
+        val request = intent.getSerializableExtra("generationRequest") as? GenerationRequest
+
+        // Library folder
+        val miscDir = File(getExternalFilesDir(null), "misc").apply { mkdirs() }
+
+        // Temporary folder where generated images are written
         val imagesDir = getExternalFilesDir("generated_images")
         val images = imagesDir?.listFiles()?.toList() ?: emptyList()
 
-        // Load request if available
-        val request = intent.getSerializableExtra("generationRequest") as? GenerationRequest
+        // Save images into misc + clean up temporary folder
+        images.forEach { file ->
+            if (file.exists()) {
+                val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+                val destFile = File(miscDir, file.name)
+                FileOutputStream(destFile).use { out ->
+                    bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, out)
+                }
+                file.delete() // clean up temp file after saving
+            }
+        }
+
+        // Refresh the list from misc
+        val savedImages = miscDir.listFiles()?.toList() ?: emptyList()
+
         if (request != null) {
-            recyclerView.adapter = GeneratedImageAdapter(this, images, request)
+            recyclerView.adapter = GeneratedImageAdapter(this, savedImages, request)
         }
     }
 }
