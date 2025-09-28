@@ -10,6 +10,9 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_generated_image_results)
+        if (request != null) {
+            // TODO: use request.prompts, request.model, etc.
+        }
 
         val tvImageResultsTitle: TextView = findViewById(R.id.tvImageResultsTitle)
         val recyclerView: RecyclerView = findViewById(R.id.gridGeneratedImages)

@@ -81,7 +81,7 @@ class GenerateImageActivity : AppCompatActivity() {
             )
 
             val intent = Intent(this, GeneratedImageResultsActivity::class.java)
-            intent.putExtra("generationRequest", request)
+            intent.putExtra("generationRequest", request as java.io.Serializable)
             startActivity(intent)
         }
     }
