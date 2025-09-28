@@ -14,6 +14,17 @@ android {
         targetSdk 34
         versionCode 1
         versionName "1.0"
+
+        // ✅ Load OpenAI key from local.properties instead of hardcoding
+        def localProps = new Properties()
+        def localPropsFile = rootProject.file("local.properties")
+        if (localPropsFile.exists()) {
+            localProps.load(new FileInputStream(localPropsFile))
+            def openAiKey = localProps.getProperty("OPENAI_API_KEY", "")
+            buildConfigField "String", "OPENAI_API_KEY", "\"${openAiKey}\""
+        } else {
+            buildConfigField "String", "OPENAI_API_KEY", "\"\""
+        }
     }
 
     buildTypes {
@@ -55,6 +66,15 @@ dependencies {
     // ✅ Networking + local web server
     implementation "com.squareup.okhttp3:okhttp:4.11.0"
     implementation "org.nanohttpd:nanohttpd:2.3.1"
+
+    // Networking
+    implementation "com.squareup.retrofit2:retrofit:2.9.0"
+    implementation "com.squareup.retrofit2:converter-gson:2.9.0"
+    implementation "com.squareup.okhttp3:okhttp:4.9.3"
+
+    // Coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1"
 
     // JSON
     implementation "org.json:json:20230227"

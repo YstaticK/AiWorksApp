@@ -8,3 +8,4 @@ my-release-key.jks.base64
 
 # Misc
 skip
+local.properties

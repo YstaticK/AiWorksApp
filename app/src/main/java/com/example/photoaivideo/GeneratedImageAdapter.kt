@@ -12,7 +12,7 @@ import java.io.File
 
 class GeneratedImageAdapter(
     private val context: Context,
-    private val images: List<File>,
+    private val images: MutableList<File?>, // allow placeholders (null)
     private val request: GenerationRequest
 ) : RecyclerView.Adapter<GeneratedImageAdapter.ImageViewHolder>() {
 
@@ -28,7 +28,7 @@ class GeneratedImageAdapter(
 
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
         val file = images[position]
-        if (file.exists()) {
+        if (file != null && file.exists()) {
             val bitmap = BitmapFactory.decodeFile(file.absolutePath)
             holder.imageView.setImageBitmap(bitmap)
 
@@ -38,8 +38,16 @@ class GeneratedImageAdapter(
                 intent.putExtra("generationRequest", request)
                 context.startActivity(intent)
             }
+        } else {
+            holder.imageView.setImageResource(R.drawable.placeholder_image)
         }
     }
 
     override fun getItemCount(): Int = images.size
+
+    // Replace placeholder with actual image
+    fun updateImageAt(index: Int, file: File) {
+        images[index] = file
+        notifyItemChanged(index)
+    }
 }
