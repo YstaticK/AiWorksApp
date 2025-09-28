@@ -33,18 +33,12 @@ class GenerateImageActivity : AppCompatActivity() {
         val spinnerBatchSize: Spinner = findViewById(R.id.spinnerBatchSize)
         val spinnerProvider: Spinner = findViewById(R.id.spinnerProvider)
         val spinnerModel: Spinner = findViewById(R.id.spinnerModel)
-                }
-            }
-            override fun onNothingSelected(parent: AdapterView<*>) {}
-        }
 
         // Link provider spinner to model spinner
-                )
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 spinnerModel.adapter = adapter
             }
 
-            override fun onNothingSelected(parent: AdapterView<*>) {}
         // Set default provider and models
         spinnerProvider.setSelection(0) // OpenAI
         val defaultAdapter = ArrayAdapter.createFromResource(
@@ -55,7 +49,6 @@ class GenerateImageActivity : AppCompatActivity() {
         defaultAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerModel.adapter = defaultAdapter
         spinnerModel.setSelection(0) // DALL·E 2
-        }
         // Sync SeekBar and EditText
         seekSimilarity.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
