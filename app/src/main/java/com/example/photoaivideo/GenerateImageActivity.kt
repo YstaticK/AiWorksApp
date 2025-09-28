@@ -52,10 +52,36 @@ class GenerateImageActivity : AppCompatActivity() {
 
         // --- Start Generation ---
         btnStartGeneration.setOnClickListener {
+            val prompt = findViewById<EditText>(R.id.etPrompts).text.toString()
+            val negativePrompt = findViewById<EditText>(R.id.etNegativePrompts)?.text?.toString()
+            val similarity = seekSimilarity.progress
+            val seed = findViewById<EditText>(R.id.etSeed)?.text?.toString()?.toLongOrNull()
+
+            val spinnerSize = findViewById<Spinner>(R.id.spinnerSize)
+            val size = spinnerSize.selectedItem.toString().split("x")
+            val width = size[0].trim().toInt()
+            val height = size[1].trim().toInt()
+
+            val spinnerQuality = findViewById<Spinner>(R.id.spinnerQuality)
+            val quality = spinnerQuality.selectedItem.toString()
+
+            val spinnerBatch = findViewById<Spinner>(R.id.spinnerBatchSize)
+            val batchSize = spinnerBatch.selectedItem.toString().toInt()
+
+            val request = GenerationRequest(
+                prompt = prompt,
+                negativePrompt = negativePrompt,
+                similarity = similarity,
+                seed = seed,
+                width = width,
+                height = height,
+                quality = quality,
+                batchSize = batchSize,
+                referenceImageUri = selectedImageUri?.toString()
+            )
+
             val intent = Intent(this, GeneratedImageResultsActivity::class.java)
-            selectedImageUri?.let {
-                intent.putExtra("referenceImageUri", it.toString())
-            }
+            intent.putExtra("generationRequest", request)
             startActivity(intent)
         }
     }
@@ -63,10 +89,9 @@ class GenerateImageActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 1001 && resultCode == RESULT_OK && data != null) {
-            val imageUri = data.data
-            selectedImageUri = imageUri
+            selectedImageUri = data.data
             val ivReference: ImageView = findViewById(R.id.ivReference)
-            ivReference.setImageURI(imageUri)
+            ivReference.setImageURI(selectedImageUri)
         }
     }
 }

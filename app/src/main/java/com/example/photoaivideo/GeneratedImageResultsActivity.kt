@@ -1,12 +1,9 @@
 package com.example.photoaivideo
 
-import android.net.Uri
 import android.os.Bundle
-import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import java.io.File
 
 class GeneratedImageResultsActivity : AppCompatActivity() {
 
@@ -14,21 +11,27 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_generated_image_results)
 
+        val tvImageResultsTitle: TextView = findViewById(R.id.tvImageResultsTitle)
         val recyclerView: RecyclerView = findViewById(R.id.gridGeneratedImages)
-        recyclerView.layoutManager = GridLayoutManager(this, 2)
 
-        // Collect images to display
-        val images = mutableListOf<File>()
+        // Get request from intent
+        val request = intent.getSerializableExtra("generationRequest") as? GenerationRequest
 
-        // Check if a reference image was passed in
-        intent.getStringExtra("referenceImageUri")?.let { uriString ->
-            val uri = Uri.parse(uriString)
-            // Save temp file? For now just show directly via adapter
-            val previewList = listOf(uri)
-            recyclerView.adapter = ReferencePreviewAdapter(previewList)
-            return
+        if (request != null) {
+            tvImageResultsTitle.text = """
+                Prompt: ${request.prompt}
+                Negative: ${request.negativePrompt ?: "none"}
+                Similarity: ${request.similarity}%
+                Seed: ${request.seed ?: "random"}
+                Size: ${request.width}x${request.height}
+                Quality: ${request.quality}
+                Batch: ${request.batchSize}
+                Reference: ${request.referenceImageUri ?: "none"}
+            """.trimIndent()
+        } else {
+            tvImageResultsTitle.text = "No generation request received."
         }
 
-        recyclerView.adapter = GeneratedImageAdapter(images)
+        // TODO: Later - load real generated images into recyclerView
     }
 }
