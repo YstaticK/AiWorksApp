@@ -49,7 +49,6 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
             // TODO: Call this when generation is finished
             progressBar.visibility = View.GONE
 
-        val request = intent.getSerializableExtra("generationRequest") as? GenerationRequest
 
         if (request != null) {
             tvTitle.text = """
