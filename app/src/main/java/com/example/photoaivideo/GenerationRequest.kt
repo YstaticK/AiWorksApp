@@ -3,12 +3,13 @@ package com.example.photoaivideo
 import java.io.Serializable
 
 data class GenerationRequest(
-    val model: String,
     val prompts: String,
+    val negativePrompt: String?,
     val similarity: Int,
     val seed: String?,
-    val size: String,
+    val width: Int,
+    val height: Int,
     val quality: String,
     val batchSize: Int,
-    val referenceImagePath: String?
+    val referenceImageUri: String?
 ) : Serializable
