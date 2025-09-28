@@ -22,6 +22,10 @@ class GeneratedImageAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
         val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_generated_image, parent, false)
+        return ImageViewHolder(view)
+    }
+
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
         val file = images[position]
         if (file.exists()) {
@@ -36,3 +40,6 @@ class GeneratedImageAdapter(
             }
         }
     }
+
+    override fun getItemCount(): Int = images.size
+}

@@ -1,5 +1,5 @@
 package com.example.photoaivideo
-
+import java.io.Serializable
     val model: String,
 import java.io.Serializable
 

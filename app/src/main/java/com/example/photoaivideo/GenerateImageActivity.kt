@@ -1,8 +1,8 @@
 package com.example.photoaivideo
+
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -50,27 +50,30 @@ class GenerateImageActivity : AppCompatActivity() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 etSimilarity.setText("$progress%")
             }
+
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
 
         etSimilarity.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
-                val value = s.toString().replace("%","").toIntOrNull()
+                val value = s.toString().replace("%", "").toIntOrNull()
                 if (value != null && value in 0..100) {
                     seekSimilarity.progress = value
                 }
             }
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        val providerModels = mapOf(
-            "OpenAI" to R.array.models_openai,
-            "Stability AI" to R.array.models_stability,
-            "Runway" to R.array.models_runway
-        )
+        })
 
-        // Start Generation
-        // --- Provider -> Model cascade ---
+        // Provider -> Model mapping
+        val providerModels = mapOf(
+            "OpenAI" to R.array.image_models_openai,
+            "Replicate" to R.array.image_models_replicate,
+            "Automatic1111" to R.array.image_models_automatic1111,
+            "Local" to R.array.image_models_local
+        )
 
         fun updateModelSpinner(selected: String?) {
             val resId = providerModels[selected] ?: R.array.image_models_openai
@@ -84,23 +87,28 @@ class GenerateImageActivity : AppCompatActivity() {
         }
 
         spinnerProvider.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-        spinnerProvider.setSelection(0)
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 updateModelSpinner(parent.getItemAtPosition(position).toString())
             }
+
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
 
-        // initialize models for current provider
+        // Initialize models for default provider
         updateModelSpinner(spinnerProvider.selectedItem?.toString())
 
+        // Select Reference Image
+        btnSelectReference.setOnClickListener {
+            val intent = Intent(Intent.ACTION_GET_CONTENT)
+            intent.type = "image/*"
+            startActivityForResult(intent, 1001)
+        }
+
+        // Start Generation
         btnStartGeneration.setOnClickListener {
             val request = GenerationRequest(
                 provider = spinnerProvider.selectedItem.toString(),
                 model = spinnerModel.selectedItem.toString(),
-
-
-
                 prompts = etPrompts.text.toString(),
                 negativePrompt = etNegativePrompts.text.toString(),
                 similarity = seekSimilarity.progress,
