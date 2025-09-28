@@ -58,7 +58,7 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
         val ivReferencePreview: ImageView = findViewById(R.id.ivReferencePreview)
 
 
-                Seed: ${request.seed ?: "Auto"}
+            tvTitle.text = "Seed: ${request.seed ?: \"Auto\"}"
 
             if (request.referenceImageUri != null) {
                 ivReferencePreview.setImageURI(Uri.parse(request.referenceImageUri))
