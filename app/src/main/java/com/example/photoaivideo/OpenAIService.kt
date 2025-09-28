@@ -3,8 +3,8 @@ package com.example.photoaivideo
 import android.content.Context
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import org.json.JSONObject
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 import java.io.File
 import java.io.IOException
 
@@ -24,9 +24,8 @@ class OpenAIService(private val context: Context, private val apiKey: String) {
         body.put("prompt", prompt)
         body.put("n", n)
         body.put("size", "${width}x${height}")
+
         val requestBody = body.toString().toRequestBody("application/json".toMediaTypeOrNull())
-            body.toString()
-        )
 
         val request = Request.Builder()
             .url(apiUrl)
