@@ -55,7 +55,11 @@
 
         <!-- Prompts -->
         <EditText
+        <EditText
             android:id="@+id/etPrompts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter prompts" />
         <!-- Negative Prompts -->
         <EditText
             android:id="@+id/etNegativePrompts"
