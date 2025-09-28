@@ -13,38 +13,3 @@
     <string name="generate_video">Generate Video</string>
     <string name="folder_icon">Folder icon</string>
 </resources>
-
-    <!-- Image generation quality options -->
-    <string-array name="image_quality">
-        <item>Standard</item>
-        <item>High</item>
-        <item>Ultra</item>
-    </string-array>
-
-    <!-- Image generation sizes -->
-    <string-array name="image_sizes">
-        <item>512x512</item>
-        <item>768x768</item>
-        <item>1024x1024</item>
-    </string-array>
-
-    <!-- Batch sizes -->
-    <string-array name="batch_sizes">
-        <item>1</item>
-        <item>2</item>
-        <item>4</item>
-        <item>8</item>
-    </string-array>
-
-    <!-- Reference library destinations -->
-    <string-array name="reference_library_destinations">
-        <item>Images</item>
-        <item>Videos</item>
-    </string-array>
-
-    <!-- Example models (placeholder for now) -->
-    <string-array name="image_generation_models">
-        <item>Stable Diffusion</item>
-        <item>DreamShaper</item>
-        <item>AnythingV5</item>
-    </string-array>
