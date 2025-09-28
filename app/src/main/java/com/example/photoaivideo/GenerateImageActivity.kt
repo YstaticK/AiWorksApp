@@ -34,11 +34,6 @@ class GenerateImageActivity : AppCompatActivity() {
         val spinnerProvider: Spinner = findViewById(R.id.spinnerProvider)
         val spinnerModel: Spinner = findViewById(R.id.spinnerModel)
 
-        // Link provider spinner to model spinner
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                spinnerModel.adapter = adapter
-            }
-
         // Set default provider and models
         spinnerProvider.setSelection(0) // OpenAI
         val defaultAdapter = ArrayAdapter.createFromResource(
@@ -49,6 +44,7 @@ class GenerateImageActivity : AppCompatActivity() {
         defaultAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerModel.adapter = defaultAdapter
         spinnerModel.setSelection(0) // DALL·E 2
+
         // Sync SeekBar and EditText
         seekSimilarity.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -67,23 +63,14 @@ class GenerateImageActivity : AppCompatActivity() {
             }
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        })
-
-        // Select Reference Image
-        btnSelectReference.setOnClickListener {
-            val intent = Intent(Intent.ACTION_GET_CONTENT)
-            intent.type = "image/*"
-            startActivityForResult(intent, 1001)
-        }
+        val providerModels = mapOf(
+            "OpenAI" to R.array.models_openai,
+            "Stability AI" to R.array.models_stability,
+            "Runway" to R.array.models_runway
+        )
 
         // Start Generation
         // --- Provider -> Model cascade ---
-        val providerModels = mapOf(
-            "OpenAI" to R.array.image_models_openai,
-            "Replicate" to R.array.image_models_replicate,
-            "Automatic1111" to R.array.image_models_automatic1111,
-            "Local" to R.array.image_models_local
-        )
 
         fun updateModelSpinner(selected: String?) {
             val resId = providerModels[selected] ?: R.array.image_models_openai
