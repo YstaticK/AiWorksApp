@@ -1,9 +1,4 @@
 <resources>
-    <string-array name="image_generation_providers">
-        <item>OpenAI</item>
-        <item>Stability AI</item>
-    </string-array>
-
 
     <!-- ================= IMAGE GENERATION ================= -->
     <!-- Quality options -->

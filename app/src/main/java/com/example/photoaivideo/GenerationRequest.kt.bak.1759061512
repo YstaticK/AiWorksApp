@@ -1,6 +1,5 @@
 package com.example.photoaivideo
 
-    val model: String,
 import java.io.Serializable
 
 data class GenerationRequest(

@@ -1,0 +1,15 @@
+<resources>
+    <!-- App Name -->
+    <string name="app_name">AiWorksApp</string>
+
+    <!-- Generate Image Screen -->
+    <string name="select_reference">Select Reference</string>
+    <string name="save_reference">Save Reference</string>
+    <string name="prompt">Prompt</string>
+    <string name="negative_prompt">Negative Prompt</string>
+    <string name="generate_now">Generate Now</string>
+
+    <!-- Generate Video Screen -->
+    <string name="generate_video">Generate Video</string>
+    <string name="folder_icon">Folder icon</string>
+</resources>

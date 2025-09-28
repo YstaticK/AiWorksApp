@@ -28,13 +28,13 @@
         <item>DALL·E 3</item>
     </string-array>
 
-    <string-array name="models_stability">
-        <item>Stable Diffusion v1.5</item>
-        <item>Stable Diffusion XL</item>
-    </string-array>
+<string-array name="models_stability">
+    <item>DALL·E 2</item>
+    <item>DALL·E 3</item>
+</string-array>
 
-    <string-array name="models_runway">
-        <item>Gen-2</item>
-        <item>Custom Runway Model</item>
-    </string-array>
+<string-array name="models_runway">
+    <item>DALL·E 2</item>
+    <item>DALL·E 3</item>
+</string-array>
 </resources>

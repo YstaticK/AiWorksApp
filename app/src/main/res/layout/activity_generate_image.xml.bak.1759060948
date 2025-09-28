@@ -10,21 +10,11 @@
         android:layout_height="wrap_content">
 
         <!-- Model selection -->
-        <!-- Provider -->
         <Spinner
-            android:id="@+id/spinnerProvider"
+            android:id="@+id/spinnerModelImage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:prompt="@string/select_provider"
-            android:entries="@array/image_generation_providers" />
-        <!-- Model -->
-        <Spinner
-            android:id="@+id/spinnerModel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:prompt="@string/select_model"
-            android:entries="@array/models_openai" />
-
+            android:entries="@array/image_generation_models"/>
 
         <!-- Reference Image -->
         <ImageView
