@@ -31,24 +31,27 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
         val recyclerView: RecyclerView = findViewById(R.id.gridGeneratedImages)
         recyclerView.layoutManager = GridLayoutManager(this, 2)
 
-        val request = intent.getSerializableExtra("generationRequest") as? GenerationRequest
-        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
-        val apiKey = intent.getStringExtra("apiKey") ?: prefs.getString("api_key", null)
-
-        if (request == null) {
-            ErrorUtils.showErrorDialog(this, "No generation request found.")
-            finish()
+        val request: GenerationRequest = try {
+            (intent.getSerializableExtra("generationRequest") as? GenerationRequest)
+                ?: throw IllegalArgumentException("generationRequest extra missing")
+        } catch (e: Exception) {
+            ErrorUtils.showErrorDialog(
+                this,
+                "Failed to read request.\n\n${e::class.java.simpleName}: ${e.message}"
+            )
             return
         }
+
+        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        val apiKey = intent.getStringExtra("apiKey") ?: prefs.getString("api_key", null)
         if (apiKey.isNullOrBlank()) {
             ErrorUtils.showErrorDialog(this, "Missing API key. Please enter it on the previous screen.")
-            finish()
             return
         }
 
         createNotificationChannel()
 
-        // Fake loading animation
+        // Friendly loading animation (non-blocking)
         Thread {
             for (i in 1..100) {
                 Thread.sleep(40)
@@ -73,6 +76,12 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
         ) { files, error ->
             runOnUiThread {
                 progressBar.visibility = View.GONE
+                if (!error.isNullOrBlank()) {
+                    ErrorUtils.showErrorDialog(this, error)
+                    showNotification("Generation Failed", error, success = false)
+                    return@runOnUiThread
+                }
+
                 if (files != null && files.isNotEmpty()) {
                     recyclerView.adapter = GeneratedImageAdapter(this, files, request)
                     showNotification(
@@ -81,13 +90,9 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
                         success = true
                     )
                 } else {
-                    val message = error ?: "Image generation failed."
-                    ErrorUtils.showErrorDialog(this, message)
-                    showNotification(
-                        "Generation Failed",
-                        message,
-                        success = false
-                    )
+                    val msg = "Image generation did not return any files."
+                    ErrorUtils.showErrorDialog(this, msg)
+                    showNotification("Generation Failed", msg, success = false)
                 }
             }
         }

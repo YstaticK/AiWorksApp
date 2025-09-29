@@ -1,5 +1,6 @@
 package com.example.photoaivideo
 
+import android.view.View
 import android.widget.*
 import android.content.Intent
 import android.net.Uri
@@ -9,6 +10,7 @@ import android.text.TextWatcher
 import androidx.appcompat.app.AppCompatActivity
 
 class GenerateImageActivity : AppCompatActivity() {
+
     private var selectedReferenceImageUri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -16,13 +18,14 @@ class GenerateImageActivity : AppCompatActivity() {
         setContentView(R.layout.activity_generate_image)
 
         val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+
         val apiKeyInput: EditText = findViewById(R.id.etApiKey)
         val cbRemember: CheckBox = findViewById(R.id.cbRememberKey)
-
-        val savedKey = prefs.getString("api_key", "")
-        if (!savedKey.isNullOrEmpty()) {
-            apiKeyInput.setText(savedKey)
-            cbRemember.isChecked = true
+        prefs.getString("api_key", "")?.let {
+            if (it.isNotEmpty()) {
+                apiKeyInput.setText(it)
+                cbRemember.isChecked = true
+            }
         }
 
         val btnStartGeneration: Button = findViewById(R.id.btnStartGeneration)
@@ -59,7 +62,6 @@ class GenerateImageActivity : AppCompatActivity() {
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
-
         etSimilarity.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 val value = s.toString().replace("%", "").toIntOrNull()
@@ -80,51 +82,52 @@ class GenerateImageActivity : AppCompatActivity() {
 
         // Start Generation
         btnStartGeneration.setOnClickListener {
+            val apiKey = apiKeyInput.text.toString().trim()
+            if (apiKey.isEmpty()) {
+                ErrorUtils.showErrorDialog(this, "Please enter your OpenAI API key")
+                return@setOnClickListener
+            }
+
+            if (cbRemember.isChecked) {
+                prefs.edit().putString("api_key", apiKey).apply()
+            } else {
+                prefs.edit().remove("api_key").apply()
+            }
+
+            val sizeSel = spinnerSize.selectedItem?.toString() ?: "512x512"
+            val (w, h) = when (sizeSel) {
+                "512x512" -> 512 to 512
+                "768x768" -> 768 to 768
+                "1024x1024" -> 1024 to 1024
+                else -> 512 to 512
+            }
+
+            val request = GenerationRequest(
+                provider = spinnerProvider.selectedItem.toString(),
+                model = spinnerModel.selectedItem.toString(),
+                prompts = etPrompts.text.toString(),
+                negativePrompt = etNegativePrompts.text.toString(),
+                similarity = seekSimilarity.progress,
+                seed = etSeed.text.toString().takeIf { it.isNotBlank() },
+                width = w,
+                height = h,
+                quality = spinnerQuality.selectedItem.toString(),
+                batchSize = spinnerBatchSize.selectedItem.toString().toInt(),
+                referenceImageUri = selectedReferenceImageUri?.toString()
+            )
+
+            Toast.makeText(this, "Starting image generation…", Toast.LENGTH_SHORT).show()
+
             try {
-                val apiKey = apiKeyInput.text.toString().trim()
-                if (apiKey.isEmpty()) {
-                    ErrorUtils.showErrorDialog(this, "Please enter your OpenAI API key.")
-                    return@setOnClickListener
-                }
-
-                if (cbRemember.isChecked) {
-                    prefs.edit().putString("api_key", apiKey).apply()
-                } else {
-                    prefs.edit().remove("api_key").apply()
-                }
-
-                val request = GenerationRequest(
-                    provider = spinnerProvider.selectedItem.toString(),
-                    model = spinnerModel.selectedItem.toString(),
-                    prompts = etPrompts.text.toString(),
-                    negativePrompt = etNegativePrompts.text.toString(),
-                    similarity = seekSimilarity.progress,
-                    seed = etSeed.text.toString().takeIf { it.isNotBlank() },
-                    width = when (spinnerSize.selectedItem.toString()) {
-                        "512x512" -> 512
-                        "768x768" -> 768
-                        "1024x1024" -> 1024
-                        else -> 512
-                    },
-                    height = when (spinnerSize.selectedItem.toString()) {
-                        "512x512" -> 512
-                        "768x768" -> 768
-                        "1024x1024" -> 1024
-                        else -> 512
-                    },
-                    quality = spinnerQuality.selectedItem.toString(),
-                    batchSize = spinnerBatchSize.selectedItem.toString().toInt(),
-                    referenceImageUri = selectedReferenceImageUri?.toString()
-                )
-
-                Toast.makeText(this, "Starting image generation…", Toast.LENGTH_SHORT).show()
                 val intent = Intent(this, GeneratedImageResultsActivity::class.java)
                 intent.putExtra("generationRequest", request)
                 intent.putExtra("apiKey", apiKey)
                 startActivity(intent)
-
             } catch (e: Exception) {
-                ErrorUtils.showErrorDialog(this, "Error preparing generation: ${e.message}")
+                ErrorUtils.showErrorDialog(
+                    this,
+                    "Failed to start results screen.\n\n${e::class.java.simpleName}: ${e.message}"
+                )
             }
         }
     }
