@@ -1,8 +1,8 @@
 package com.example.photoaivideo
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.widget.EditText
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -12,8 +12,9 @@ import java.io.File
 class ImagesLibraryActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
-    private lateinit var rootDir: File
     private lateinit var adapter: LibraryFolderAdapter
+    private val folders = mutableListOf<File>()
+    private lateinit var rootDir: File
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,49 +26,45 @@ class ImagesLibraryActivity : AppCompatActivity() {
         rootDir = File(getExternalFilesDir("images")!!.absolutePath)
         if (!rootDir.exists()) rootDir.mkdirs()
 
-        // Ensure misc exists
+        // Make sure misc exists
         val miscDir = File(rootDir, "misc")
         if (!miscDir.exists()) miscDir.mkdirs()
 
-        // Setup adapter
-        val folders = loadFolders()
-        adapter = LibraryFolderAdapter(this, folders)
-        recyclerView.adapter = adapter
+        loadFolders()
 
-        // Hook up FAB if present in layout (won't crash if missing)
-        val fab = try {
-            findViewById<FloatingActionButton>(R.id.btnAddImageFolder)
-        } catch (_: Throwable) { null }
+        // Hook up the actual FAB (btnNewFolder)
+        val fab: FloatingActionButton = findViewById(R.id.btnNewFolder)
+        fab.setOnClickListener {
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("New Image Folder")
 
-        fab?.setOnClickListener {
-            val input = EditText(this).apply { hint = "Folder name" }
-            AlertDialog.Builder(this)
-                .setTitle("New Image Folder")
-                .setView(input)
-                .setPositiveButton("Create") { _, _ ->
-                    val name = input.text.toString().trim()
-                    if (name.isNotEmpty()) {
-                        val newFolder = File(rootDir, name)
-                        if (!newFolder.exists()) {
-                            newFolder.mkdirs()
-                            adapter = LibraryFolderAdapter(this, loadFolders())
-                            recyclerView.adapter = adapter
-                        } else {
-                            ErrorUtils.showErrorDialog(this, "A folder named \"$name\" already exists.")
-                        }
+            val input = EditText(this)
+            input.hint = "Folder name"
+            builder.setView(input)
+
+            builder.setPositiveButton("Create") { _, _ ->
+                val folderName = input.text.toString().trim()
+                if (folderName.isNotEmpty()) {
+                    val newFolder = File(rootDir, folderName)
+                    if (!newFolder.exists()) {
+                        newFolder.mkdirs()
+                        folders.add(newFolder)
+                        adapter.updateData(folders.toMutableList())
                     }
                 }
-                .setNegativeButton("Cancel", null)
-                .show()
+            }
+
+            builder.setNegativeButton("Cancel", null)
+            builder.show()
         }
     }
 
-    private fun loadFolders(): MutableList<File> {
-        // Show ALL subfolders (including empty)
-        return rootDir.listFiles()
-            ?.filter { it.isDirectory }
-            ?.sortedBy { it.name.lowercase() }
-            ?.toMutableList()
-            ?: mutableListOf()
+    private fun loadFolders() {
+        folders.clear()
+        rootDir.listFiles()?.filter { it.isDirectory }?.let {
+            folders.addAll(it)
+        }
+        adapter = LibraryFolderAdapter(this, folders)
+        recyclerView.adapter = adapter
     }
 }
