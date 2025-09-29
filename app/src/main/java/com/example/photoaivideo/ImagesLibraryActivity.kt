@@ -29,8 +29,7 @@ class ImagesLibraryActivity : AppCompatActivity() {
 
         val folders = rootDir.listFiles()
             ?.filter { it.isDirectory && it.listFiles()?.isNotEmpty() == true }
-            ?.toMutableList()
-            ?: mutableListOf()
+            ?.toMutableList() ?: mutableListOf()
 
         recyclerView.adapter = LibraryFolderAdapter(this, folders)
     }

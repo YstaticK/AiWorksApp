@@ -32,8 +32,8 @@ class VideosLibraryActivity : AppCompatActivity() {
             intent.putExtra("path", folder.absolutePath)
             startActivity(intent)
         }
-
         recyclerViewVideosLibrary.adapter = adapter
+
         loadFolders()
 
         val btnAddVideoFolder = findViewById<FloatingActionButton>(R.id.btnAddVideoFolder)
