@@ -35,32 +35,29 @@ class OpenAIService(private val context: Context, private val apiKey: String) {
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                e.printStackTrace()
-                callback(null, "Network error: ${e.message}")
+                (context as? BasePermissionActivity)?.logErrorToFile("Network request failed", e)
+                callback(null, "Network error: ${e.localizedMessage}")
             }
 
             override fun onResponse(call: Call, response: Response) {
                 if (!response.isSuccessful) {
-                    callback(null, "API error: ${response.code} ${response.message}")
-                    return
-                }
-
-                val responseString = response.body?.string()
-                if (responseString.isNullOrEmpty()) {
-                    callback(null, "Empty response from API")
+                    val errorMsg = "API error: ${response.code}"
+                    (context as? BasePermissionActivity)?.logErrorToFile(errorMsg, null)
+                    callback(null, errorMsg)
                     return
                 }
 
                 try {
-                    val json = JSONObject(responseString)
+                    val json = JSONObject(response.body?.string() ?: "{}")
                     val dataArray = json.optJSONArray("data")
                     val files = mutableListOf<File>()
 
                     if (dataArray != null) {
+                        val saveDir = File(context.getExternalFilesDir("images"), "misc")
+                        if (!saveDir.exists()) saveDir.mkdirs()
+
                         for (i in 0 until dataArray.length()) {
                             val imageUrl = dataArray.getJSONObject(i).getString("url")
-                            val saveDir = File(context.getExternalFilesDir("images"), "misc")
-                            if (!saveDir.exists()) saveDir.mkdirs()
                             val file = File(saveDir, "ai_${System.currentTimeMillis()}_$i.png")
 
                             try {
@@ -72,19 +69,20 @@ class OpenAIService(private val context: Context, private val apiKey: String) {
                                 }
                                 files.add(file)
                             } catch (e: Exception) {
-                                e.printStackTrace()
+                                (context as? BasePermissionActivity)?.logErrorToFile("Image download failed", e)
                             }
                         }
                     }
 
-                    if (files.isNotEmpty()) {
-                        callback(files, null)
-                    } else {
+                    if (files.isEmpty()) {
                         callback(null, "No images returned by API")
+                    } else {
+                        callback(files, null)
                     }
+
                 } catch (e: Exception) {
-                    e.printStackTrace()
-                    callback(null, "Parse error: ${e.message}")
+                    (context as? BasePermissionActivity)?.logErrorToFile("Processing API response failed", e)
+                    callback(null, "Failed to process response: ${e.localizedMessage}")
                 }
             }
         })
