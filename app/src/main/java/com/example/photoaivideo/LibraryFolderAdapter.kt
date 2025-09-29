@@ -12,7 +12,7 @@ import java.io.File
 
 class LibraryFolderAdapter(
     private val context: Context,
-    private val folders: List<File>
+    private val folders: MutableList<File>
 ) : RecyclerView.Adapter<LibraryFolderAdapter.FolderViewHolder>() {
 
     class FolderViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -21,7 +21,8 @@ class LibraryFolderAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FolderViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_folder, parent, false)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_folder, parent, false)
         return FolderViewHolder(view)
     }
 
@@ -38,4 +39,11 @@ class LibraryFolderAdapter(
     }
 
     override fun getItemCount(): Int = folders.size
+
+    // 🔹 Allow dynamic updates (same pattern as FolderAdapter)
+    fun updateData(newFolders: List<File>) {
+        folders.clear()
+        folders.addAll(newFolders)
+        notifyDataSetChanged()
+    }
 }
