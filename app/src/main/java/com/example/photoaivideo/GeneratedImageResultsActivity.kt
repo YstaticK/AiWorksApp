@@ -3,13 +3,11 @@ package com.example.photoaivideo
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.widget.ProgressBar
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -35,24 +33,22 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
 
         val request = intent.getSerializableExtra("generationRequest") as? GenerationRequest
         val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
-
-        // Prefer API key from Intent, fallback to SharedPreferences
         val apiKey = intent.getStringExtra("apiKey") ?: prefs.getString("api_key", null)
 
         if (request == null) {
-            Toast.makeText(this, "No generation request found.", Toast.LENGTH_LONG).show()
+            ErrorUtils.showErrorDialog(this, "No generation request found.")
             finish()
             return
         }
         if (apiKey.isNullOrBlank()) {
-            Toast.makeText(this, "Missing API key. Please enter it on the previous screen.", Toast.LENGTH_LONG).show()
+            ErrorUtils.showErrorDialog(this, "Missing API key. Please enter it on the previous screen.")
             finish()
             return
         }
 
         createNotificationChannel()
 
-        // Fake loading animation while waiting
+        // Fake loading animation
         Thread {
             for (i in 1..100) {
                 Thread.sleep(40)
@@ -86,7 +82,7 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
                     )
                 } else {
                     val message = error ?: "Image generation failed."
-                    Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+                    ErrorUtils.showErrorDialog(this, message)
                     showNotification(
                         "Generation Failed",
                         message,
@@ -106,7 +102,7 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
                 description = descriptionText
             }
             val notificationManager: NotificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                getSystemService(NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
     }

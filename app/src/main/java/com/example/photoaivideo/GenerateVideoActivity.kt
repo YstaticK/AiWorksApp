@@ -10,13 +10,16 @@ class GenerateVideoActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_generate_video)
 
-        // Hook up spinner (model selection)
-        val spinnerModel: Spinner = findViewById(R.id.spinnerModelVideo)
+        try {
+            val spinnerModel: Spinner = findViewById(R.id.spinnerModelVideo)
+            val btnGenerateVideo: Button = findViewById(R.id.btnVideo)
 
-        // Hook up button (safe for now, no crash)
-        val btnGenerateVideo: Button = findViewById(R.id.btnVideo)
-        btnGenerateVideo.setOnClickListener {
-            // TODO: Add video generation logic
+            btnGenerateVideo.setOnClickListener {
+                // Placeholder for actual generation logic
+                ErrorUtils.showErrorDialog(this, "Video generation is not yet implemented.")
+            }
+        } catch (e: Exception) {
+            ErrorUtils.showErrorDialog(this, "Error initializing GenerateVideoActivity:\n${e.message}")
         }
     }
 }

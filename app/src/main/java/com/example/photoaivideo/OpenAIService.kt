@@ -1,5 +1,6 @@
 package com.example.photoaivideo
 
+import android.app.Activity
 import android.content.Context
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
@@ -37,19 +38,25 @@ class OpenAIService(private val context: Context, private val apiKey: String) {
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
+                (context as? Activity)?.let {
+                    ErrorUtils.showErrorDialog(it, "Network error: ${e.message}")
+                }
                 callback(null, e.message)
             }
 
             override fun onResponse(call: Call, response: Response) {
                 if (!response.isSuccessful) {
-                    callback(null, "API call failed: ${response.code}")
+                    val errorMsg = "API call failed: ${response.code}"
+                    (context as? Activity)?.let {
+                        ErrorUtils.showErrorDialog(it, errorMsg)
+                    }
+                    callback(null, errorMsg)
                     return
                 }
 
                 val json = JSONObject(response.body?.string() ?: "{}")
                 val dataArray = json.optJSONArray("data")
                 val files = mutableListOf<File>()
-
                 if (dataArray != null) {
                     for (i in 0 until dataArray.length()) {
                         val imageUrl = dataArray.getJSONObject(i).getString("url")
@@ -67,6 +74,9 @@ class OpenAIService(private val context: Context, private val apiKey: String) {
                             files.add(file)
                         } catch (e: Exception) {
                             e.printStackTrace()
+                            (context as? Activity)?.let {
+                                ErrorUtils.showErrorDialog(it, "File save error: ${e.message}")
+                            }
                         }
                     }
                 }

@@ -34,20 +34,24 @@ object OpenAIClient {
     private const val BASE_URL = "https://api.openai.com/v1/"
 
     fun create(apiKey: String): OpenAIApiService {
-        val client = OkHttpClient.Builder()
-            .addInterceptor { chain ->
-                val request = chain.request().newBuilder()
-                    .addHeader("Authorization", "Bearer $apiKey")
-                    .build()
-                chain.proceed(request)
-            }
-            .build()
+        return try {
+            val client = OkHttpClient.Builder()
+                .addInterceptor { chain ->
+                    val request = chain.request().newBuilder()
+                        .addHeader("Authorization", "Bearer $apiKey")
+                        .build()
+                    chain.proceed(request)
+                }
+                .build()
 
-        return Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(client)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(OpenAIApiService::class.java)
+            Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .client(client)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .create(OpenAIApiService::class.java)
+        } catch (e: Exception) {
+            throw RuntimeException("Error creating OpenAIClient: ${e.message}", e)
+        }
     }
 }

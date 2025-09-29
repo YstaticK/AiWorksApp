@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.RecyclerView
 import java.io.File
 
 class ImagesLibraryActivity : AppCompatActivity() {
-
     private lateinit var recyclerView: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -17,7 +16,11 @@ class ImagesLibraryActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recyclerImages)
         recyclerView.layoutManager = GridLayoutManager(this, 3)
 
-        loadFolders()
+        try {
+            loadFolders()
+        } catch (e: Exception) {
+            ErrorUtils.showErrorDialog(this, "Error loading image library: ${e.message}")
+        }
     }
 
     private fun loadFolders() {
@@ -27,8 +30,9 @@ class ImagesLibraryActivity : AppCompatActivity() {
         val miscDir = File(rootDir, "misc")
         if (!miscDir.exists()) miscDir.mkdirs()
 
+        // Show ALL folders, even empty ones
         val folders = rootDir.listFiles()
-            ?.filter { it.isDirectory && it.listFiles()?.isNotEmpty() == true }
+            ?.filter { it.isDirectory }
             ?.toMutableList() ?: mutableListOf()
 
         recyclerView.adapter = LibraryFolderAdapter(this, folders)
