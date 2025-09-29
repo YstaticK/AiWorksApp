@@ -36,6 +36,7 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
         val request = intent.getSerializableExtra("generationRequest") as? GenerationRequest
         val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
 
+        // Prefer API key from Intent, fallback to SharedPreferences
         val apiKey = intent.getStringExtra("apiKey") ?: prefs.getString("api_key", null)
 
         if (request == null) {
@@ -51,7 +52,7 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
 
         createNotificationChannel()
 
-        // Fake loading animation
+        // Fake loading animation while waiting
         Thread {
             for (i in 1..100) {
                 Thread.sleep(40)
@@ -73,7 +74,7 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
             width = request.width,
             height = request.height,
             n = request.batchSize
-        ) { files ->
+        ) { files, error ->
             runOnUiThread {
                 progressBar.visibility = View.GONE
                 if (files != null && files.isNotEmpty()) {
@@ -84,10 +85,11 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
                         success = true
                     )
                 } else {
-                    Toast.makeText(this, "Image generation failed.", Toast.LENGTH_LONG).show()
+                    val message = error ?: "Image generation failed."
+                    Toast.makeText(this, message, Toast.LENGTH_LONG).show()
                     showNotification(
                         "Generation Failed",
-                        "Something went wrong. Tap to retry.",
+                        message,
                         success = false
                     )
                 }

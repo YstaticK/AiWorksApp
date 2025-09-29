@@ -1,6 +1,7 @@
 package com.example.photoaivideo
 
 import android.os.Bundle
+import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
@@ -24,18 +25,18 @@ class FolderImagesActivity : AppCompatActivity() {
         if (folder.exists() && folder.isDirectory) {
             val images = folder.listFiles { file ->
                 file.isFile && (file.extension.equals("png", true) ||
-                                file.extension.equals("jpg", true) ||
-                                file.extension.equals("jpeg", true))
+                        file.extension.equals("jpg", true) ||
+                        file.extension.equals("jpeg", true))
             }?.toList() ?: emptyList()
 
             if (images.isNotEmpty()) {
                 recyclerView.adapter = FolderImagesAdapter(this, images)
-                tvEmpty.visibility = TextView.GONE
+                tvEmpty.visibility = View.GONE
             } else {
-                tvEmpty.visibility = TextView.VISIBLE
+                tvEmpty.visibility = View.VISIBLE
             }
         } else {
-            tvEmpty.visibility = TextView.VISIBLE
+            tvEmpty.visibility = View.VISIBLE
         }
     }
 }
