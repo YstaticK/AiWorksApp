@@ -1,6 +1,7 @@
 package com.example.photoaivideo
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
@@ -12,7 +13,7 @@ import java.io.File
 class ImagesLibraryActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: LibraryFolderAdapter
+    private lateinit var adapter: FolderAdapter
     private val folders = mutableListOf<File>()
     private lateinit var rootDir: File
 
@@ -26,13 +27,20 @@ class ImagesLibraryActivity : AppCompatActivity() {
         rootDir = File(getExternalFilesDir("images")!!.absolutePath)
         if (!rootDir.exists()) rootDir.mkdirs()
 
-        // Make sure misc exists
+        // Ensure misc folder exists
         val miscDir = File(rootDir, "misc")
         if (!miscDir.exists()) miscDir.mkdirs()
 
+        adapter = FolderAdapter(folders.toMutableList()) { folder ->
+            val intent = Intent(this, FolderDetailActivity::class.java)
+            intent.putExtra("path", folder.absolutePath)
+            startActivity(intent)
+        }
+        recyclerView.adapter = adapter
+
         loadFolders()
 
-        // Hook up the actual FAB (btnNewFolder)
+        // Hook up FloatingActionButton for new folders
         val fab: FloatingActionButton = findViewById(R.id.btnNewFolder)
         fab.setOnClickListener {
             val builder = AlertDialog.Builder(this)
@@ -64,7 +72,6 @@ class ImagesLibraryActivity : AppCompatActivity() {
         rootDir.listFiles()?.filter { it.isDirectory }?.let {
             folders.addAll(it)
         }
-        adapter = LibraryFolderAdapter(this, folders)
-        recyclerView.adapter = adapter
+        adapter.updateData(folders.toMutableList())
     }
 }
