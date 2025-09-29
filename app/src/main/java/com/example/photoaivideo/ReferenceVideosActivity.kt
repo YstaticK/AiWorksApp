@@ -4,12 +4,13 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.File
 
-class ReferenceVideosActivity : BasePermissionActivity() {
+class ReferenceVideosActivity : AppCompatActivity() {
 
     private lateinit var recyclerViewReferenceVideos: RecyclerView
     private lateinit var adapter: FolderAdapter
@@ -19,13 +20,17 @@ class ReferenceVideosActivity : BasePermissionActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reference_videos)
-    }
 
-    override fun onStoragePermissionGranted() {
+        // Base path inside app-private storage
+        val baseDir = File(getExternalFilesDir("references"), "videos")
+        if (!baseDir.exists()) baseDir.mkdirs()
+
         val path = intent.getStringExtra("path")
-        currentDir = if (path != null) File(path) else File(filesDir, "reference_videos")
+        currentDir = if (path != null) File(path) else baseDir
 
         if (!currentDir.exists()) currentDir.mkdirs()
+
+        // Example folder only in root
         if (path == null) {
             val exampleDir = File(currentDir, "Example Videos")
             if (!exampleDir.exists()) exampleDir.mkdirs()
@@ -41,8 +46,7 @@ class ReferenceVideosActivity : BasePermissionActivity() {
         }
         recyclerViewReferenceVideos.adapter = adapter
 
-        val btnAddReferenceVideoFolder =
-            findViewById<FloatingActionButton>(R.id.btnAddReferenceVideoFolder)
+        val btnAddReferenceVideoFolder = findViewById<FloatingActionButton>(R.id.btnAddVideoFolder)
         btnAddReferenceVideoFolder.setOnClickListener {
             val builder = AlertDialog.Builder(this)
             builder.setTitle("New Subfolder")

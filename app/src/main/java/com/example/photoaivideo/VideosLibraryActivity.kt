@@ -3,14 +3,14 @@ package com.example.photoaivideo
 import android.content.Intent
 import android.os.Bundle
 import android.widget.EditText
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.File
 
-class VideosLibraryActivity : BasePermissionActivity() {
+class VideosLibraryActivity : AppCompatActivity() {
 
     private lateinit var recyclerViewVideosLibrary: RecyclerView
     private lateinit var adapter: FolderAdapter
@@ -21,15 +21,7 @@ class VideosLibraryActivity : BasePermissionActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_videos_library)
 
-        if (!PermissionsHelper.hasStoragePermission(this)) {
-            PermissionsHelper.requestStoragePermission(this)
-        } else {
-            onStoragePermissionGranted()
-        }
-    }
-
-    override fun onStoragePermissionGranted() {
-        rootDir = File(filesDir, "videos_library")
+        rootDir = File(getExternalFilesDir("videos")!!.absolutePath)
         if (!rootDir.exists()) rootDir.mkdirs()
 
         recyclerViewVideosLibrary = findViewById(R.id.recyclerViewVideosLibrary)
@@ -40,8 +32,8 @@ class VideosLibraryActivity : BasePermissionActivity() {
             intent.putExtra("path", folder.absolutePath)
             startActivity(intent)
         }
-        recyclerViewVideosLibrary.adapter = adapter
 
+        recyclerViewVideosLibrary.adapter = adapter
         loadFolders()
 
         val btnAddVideoFolder = findViewById<FloatingActionButton>(R.id.btnAddVideoFolder)
@@ -64,18 +56,10 @@ class VideosLibraryActivity : BasePermissionActivity() {
                     }
                 }
             }
+
             builder.setNegativeButton("Cancel", null)
             builder.show()
         }
-    }
-
-    override fun onStoragePermissionDenied() {
-        Toast.makeText(
-            this,
-            "Storage permission required to access the video library.",
-            Toast.LENGTH_LONG
-        ).show()
-        PermissionsHelper.requestStoragePermission(this)
     }
 
     private fun loadFolders() {

@@ -1,12 +1,12 @@
 package com.example.photoaivideo
 
 import android.os.Bundle
-import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.io.File
 
-class ImagesLibraryActivity : BasePermissionActivity() {
+class ImagesLibraryActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
 
@@ -17,15 +17,10 @@ class ImagesLibraryActivity : BasePermissionActivity() {
         recyclerView = findViewById(R.id.recyclerImages)
         recyclerView.layoutManager = GridLayoutManager(this, 3)
 
-        // Ask for permission if not already granted
-        if (!PermissionsHelper.hasStoragePermission(this)) {
-            PermissionsHelper.requestStoragePermission(this)
-        } else {
-            onStoragePermissionGranted()
-        }
+        loadFolders()
     }
 
-    override fun onStoragePermissionGranted() {
+    private fun loadFolders() {
         val rootDir = File(getExternalFilesDir("images")!!.absolutePath)
         if (!rootDir.exists()) rootDir.mkdirs()
 
@@ -38,14 +33,5 @@ class ImagesLibraryActivity : BasePermissionActivity() {
             ?: mutableListOf()
 
         recyclerView.adapter = LibraryFolderAdapter(this, folders)
-    }
-
-    override fun onStoragePermissionDenied() {
-        Toast.makeText(
-            this,
-            "Storage permission required to access the image library.",
-            Toast.LENGTH_LONG
-        ).show()
-        PermissionsHelper.requestStoragePermission(this)
     }
 }
