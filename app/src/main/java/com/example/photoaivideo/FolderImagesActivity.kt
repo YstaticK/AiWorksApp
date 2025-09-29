@@ -1,39 +1,41 @@
 package com.example.photoaivideo
 
 import android.os.Bundle
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import java.io.File
 
 class FolderImagesActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_images_library)
+        setContentView(R.layout.activity_folder_images)
 
-        val folderPath = intent.getStringExtra("folderPath") ?: return
-        val folder = File(folderPath)
+        val recyclerView: RecyclerView = findViewById(R.id.recyclerFolderImages)
+        val tvEmpty: TextView = findViewById(R.id.tvEmptyFolder)
 
-        val recyclerView: RecyclerView = findViewById(R.id.recyclerImages)
         recyclerView.layoutManager = GridLayoutManager(this, 3)
 
-        val images = folder.listFiles()?.filter { it.isFile }?.toMutableList() ?: mutableListOf()
+        val folderPath = intent.getStringExtra("folderPath")
+        val folder = File(folderPath ?: "")
 
-        // Use dummy request since library images don’t carry metadata
-        val dummyRequest = GenerationRequest(
-            provider = "N/A",
-            model = "N/A",
-            prompts = "",
-            negativePrompt = "",
-            similarity = 0,
-            seed = null,
-            width = 0,
-            height = 0,
-            quality = "",
-            batchSize = 1,
-            referenceImageUri = null
-        )
+        if (folder.exists() && folder.isDirectory) {
+            val images = folder.listFiles { file ->
+                file.isFile && (file.extension.equals("png", true) ||
+                                file.extension.equals("jpg", true) ||
+                                file.extension.equals("jpeg", true))
+            }?.toList() ?: emptyList()
 
-        recyclerView.adapter = GeneratedImageAdapter(this, images, dummyRequest)
+            if (images.isNotEmpty()) {
+                recyclerView.adapter = FolderImagesAdapter(this, images)
+                tvEmpty.visibility = TextView.GONE
+            } else {
+                tvEmpty.visibility = TextView.VISIBLE
+            }
+        } else {
+            tvEmpty.visibility = TextView.VISIBLE
+        }
     }
 }
