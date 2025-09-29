@@ -20,8 +20,8 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_margin="16dp"
-        app:backgroundTint="@android:color/holo_green_dark"
-        app:tint="@android:color/white"
-        app:srcCompat="@android:drawable/ic_input_add" />
+        android:src="@android:drawable/ic_input_add"
+        app:backgroundTint="@color/design_default_color_primary"
+        app:tint="@android:color/white" />
 
 </RelativeLayout>
