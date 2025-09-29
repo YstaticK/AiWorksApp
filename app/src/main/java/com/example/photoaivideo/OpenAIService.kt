@@ -25,7 +25,8 @@ class OpenAIService(private val context: Context, private val apiKey: String) {
         body.put("n", n)
         body.put("size", "${width}x${height}")
 
-        val requestBody = body.toString().toRequestBody("application/json".toMediaType())
+        val requestBody =
+            body.toString().toRequestBody("application/json".toMediaType())
 
         val request = Request.Builder()
             .url(apiUrl)
@@ -35,55 +36,42 @@ class OpenAIService(private val context: Context, private val apiKey: String) {
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
-                (context as? BasePermissionActivity)?.logErrorToFile("Network request failed", e)
-                callback(null, "Network error: ${e.localizedMessage}")
+                e.printStackTrace()
+                callback(null, e.message)
             }
 
             override fun onResponse(call: Call, response: Response) {
                 if (!response.isSuccessful) {
-                    val errorMsg = "API error: ${response.code}"
-                    (context as? BasePermissionActivity)?.logErrorToFile(errorMsg, null)
-                    callback(null, errorMsg)
+                    callback(null, "API call failed: ${response.code}")
                     return
                 }
 
-                try {
-                    val json = JSONObject(response.body?.string() ?: "{}")
-                    val dataArray = json.optJSONArray("data")
-                    val files = mutableListOf<File>()
+                val json = JSONObject(response.body?.string() ?: "{}")
+                val dataArray = json.optJSONArray("data")
+                val files = mutableListOf<File>()
 
-                    if (dataArray != null) {
+                if (dataArray != null) {
+                    for (i in 0 until dataArray.length()) {
+                        val imageUrl = dataArray.getJSONObject(i).getString("url")
                         val saveDir = File(context.getExternalFilesDir("images"), "misc")
                         if (!saveDir.exists()) saveDir.mkdirs()
+                        val file = File(saveDir, "ai_${System.currentTimeMillis()}_$i.png")
 
-                        for (i in 0 until dataArray.length()) {
-                            val imageUrl = dataArray.getJSONObject(i).getString("url")
-                            val file = File(saveDir, "ai_${System.currentTimeMillis()}_$i.png")
-
-                            try {
-                                val imgReq = Request.Builder().url(imageUrl).build()
-                                client.newCall(imgReq).execute().use { resp ->
-                                    resp.body?.byteStream()?.use { input ->
-                                        file.outputStream().use { output -> input.copyTo(output) }
-                                    }
+                        try {
+                            val imgReq = Request.Builder().url(imageUrl).build()
+                            client.newCall(imgReq).execute().use { resp ->
+                                resp.body?.byteStream()?.use { input ->
+                                    file.outputStream().use { output -> input.copyTo(output) }
                                 }
-                                files.add(file)
-                            } catch (e: Exception) {
-                                (context as? BasePermissionActivity)?.logErrorToFile("Image download failed", e)
                             }
+                            files.add(file)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
                         }
                     }
-
-                    if (files.isEmpty()) {
-                        callback(null, "No images returned by API")
-                    } else {
-                        callback(files, null)
-                    }
-
-                } catch (e: Exception) {
-                    (context as? BasePermissionActivity)?.logErrorToFile("Processing API response failed", e)
-                    callback(null, "Failed to process response: ${e.localizedMessage}")
                 }
+
+                callback(files, null)
             }
         })
     }

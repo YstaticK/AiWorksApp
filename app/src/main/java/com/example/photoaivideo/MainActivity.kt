@@ -3,19 +3,12 @@ package com.example.photoaivideo
 import android.os.Bundle
 import android.widget.Button
 import android.content.Intent
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        // 🔹 Request storage permission on first start
-        if (!PermissionsHelper.hasStoragePermission(this)) {
-            PermissionsHelper.requestStoragePermission(this)
-            Toast.makeText(this, "Storage permission required for full functionality.", Toast.LENGTH_LONG).show()
-        }
 
         // Reference Library button
         val btnReferenceLibrary = findViewById<Button>(R.id.btnReferenceLibrary)
@@ -29,12 +22,13 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, RecycleBinActivity::class.java))
         }
 
-        // Library button
+        // Models button
         val btnModels = findViewById<Button>(R.id.btnModels)
         btnModels.setOnClickListener {
             startActivity(Intent(this, ModelsActivity::class.java))
         }
 
+        // Library button
         val btnLibrary = findViewById<Button>(R.id.btnLibrary)
         btnLibrary.setOnClickListener {
             startActivity(Intent(this, LibraryActivity::class.java))
