@@ -1,39 +1,23 @@
 package com.example.photoaivideo
 
 import android.content.pm.PackageManager
-import android.os.Build
+import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import java.io.File
 
 abstract class BasePermissionActivity : AppCompatActivity() {
 
-    companion object {
-        const val REQUEST_STORAGE = 2001
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        checkPermission()
     }
 
-    override fun onStart() {
-        super.onStart()
-        checkStoragePermission()
-    }
-
-    private fun checkStoragePermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val hasPermission = ContextCompat.checkSelfPermission(
-                this,
-                android.Manifest.permission.READ_EXTERNAL_STORAGE
-            ) == PackageManager.PERMISSION_GRANTED
-
-            if (!hasPermission) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE),
-                    REQUEST_STORAGE
-                )
-            } else {
-                onStoragePermissionGranted()
-            }
+    private fun checkPermission() {
+        if (!PermissionsHelper.hasStoragePermission(this)) {
+            PermissionsHelper.requestStoragePermission(this)
         } else {
             onStoragePermissionGranted()
         }
@@ -45,20 +29,39 @@ abstract class BasePermissionActivity : AppCompatActivity() {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-        if (requestCode == REQUEST_STORAGE) {
+        if (requestCode == PermissionsHelper.REQUEST_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 onStoragePermissionGranted()
             } else {
                 Toast.makeText(
                     this,
-                    "Storage permission required. Please allow to use this feature.",
+                    "Storage permission denied. This feature won’t work without it.",
                     Toast.LENGTH_LONG
                 ).show()
-                checkStoragePermission()
+                onStoragePermissionDenied()
             }
         }
     }
 
+    // Child activities must implement granted case
     abstract fun onStoragePermissionGranted()
+
+    // Optional override for denied case
+    open fun onStoragePermissionDenied() {
+        // Default does nothing
+    }
+
+    // --- Simple error logging helper ---
+    fun logErrorToFile(message: String, throwable: Throwable? = null) {
+        try {
+            val dir = File(getExternalFilesDir("images"), "misc")
+            if (!dir.exists()) dir.mkdirs()
+            val logFile = File(dir, "error_log.txt")
+            logFile.appendText(
+                "\n[${System.currentTimeMillis()}] $message\n${throwable?.stackTraceToString() ?: ""}\n"
+            )
+        } catch (_: Exception) {
+            // ignore logging failures
+        }
+    }
 }
