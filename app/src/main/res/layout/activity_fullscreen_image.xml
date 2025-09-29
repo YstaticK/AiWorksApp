@@ -4,9 +4,11 @@
     android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/fullScreenImageView"
+        android:id="@+id/ivFullscreen"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:adjustViewBounds="true"
         android:scaleType="fitCenter"
-        android:adjustViewBounds="true" />
+        android:contentDescription="Fullscreen Image" />
+
 </FrameLayout>
