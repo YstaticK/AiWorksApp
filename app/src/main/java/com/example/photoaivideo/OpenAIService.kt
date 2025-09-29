@@ -18,15 +18,14 @@ class OpenAIService(private val context: Context, private val apiKey: String) {
         width: Int,
         height: Int,
         n: Int = 1,
-        callback: (List<File>?, error: String?) -> Unit
+        callback: (List<File>?, String?) -> Unit
     ) {
         val body = JSONObject()
         body.put("prompt", prompt)
         body.put("n", n)
         body.put("size", "${width}x${height}")
 
-        val requestBody =
-            body.toString().toRequestBody("application/json".toMediaType())
+        val requestBody = body.toString().toRequestBody("application/json".toMediaType())
 
         val request = Request.Builder()
             .url(apiUrl)
@@ -41,49 +40,52 @@ class OpenAIService(private val context: Context, private val apiKey: String) {
             }
 
             override fun onResponse(call: Call, response: Response) {
-                val responseBody = response.body?.string()
                 if (!response.isSuccessful) {
-                    val errorMsg = try {
-                        val json = JSONObject(responseBody ?: "{}")
-                        json.optJSONObject("error")?.optString("message")
-                            ?: "Unknown error"
-                    } catch (e: Exception) {
-                        "Unknown error"
-                    }
-                    callback(null, errorMsg)
+                    callback(null, "API error: ${response.code} ${response.message}")
                     return
                 }
 
-                val json = JSONObject(responseBody ?: "{}")
-                val dataArray = json.optJSONArray("data")
-                val files = mutableListOf<File>()
-
-                if (dataArray != null) {
-                    for (i in 0 until dataArray.length()) {
-                        val imageUrl = dataArray.getJSONObject(i).getString("url")
-                        val saveDir =
-                            File(context.getExternalFilesDir("images"), "misc")
-                        if (!saveDir.exists()) saveDir.mkdirs()
-                        val file =
-                            File(saveDir, "ai_${System.currentTimeMillis()}_$i.png")
-
-                        try {
-                            val imgReq = Request.Builder().url(imageUrl).build()
-                            client.newCall(imgReq).execute().use { resp ->
-                                resp.body?.byteStream()?.use { input ->
-                                    file.outputStream().use { output ->
-                                        input.copyTo(output)
-                                    }
-                                }
-                            }
-                            files.add(file)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                    }
+                val responseString = response.body?.string()
+                if (responseString.isNullOrEmpty()) {
+                    callback(null, "Empty response from API")
+                    return
                 }
 
-                callback(files, null)
+                try {
+                    val json = JSONObject(responseString)
+                    val dataArray = json.optJSONArray("data")
+                    val files = mutableListOf<File>()
+
+                    if (dataArray != null) {
+                        for (i in 0 until dataArray.length()) {
+                            val imageUrl = dataArray.getJSONObject(i).getString("url")
+                            val saveDir = File(context.getExternalFilesDir("images"), "misc")
+                            if (!saveDir.exists()) saveDir.mkdirs()
+                            val file = File(saveDir, "ai_${System.currentTimeMillis()}_$i.png")
+
+                            try {
+                                val imgReq = Request.Builder().url(imageUrl).build()
+                                client.newCall(imgReq).execute().use { resp ->
+                                    resp.body?.byteStream()?.use { input ->
+                                        file.outputStream().use { output -> input.copyTo(output) }
+                                    }
+                                }
+                                files.add(file)
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
+                    }
+
+                    if (files.isNotEmpty()) {
+                        callback(files, null)
+                    } else {
+                        callback(null, "No images returned by API")
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    callback(null, "Parse error: ${e.message}")
+                }
             }
         })
     }

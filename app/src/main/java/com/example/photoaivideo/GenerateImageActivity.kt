@@ -21,6 +21,7 @@ class GenerateImageActivity : AppCompatActivity() {
 
         val apiKeyInput: EditText = findViewById(R.id.etApiKey)
         val cbRemember: CheckBox = findViewById(R.id.cbRememberKey)
+
         val savedKey = prefs.getString("api_key", "")
         if (!savedKey.isNullOrEmpty()) {
             apiKeyInput.setText(savedKey)
@@ -58,6 +59,7 @@ class GenerateImageActivity : AppCompatActivity() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 etSimilarity.setText("$progress%")
             }
+
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
@@ -83,6 +85,7 @@ class GenerateImageActivity : AppCompatActivity() {
         // Start Generation
         btnStartGeneration.setOnClickListener {
             val apiKey = apiKeyInput.text.toString().trim()
+
             if (apiKey.isEmpty()) {
                 Toast.makeText(this, "Please enter your OpenAI API key", Toast.LENGTH_LONG).show()
                 return@setOnClickListener
@@ -117,6 +120,9 @@ class GenerateImageActivity : AppCompatActivity() {
                 batchSize = spinnerBatchSize.selectedItem.toString().toInt(),
                 referenceImageUri = selectedReferenceImageUri?.toString()
             )
+
+            // Inform user before switching screen
+            Toast.makeText(this, "Starting image generation…", Toast.LENGTH_SHORT).show()
 
             val intent = Intent(this, GeneratedImageResultsActivity::class.java)
             intent.putExtra("generationRequest", request)

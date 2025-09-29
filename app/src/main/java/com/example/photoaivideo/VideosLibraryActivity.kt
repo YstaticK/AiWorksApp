@@ -3,6 +3,7 @@ package com.example.photoaivideo
 import android.content.Intent
 import android.os.Bundle
 import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,6 +20,12 @@ class VideosLibraryActivity : BasePermissionActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_videos_library)
+
+        if (!PermissionsHelper.hasStoragePermission(this)) {
+            PermissionsHelper.requestStoragePermission(this)
+        } else {
+            onStoragePermissionGranted()
+        }
     }
 
     override fun onStoragePermissionGranted() {
@@ -57,10 +64,18 @@ class VideosLibraryActivity : BasePermissionActivity() {
                     }
                 }
             }
-
             builder.setNegativeButton("Cancel", null)
             builder.show()
         }
+    }
+
+    override fun onStoragePermissionDenied() {
+        Toast.makeText(
+            this,
+            "Storage permission required to access the video library.",
+            Toast.LENGTH_LONG
+        ).show()
+        PermissionsHelper.requestStoragePermission(this)
     }
 
     private fun loadFolders() {
