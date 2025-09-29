@@ -4,13 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.File
 
-class ReferenceVideosActivity : AppCompatActivity() {
+class ReferenceVideosActivity : BasePermissionActivity() {
 
     private lateinit var recyclerViewReferenceVideos: RecyclerView
     private lateinit var adapter: FolderAdapter
@@ -20,8 +19,9 @@ class ReferenceVideosActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_reference_videos)
+    }
 
-        // Determine current directory (default = root reference_videos)
+    override fun onStoragePermissionGranted() {
         val path = intent.getStringExtra("path")
         currentDir = if (path != null) File(path) else File(filesDir, "reference_videos")
 
@@ -33,6 +33,7 @@ class ReferenceVideosActivity : AppCompatActivity() {
 
         recyclerViewReferenceVideos = findViewById(R.id.recyclerViewReferenceVideos)
         recyclerViewReferenceVideos.layoutManager = LinearLayoutManager(this)
+
         adapter = FolderAdapter(folders.toMutableList()) { folder ->
             val intent = Intent(this, ReferenceVideosActivity::class.java)
             intent.putExtra("path", folder.absolutePath)
@@ -40,7 +41,8 @@ class ReferenceVideosActivity : AppCompatActivity() {
         }
         recyclerViewReferenceVideos.adapter = adapter
 
-        val btnAddReferenceVideoFolder = findViewById<FloatingActionButton>(R.id.btnAddReferenceVideoFolder)
+        val btnAddReferenceVideoFolder =
+            findViewById<FloatingActionButton>(R.id.btnAddReferenceVideoFolder)
         btnAddReferenceVideoFolder.setOnClickListener {
             val builder = AlertDialog.Builder(this)
             builder.setTitle("New Subfolder")
@@ -60,6 +62,7 @@ class ReferenceVideosActivity : AppCompatActivity() {
                     }
                 }
             }
+
             builder.setNegativeButton("Cancel", null)
             builder.show()
         }

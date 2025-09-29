@@ -1,16 +1,15 @@
 package com.example.photoaivideo
 
-import android.os.Bundle
 import android.content.Intent
+import android.os.Bundle
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.File
 
-class VideosLibraryActivity : AppCompatActivity() {
+class VideosLibraryActivity : BasePermissionActivity() {
 
     private lateinit var recyclerViewVideosLibrary: RecyclerView
     private lateinit var adapter: FolderAdapter
@@ -20,7 +19,9 @@ class VideosLibraryActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_videos_library)
+    }
 
+    override fun onStoragePermissionGranted() {
         rootDir = File(filesDir, "videos_library")
         if (!rootDir.exists()) rootDir.mkdirs()
 
