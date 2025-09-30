@@ -40,9 +40,9 @@
         <ImageView
             android:id="@+id/ivReference"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:scaleType="centerCrop"
+            android:layout_height="wrap_content"
             android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
             android:layout_marginBottom="8dp" />
 
         <!-- Similarity -->
@@ -50,13 +50,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Similarity" />
-
         <SeekBar
             android:id="@+id/seekSimilarity"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:max="100" />
-
         <EditText
             android:id="@+id/etSimilarity"
             android:layout_width="wrap_content"
@@ -71,7 +69,6 @@
             android:hint="Enter prompts"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-
         <EditText
             android:id="@+id/etNegativePrompts"
             android:hint="Negative prompts"
@@ -111,19 +108,6 @@
         <Spinner
             android:id="@+id/spinnerBatchSize"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <!-- API Key + Remember -->
-        <EditText
-            android:id="@+id/etApiKey"
-            android:hint="Enter API Key"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <CheckBox
-            android:id="@+id/cbRememberKey"
-            android:text="Remember API Key"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <!-- Start Generation -->
