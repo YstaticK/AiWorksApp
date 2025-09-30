@@ -9,59 +9,40 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Provider -->
-        <Spinner
-            android:id="@+id/spinnerProvider"
+        <!-- API Key Input -->
+        <EditText
+            android:id="@+id/etApiKey"
+            android:hint="Enter API Key"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:entries="@array/image_generation_providers" />
+            android:layout_height="wrap_content" />
 
-        <!-- Model -->
-        <Spinner
-            android:id="@+id/spinnerModel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:entries="@array/models_openai" />
+        <CheckBox
+            android:id="@+id/cbRememberKey"
+            android:text="Remember API Key"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
-        <!-- Reference -->
-        <ImageView
-            android:id="@+id/ivReference"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:layout_gravity="center"
-            android:src="@drawable/placeholder"
-            android:scaleType="centerCrop"
-            android:contentDescription="Reference Image" />
-
+        <!-- Select Reference Image -->
         <Button
             android:id="@+id/btnSelectReference"
+            android:text="Select Reference Image"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Select Reference Image" />
+            android:layout_height="wrap_content" />
 
-        <!-- Prompts -->
-        <EditText
-            android:id="@+id/etPrompts"
+        <ImageView
+            android:id="@+id/ivReference"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Enter prompts" />
-
-        <!-- Negative Prompts -->
-        <EditText
-            android:id="@+id/etNegativePrompts"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Enter negative prompts" />
-
-        <!-- Seed -->
-        <EditText
-            android:id="@+id/etSeed"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Seed (optional)"
-            android:inputType="number" />
+            android:layout_height="200dp"
+            android:scaleType="centerCrop"
+            android:adjustViewBounds="true"
+            android:layout_marginBottom="8dp" />
 
         <!-- Similarity -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Similarity" />
+
         <SeekBar
             android:id="@+id/seekSimilarity"
             android:layout_width="match_parent"
@@ -70,55 +51,77 @@
 
         <EditText
             android:id="@+id/etSimilarity"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="Similarity (0–100)" />
+            android:inputType="number"
+            android:hint="0%"
+            android:ems="3" />
 
-        <!-- Size -->
+        <!-- Prompts -->
+        <EditText
+            android:id="@+id/etPrompts"
+            android:hint="Enter prompts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/etNegativePrompts"
+            android:hint="Negative prompts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- Seed -->
+        <EditText
+            android:id="@+id/etSeed"
+            android:hint="Seed (optional)"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- Provider + Model -->
+        <Spinner
+            android:id="@+id/spinnerProvider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <Spinner
+            android:id="@+id/spinnerModel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- Aspect Ratio -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Aspect Ratio" />
+
+        <Spinner
+            android:id="@+id/spinnerAspectRatio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- Image Size (depends on Aspect Ratio) -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Image Size" />
+
         <Spinner
             android:id="@+id/spinnerSize"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:entries="@array/image_sizes" />
+            android:layout_height="wrap_content" />
 
-        <!-- Quality -->
-        <Spinner
-            android:id="@+id/spinnerQuality"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:entries="@array/image_quality" />
-
-        <!-- Batch size -->
+        <!-- Batch Size -->
         <Spinner
             android:id="@+id/spinnerBatchSize"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:entries="@array/batch_sizes" />
+            android:layout_height="wrap_content" />
 
-        <!-- API Key -->
-        <EditText
-            android:id="@+id/etApiKey"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Enter OpenAI API Key"
-            android:inputType="textPassword"
-            android:importantForAutofill="no"
-            android:autofillHints=""
-            android:padding="12dp"
-            android:layout_marginBottom="8dp" />
-
-        <CheckBox
-            android:id="@+id/cbRememberKey"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Remember API Key"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Start -->
+        <!-- Start Generation -->
         <Button
             android:id="@+id/btnStartGeneration"
+            android:text="Start Generation"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Start Generation" />
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
 </ScrollView>

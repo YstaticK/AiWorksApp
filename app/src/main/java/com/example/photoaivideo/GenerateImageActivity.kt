@@ -9,6 +9,7 @@ import android.text.TextWatcher
 import androidx.appcompat.app.AppCompatActivity
 
 class GenerateImageActivity : AppCompatActivity() {
+
     private var selectedReferenceImageUri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,39 +37,22 @@ class GenerateImageActivity : AppCompatActivity() {
         val etPrompts: EditText = findViewById(R.id.etPrompts)
         val etNegativePrompts: EditText = findViewById(R.id.etNegativePrompts)
         val etSeed: EditText = findViewById(R.id.etSeed)
-        val spinnerSize: Spinner = findViewById(R.id.spinnerSize)
-        val spinnerQuality: Spinner = findViewById(R.id.spinnerQuality)
-        val spinnerBatchSize: Spinner = findViewById(R.id.spinnerBatchSize)
         val spinnerProvider: Spinner = findViewById(R.id.spinnerProvider)
         val spinnerModel: Spinner = findViewById(R.id.spinnerModel)
+        val spinnerAspectRatio: Spinner = findViewById(R.id.spinnerAspectRatio)
+        val spinnerSize: Spinner = findViewById(R.id.spinnerSize)
+        val spinnerBatchSize: Spinner = findViewById(R.id.spinnerBatchSize)
 
-        // Load providers from stored models
-        val models = ModelStorage.loadModels(this)
-        val providers = models.map { it.provider }.distinct()
-
-        val providerAdapter = ArrayAdapter(
+        // Default provider + models
+        spinnerProvider.setSelection(0)
+        val defaultAdapter = ArrayAdapter.createFromResource(
             this,
-            android.R.layout.simple_spinner_item,
-            providers
+            R.array.models_openai,
+            android.R.layout.simple_spinner_item
         )
-        providerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerProvider.adapter = providerAdapter
-
-        spinnerProvider.setOnItemSelectedListener(object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
-                val selectedProvider = providers[position]
-                val providerModels = models.filter { it.provider == selectedProvider }.map { it.name }
-                val modelAdapter = ArrayAdapter(
-                    this@GenerateImageActivity,
-                    android.R.layout.simple_spinner_item,
-                    providerModels
-                )
-                modelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                spinnerModel.adapter = modelAdapter
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        })
+        defaultAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerModel.adapter = defaultAdapter
+        spinnerModel.setSelection(0)
 
         // Sync SeekBar and EditText
         seekSimilarity.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -79,6 +63,7 @@ class GenerateImageActivity : AppCompatActivity() {
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
+
         etSimilarity.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 val value = s.toString().replace("%", "").toIntOrNull()
@@ -98,11 +83,44 @@ class GenerateImageActivity : AppCompatActivity() {
             startActivityForResult(intent, 1001)
         }
 
+        // Aspect Ratios
+        val aspectRatios = listOf("1:1", "16:9", "4:3", "9:16")
+        val aspectAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, aspectRatios)
+        aspectAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerAspectRatio.adapter = aspectAdapter
+
+        // Sizes map
+        val sizeMap = mapOf(
+            "1:1" to listOf("512x512", "768x768", "1024x1024"),
+            "16:9" to listOf("1280x720", "1920x1080"),
+            "4:3" to listOf("800x600", "1024x768", "1600x1200"),
+            "9:16" to listOf("720x1280", "1080x1920")
+        )
+
+        // Populate sizes on aspect ratio change
+        spinnerAspectRatio.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: android.view.View?,
+                position: Int,
+                id: Long
+            ) {
+                val selected = aspectRatios[position]
+                val sizes = sizeMap[selected] ?: listOf("512x512")
+                val sizeAdapter = ArrayAdapter(this@GenerateImageActivity, android.R.layout.simple_spinner_item, sizes)
+                sizeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                spinnerSize.adapter = sizeAdapter
+                spinnerSize.setSelection(0)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
         // Start Generation
         btnStartGeneration.setOnClickListener {
             val apiKey = apiKeyInput.text.toString().trim()
             if (apiKey.isEmpty()) {
-                ErrorUtils.showErrorDialog(this, "Please enter your API key")
+                ErrorUtils.showErrorDialog(this, "Please enter your OpenAI API key")
                 return@setOnClickListener
             }
 
@@ -113,23 +131,18 @@ class GenerateImageActivity : AppCompatActivity() {
             }
 
             val sizeSel = spinnerSize.selectedItem?.toString() ?: "512x512"
-            val (w, h) = when (sizeSel) {
-                "512x512" -> 512 to 512
-                "768x768" -> 768 to 768
-                "1024x1024" -> 1024 to 1024
-                else -> 512 to 512
-            }
+            val (w, h) = sizeSel.split("x").map { it.toInt() }
 
             val request = GenerationRequest(
-                provider = spinnerProvider.selectedItem?.toString() ?: "Unknown",
-                model = spinnerModel.selectedItem?.toString() ?: "Unknown",
+                provider = spinnerProvider.selectedItem.toString(),
+                model = spinnerModel.selectedItem.toString(),
                 prompts = etPrompts.text.toString(),
                 negativePrompt = etNegativePrompts.text.toString(),
                 similarity = seekSimilarity.progress,
                 seed = etSeed.text.toString().takeIf { it.isNotBlank() },
                 width = w,
                 height = h,
-                quality = spinnerQuality.selectedItem.toString(),
+                quality = "standard", // placeholder, removed UI
                 batchSize = spinnerBatchSize.selectedItem.toString().toInt(),
                 referenceImageUri = selectedReferenceImageUri?.toString()
             )
