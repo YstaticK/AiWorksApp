@@ -17,9 +17,9 @@ class ModelsActivity : AppCompatActivity() {
         listView = findViewById(R.id.listViewModels)
         val btnAddModel: Button = findViewById(R.id.btnAddModel)
 
-        // Load models from storage
+        // Load models from ProviderRegistry
         models.clear()
-        models.addAll(ModelStorage.loadModels(this))
+        models.addAll(ProviderRegistry.loadAll(this))
 
         adapter = ArrayAdapter(
             this,
@@ -53,9 +53,8 @@ class ModelsActivity : AppCompatActivity() {
                 if (provider.isNotEmpty() && name.isNotEmpty()) {
                     val newModel = Model(provider, name)
                     models.add(newModel)
-                    ModelStorage.saveModels(this, models)
+                    ProviderRegistry.saveAll(this, models)
 
-                    // Rebuild adapter data safely
                     val items = models.map { "${it.provider}: ${it.name}" }
                     adapter.clear()
                     adapter.addAll(items)

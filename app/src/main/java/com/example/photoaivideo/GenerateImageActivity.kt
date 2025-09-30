@@ -36,14 +36,15 @@ class GenerateImageActivity : AppCompatActivity() {
         val etPrompts: EditText = findViewById(R.id.etPrompts)
         val etNegativePrompts: EditText = findViewById(R.id.etNegativePrompts)
         val etSeed: EditText = findViewById(R.id.etSeed)
+
         val spinnerSize: Spinner = findViewById(R.id.spinnerSize)
         val spinnerBatchSize: Spinner = findViewById(R.id.spinnerBatchSize)
         val spinnerProvider: Spinner = findViewById(R.id.spinnerProvider)
         val spinnerModel: Spinner = findViewById(R.id.spinnerModel)
         val spinnerAspectRatio: Spinner = findViewById(R.id.spinnerAspectRatio)
 
-        // --- Load models from storage ---
-        val allModels = ModelStorage.loadModels(this)
+        // --- Load providers + models ---
+        val allModels = ProviderRegistry.loadAll(this)
         val providerModels: Map<String, List<String>> = allModels
             .groupBy { it.provider }
             .mapValues { entry -> entry.value.map { it.name }.sorted() }
@@ -63,6 +64,7 @@ class GenerateImageActivity : AppCompatActivity() {
                 spinnerModel.adapter = modelAdapter
                 if (models.isNotEmpty()) spinnerModel.setSelection(0)
             }
+
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
@@ -91,6 +93,7 @@ class GenerateImageActivity : AppCompatActivity() {
                 spinnerSize.adapter = sizeAdapter
                 spinnerSize.setSelection(0)
             }
+
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
         spinnerAspectRatio.setSelection(0)
@@ -107,9 +110,11 @@ class GenerateImageActivity : AppCompatActivity() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 etSimilarity.setText("$progress%")
             }
+
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
+
         etSimilarity.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 val value = s.toString().replace("%", "").toIntOrNull()
