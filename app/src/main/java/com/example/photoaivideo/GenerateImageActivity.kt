@@ -1,5 +1,6 @@
 package com.example.photoaivideo
 
+import android.view.View
 import android.widget.*
 import android.content.Intent
 import android.net.Uri
@@ -9,7 +10,6 @@ import android.text.TextWatcher
 import androidx.appcompat.app.AppCompatActivity
 
 class GenerateImageActivity : AppCompatActivity() {
-
     private var selectedReferenceImageUri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,66 +42,64 @@ class GenerateImageActivity : AppCompatActivity() {
         val spinnerModel: Spinner = findViewById(R.id.spinnerModel)
         val spinnerAspectRatio: Spinner = findViewById(R.id.spinnerAspectRatio)
 
-        // Default provider + models
-        spinnerProvider.setSelection(0)
-        val defaultAdapter = ArrayAdapter.createFromResource(
-            this,
-            R.array.models_openai,
-            android.R.layout.simple_spinner_item
-        )
-        defaultAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerModel.adapter = defaultAdapter
-        spinnerModel.setSelection(0)
+        // --- Load models from storage ---
+        val allModels = ModelStorage.loadModels(this)
+        val providerModels: Map<String, List<String>> = allModels
+            .groupBy { it.provider }
+            .mapValues { entry -> entry.value.map { it.name }.sorted() }
 
-        // Aspect Ratios
-        val aspectRatios = listOf("1:1", "16:9", "4:3")
-        spinnerAspectRatio.adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_item,
-            aspectRatios
-        ).apply {
-            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        }
+        val providerNames = providerModels.keys.sorted()
 
-        // Sizes mapped to aspect ratios
-        val sizesByRatio = mapOf(
-            "1:1" to listOf("512x512", "768x768", "1024x1024"),
-            "16:9" to listOf("1280x720", "1920x1080"),
-            "4:3" to listOf("800x600", "1024x768")
-        )
+        val providerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, providerNames)
+        providerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerProvider.adapter = providerAdapter
 
-        // Update sizes when aspect ratio changes
-        spinnerAspectRatio.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: android.view.View?,
-                position: Int,
-                id: Long
-            ) {
-                val ratio = aspectRatios[position]
-                val sizes = sizesByRatio[ratio] ?: listOf("512x512")
-                spinnerSize.adapter = ArrayAdapter(
-                    this@GenerateImageActivity,
-                    android.R.layout.simple_spinner_item,
-                    sizes
-                ).apply {
-                    setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                }
+        spinnerProvider.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val provider = providerNames[position]
+                val models = providerModels[provider] ?: emptyList()
+                val modelAdapter = ArrayAdapter(this@GenerateImageActivity, android.R.layout.simple_spinner_item, models)
+                modelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                spinnerModel.adapter = modelAdapter
+                if (models.isNotEmpty()) spinnerModel.setSelection(0)
             }
-
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
-        spinnerAspectRatio.setSelection(0) // default: 1:1 → loads 512x512
 
-        // Batch sizes
-        val batchSizes = listOf("1", "2", "4", "8", "10")
-        spinnerBatchSize.adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_item,
-            batchSizes
-        ).apply {
-            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        if (providerNames.isNotEmpty()) spinnerProvider.setSelection(0)
+
+        // --- Aspect ratios ---
+        val aspectRatios = listOf("1:1", "16:9", "4:3", "3:2")
+        val aspectAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, aspectRatios)
+        aspectAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerAspectRatio.adapter = aspectAdapter
+
+        // Map aspect ratios to sizes
+        val sizeOptions = mapOf(
+            "1:1" to listOf("512x512", "768x768", "1024x1024"),
+            "16:9" to listOf("1280x720", "1920x1080"),
+            "4:3" to listOf("800x600", "1024x768"),
+            "3:2" to listOf("900x600", "1500x1000")
+        )
+
+        spinnerAspectRatio.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val aspect = aspectRatios[position]
+                val sizes = sizeOptions[aspect] ?: listOf("512x512")
+                val sizeAdapter = ArrayAdapter(this@GenerateImageActivity, android.R.layout.simple_spinner_item, sizes)
+                sizeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                spinnerSize.adapter = sizeAdapter
+                spinnerSize.setSelection(0)
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
+        spinnerAspectRatio.setSelection(0)
+
+        // --- Batch sizes ---
+        val batchSizes = listOf("1", "2", "4", "8", "10")
+        val batchAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, batchSizes)
+        batchAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerBatchSize.adapter = batchAdapter
         spinnerBatchSize.setSelection(0)
 
         // Sync SeekBar and EditText
@@ -112,7 +110,6 @@ class GenerateImageActivity : AppCompatActivity() {
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
-
         etSimilarity.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 val value = s.toString().replace("%", "").toIntOrNull()
@@ -146,7 +143,7 @@ class GenerateImageActivity : AppCompatActivity() {
             }
 
             val sizeSel = spinnerSize.selectedItem?.toString() ?: "512x512"
-            val (w, h) = sizeSel.split("x").map { it.toInt() }.let { it[0] to it[1] }
+            val (w, h) = sizeSel.split("x").map { it.toInt() }
 
             val request = GenerationRequest(
                 provider = spinnerProvider.selectedItem.toString(),
@@ -157,13 +154,12 @@ class GenerateImageActivity : AppCompatActivity() {
                 seed = etSeed.text.toString().takeIf { it.isNotBlank() },
                 width = w,
                 height = h,
-                quality = "standard", // placeholder
+                quality = "standard",
                 batchSize = spinnerBatchSize.selectedItem.toString().toInt(),
                 referenceImageUri = selectedReferenceImageUri?.toString()
             )
 
             Toast.makeText(this, "Starting image generation…", Toast.LENGTH_SHORT).show()
-
             try {
                 val intent = Intent(this, GeneratedImageResultsActivity::class.java)
                 intent.putExtra("generationRequest", request)
