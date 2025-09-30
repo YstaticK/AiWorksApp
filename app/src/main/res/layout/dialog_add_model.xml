@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/etProvider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Provider (e.g., OpenAI)" />
+
+    <EditText
+        android:id="@+id/etModel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Model name (e.g., gpt-4, stable-diffusion)" />
+</LinearLayout>

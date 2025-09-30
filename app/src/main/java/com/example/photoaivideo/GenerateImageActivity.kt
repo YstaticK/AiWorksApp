@@ -1,12 +1,11 @@
 package com.example.photoaivideo
 
-import android.view.View
-import android.widget.*
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 
 class GenerateImageActivity : AppCompatActivity() {
@@ -21,7 +20,6 @@ class GenerateImageActivity : AppCompatActivity() {
 
         val apiKeyInput: EditText = findViewById(R.id.etApiKey)
         val cbRemember: CheckBox = findViewById(R.id.cbRememberKey)
-
         prefs.getString("api_key", "")?.let {
             if (it.isNotEmpty()) {
                 apiKeyInput.setText(it)
@@ -38,32 +36,64 @@ class GenerateImageActivity : AppCompatActivity() {
         val etPrompts: EditText = findViewById(R.id.etPrompts)
         val etNegativePrompts: EditText = findViewById(R.id.etNegativePrompts)
         val etSeed: EditText = findViewById(R.id.etSeed)
-
         val spinnerSize: Spinner = findViewById(R.id.spinnerSize)
         val spinnerQuality: Spinner = findViewById(R.id.spinnerQuality)
         val spinnerBatchSize: Spinner = findViewById(R.id.spinnerBatchSize)
         val spinnerProvider: Spinner = findViewById(R.id.spinnerProvider)
         val spinnerModel: Spinner = findViewById(R.id.spinnerModel)
 
-        // Default provider
+        // Load models from ModelStorage
+        var modelsMap = ModelStorage.loadModels(this)
+
+        // Ensure defaults exist
+        if (modelsMap.isEmpty()) {
+            modelsMap = mutableMapOf(
+                "OpenAI" to mutableListOf("dall-e-2", "dall-e-3"),
+                "StabilityAI" to mutableListOf("stable-diffusion-v1", "stable-diffusion-xl")
+            )
+            ModelStorage.saveModels(this, modelsMap)
+        }
+
+        // Populate provider spinner
+        val providers = modelsMap.keys.toList()
+        val providerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, providers)
+        providerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerProvider.adapter = providerAdapter
+
+        // Set default provider selection
         spinnerProvider.setSelection(0)
 
-        // Load models dynamically from ModelManager
-        val models = ModelManager.getModels(this)
-        val modelAdapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_item,
-            models.map { it.name }
-        )
-        modelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerModel.adapter = modelAdapter
-        if (models.isNotEmpty()) spinnerModel.setSelection(0)
+        // Populate model spinner based on selected provider
+        fun updateModels(provider: String) {
+            val models = modelsMap[provider] ?: listOf()
+            val modelAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, models)
+            modelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            spinnerModel.adapter = modelAdapter
+            if (models.isNotEmpty()) spinnerModel.setSelection(0)
+        }
+
+        updateModels(providers.first())
+
+        spinnerProvider.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: android.view.View?,
+                position: Int,
+                id: Long
+            ) {
+                val selectedProvider = providers[position]
+                updateModels(selectedProvider)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
 
         // Sync SeekBar and EditText
         seekSimilarity.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 etSimilarity.setText("$progress%")
             }
+
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
@@ -75,6 +105,7 @@ class GenerateImageActivity : AppCompatActivity() {
                     seekSimilarity.progress = value
                 }
             }
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
@@ -90,7 +121,7 @@ class GenerateImageActivity : AppCompatActivity() {
         btnStartGeneration.setOnClickListener {
             val apiKey = apiKeyInput.text.toString().trim()
             if (apiKey.isEmpty()) {
-                ErrorUtils.showErrorDialog(this, "Please enter your OpenAI API key")
+                ErrorUtils.showErrorDialog(this, "Please enter your API key")
                 return@setOnClickListener
             }
 
@@ -123,6 +154,7 @@ class GenerateImageActivity : AppCompatActivity() {
             )
 
             Toast.makeText(this, "Starting image generation…", Toast.LENGTH_SHORT).show()
+
             try {
                 val intent = Intent(this, GeneratedImageResultsActivity::class.java)
                 intent.putExtra("generationRequest", request)
