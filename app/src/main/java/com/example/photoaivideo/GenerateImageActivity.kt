@@ -1,5 +1,6 @@
 package com.example.photoaivideo
 
+import android.app.AlertDialog
 import android.view.View
 import android.widget.*
 import android.content.Intent
@@ -15,17 +16,6 @@ class GenerateImageActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_generate_image)
-
-        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
-
-        val apiKeyInput: EditText = findViewById(R.id.etApiKey)
-        val cbRemember: CheckBox = findViewById(R.id.cbRememberKey)
-        prefs.getString("api_key", "")?.let {
-            if (it.isNotEmpty()) {
-                apiKeyInput.setText(it)
-                cbRemember.isChecked = true
-            }
-        }
 
         val btnStartGeneration: Button = findViewById(R.id.btnStartGeneration)
         val seekSimilarity: SeekBar = findViewById(R.id.seekSimilarity)
@@ -44,10 +34,9 @@ class GenerateImageActivity : AppCompatActivity() {
         val spinnerAspectRatio: Spinner = findViewById(R.id.spinnerAspectRatio)
 
         // --- Load providers + models ---
-        val allModels = ProviderRegistry.loadAll(this)
-        val providerModels: Map<String, List<String>> = allModels
-            .groupBy { it.provider }
-            .mapValues { entry -> entry.value.map { it.name }.sorted() }
+        val providers = ProviderRegistry.loadAll(this)
+        val providerModels: Map<String, List<String>> = providers
+            .associate { it.name to it.models.sorted() }
 
         val providerNames = providerModels.keys.sorted()
 
@@ -64,7 +53,6 @@ class GenerateImageActivity : AppCompatActivity() {
                 spinnerModel.adapter = modelAdapter
                 if (models.isNotEmpty()) spinnerModel.setSelection(0)
             }
-
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
@@ -76,7 +64,6 @@ class GenerateImageActivity : AppCompatActivity() {
         aspectAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerAspectRatio.adapter = aspectAdapter
 
-        // Map aspect ratios to sizes
         val sizeOptions = mapOf(
             "1:1" to listOf("512x512", "768x768", "1024x1024"),
             "16:9" to listOf("1280x720", "1920x1080"),
@@ -93,7 +80,6 @@ class GenerateImageActivity : AppCompatActivity() {
                 spinnerSize.adapter = sizeAdapter
                 spinnerSize.setSelection(0)
             }
-
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
         spinnerAspectRatio.setSelection(0)
@@ -110,7 +96,6 @@ class GenerateImageActivity : AppCompatActivity() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 etSimilarity.setText("$progress%")
             }
-
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
@@ -135,23 +120,27 @@ class GenerateImageActivity : AppCompatActivity() {
 
         // Start Generation
         btnStartGeneration.setOnClickListener {
-            val apiKey = apiKeyInput.text.toString().trim()
-            if (apiKey.isEmpty()) {
-                ErrorUtils.showErrorDialog(this, "Please enter your OpenAI API key")
-                return@setOnClickListener
-            }
+            val provider = spinnerProvider.selectedItem?.toString() ?: ""
+            val apiKey = ProviderRegistry.getApiKey(this, provider)
+            val baseUrl = ProviderRegistry.getBaseUrl(this, provider)
 
-            if (cbRemember.isChecked) {
-                prefs.edit().putString("api_key", apiKey).apply()
-            } else {
-                prefs.edit().remove("api_key").apply()
+            if (apiKey.isNullOrEmpty() || baseUrl.isNullOrEmpty()) {
+                AlertDialog.Builder(this)
+                    .setTitle("Missing Provider Setup")
+                    .setMessage("Provider $provider is missing API Key or Base URL. Please configure it in Models.")
+                    .setPositiveButton("Open Models") { _, _ ->
+                        startActivity(Intent(this, ModelsActivity::class.java))
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
+                return@setOnClickListener
             }
 
             val sizeSel = spinnerSize.selectedItem?.toString() ?: "512x512"
             val (w, h) = sizeSel.split("x").map { it.toInt() }
 
             val request = GenerationRequest(
-                provider = spinnerProvider.selectedItem.toString(),
+                provider = provider,
                 model = spinnerModel.selectedItem.toString(),
                 prompts = etPrompts.text.toString(),
                 negativePrompt = etNegativePrompts.text.toString(),
@@ -169,6 +158,7 @@ class GenerateImageActivity : AppCompatActivity() {
                 val intent = Intent(this, GeneratedImageResultsActivity::class.java)
                 intent.putExtra("generationRequest", request)
                 intent.putExtra("apiKey", apiKey)
+                intent.putExtra("baseUrl", baseUrl)
                 startActivity(intent)
             } catch (e: Exception) {
                 ErrorUtils.showErrorDialog(
