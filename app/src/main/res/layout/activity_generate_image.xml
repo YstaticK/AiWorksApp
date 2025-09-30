@@ -7,22 +7,30 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:divider="?android:attr/dividerHorizontal"
+        android:showDividers="middle">
 
-        <!-- API Key Input -->
-        <EditText
-            android:id="@+id/etApiKey"
-            android:hint="Enter API Key"
+        <!-- Provider + Model at the TOP -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Provider" />
+        <Spinner
+            android:id="@+id/spinnerProvider"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <CheckBox
-            android:id="@+id/cbRememberKey"
-            android:text="Remember API Key"
+        <TextView
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Model" />
+        <Spinner
+            android:id="@+id/spinnerModel"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <!-- Select Reference Image -->
+        <!-- Reference image -->
         <Button
             android:id="@+id/btnSelectReference"
             android:text="Select Reference Image"
@@ -77,43 +85,45 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <!-- Provider + Model -->
-        <Spinner
-            android:id="@+id/spinnerProvider"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <Spinner
-            android:id="@+id/spinnerModel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <!-- Aspect Ratio -->
+        <!-- Aspect Ratio + Size + Batch Size -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Aspect Ratio" />
-
         <Spinner
             android:id="@+id/spinnerAspectRatio"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <!-- Image Size (depends on Aspect Ratio) -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Image Size" />
-
         <Spinner
             android:id="@+id/spinnerSize"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <!-- Batch Size -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Batch Size" />
         <Spinner
             android:id="@+id/spinnerBatchSize"
             android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- API Key + Remember -->
+        <EditText
+            android:id="@+id/etApiKey"
+            android:hint="Enter API Key"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <CheckBox
+            android:id="@+id/cbRememberKey"
+            android:text="Remember API Key"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <!-- Start Generation -->
