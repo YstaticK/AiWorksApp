@@ -21,6 +21,7 @@ class GenerateImageActivity : AppCompatActivity() {
 
         val apiKeyInput: EditText = findViewById(R.id.etApiKey)
         val cbRemember: CheckBox = findViewById(R.id.cbRememberKey)
+
         prefs.getString("api_key", "")?.let {
             if (it.isNotEmpty()) {
                 apiKeyInput.setText(it)
@@ -37,22 +38,26 @@ class GenerateImageActivity : AppCompatActivity() {
         val etPrompts: EditText = findViewById(R.id.etPrompts)
         val etNegativePrompts: EditText = findViewById(R.id.etNegativePrompts)
         val etSeed: EditText = findViewById(R.id.etSeed)
+
         val spinnerSize: Spinner = findViewById(R.id.spinnerSize)
         val spinnerQuality: Spinner = findViewById(R.id.spinnerQuality)
         val spinnerBatchSize: Spinner = findViewById(R.id.spinnerBatchSize)
         val spinnerProvider: Spinner = findViewById(R.id.spinnerProvider)
         val spinnerModel: Spinner = findViewById(R.id.spinnerModel)
 
-        // Default provider + models
+        // Default provider
         spinnerProvider.setSelection(0)
-        val defaultAdapter = ArrayAdapter.createFromResource(
+
+        // Load models dynamically from ModelManager
+        val models = ModelManager.getModels(this)
+        val modelAdapter = ArrayAdapter(
             this,
-            R.array.models_openai,
-            android.R.layout.simple_spinner_item
+            android.R.layout.simple_spinner_item,
+            models.map { it.name }
         )
-        defaultAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerModel.adapter = defaultAdapter
-        spinnerModel.setSelection(0)
+        modelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerModel.adapter = modelAdapter
+        if (models.isNotEmpty()) spinnerModel.setSelection(0)
 
         // Sync SeekBar and EditText
         seekSimilarity.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -62,6 +67,7 @@ class GenerateImageActivity : AppCompatActivity() {
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
+
         etSimilarity.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 val value = s.toString().replace("%", "").toIntOrNull()
@@ -117,7 +123,6 @@ class GenerateImageActivity : AppCompatActivity() {
             )
 
             Toast.makeText(this, "Starting image generation…", Toast.LENGTH_SHORT).show()
-
             try {
                 val intent = Intent(this, GeneratedImageResultsActivity::class.java)
                 intent.putExtra("generationRequest", request)
