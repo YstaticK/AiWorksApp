@@ -3,6 +3,7 @@ package com.example.photoaivideo
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AlertDialog
 
 class ModelsActivity : AppCompatActivity() {
     private lateinit var listView: ListView
@@ -16,9 +17,15 @@ class ModelsActivity : AppCompatActivity() {
         listView = findViewById(R.id.listViewModels)
         val btnAddModel: Button = findViewById(R.id.btnAddModel)
 
+        // Load models from storage
         models.clear()
         models.addAll(ModelStorage.loadModels(this))
-        adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, models.map { "${it.provider}: ${it.name}" })
+
+        adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_list_item_1,
+            models.map { "${it.provider}: ${it.name}" }.toMutableList()
+        )
         listView.adapter = adapter
 
         btnAddModel.setOnClickListener {
@@ -47,8 +54,11 @@ class ModelsActivity : AppCompatActivity() {
                     val newModel = Model(provider, name)
                     models.add(newModel)
                     ModelStorage.saveModels(this, models)
+
+                    // Rebuild adapter data safely
+                    val items = models.map { "${it.provider}: ${it.name}" }
                     adapter.clear()
-                    adapter.addAll(models.map { "${it.provider}: ${it.name}" })
+                    adapter.addAll(items)
                     adapter.notifyDataSetChanged()
                 }
             }

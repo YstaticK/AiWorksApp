@@ -19,6 +19,7 @@ class GenerateImageActivity : AppCompatActivity() {
 
         val apiKeyInput: EditText = findViewById(R.id.etApiKey)
         val cbRemember: CheckBox = findViewById(R.id.cbRememberKey)
+
         prefs.getString("api_key", "")?.let {
             if (it.isNotEmpty()) {
                 apiKeyInput.setText(it)
@@ -41,10 +42,11 @@ class GenerateImageActivity : AppCompatActivity() {
         val spinnerProvider: Spinner = findViewById(R.id.spinnerProvider)
         val spinnerModel: Spinner = findViewById(R.id.spinnerModel)
 
-        // Load models from storage
+        // Load providers from stored models
         val models = ModelStorage.loadModels(this)
         val providers = models.map { it.provider }.distinct()
-        val providerAdapter = ArrayAdapter<String>(
+
+        val providerAdapter = ArrayAdapter(
             this,
             android.R.layout.simple_spinner_item,
             providers
@@ -52,12 +54,11 @@ class GenerateImageActivity : AppCompatActivity() {
         providerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerProvider.adapter = providerAdapter
 
-        // Update models when provider changes
-        spinnerProvider.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>, view: android.view.View?, position: Int, id: Long) {
+        spinnerProvider.setOnItemSelectedListener(object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
                 val selectedProvider = providers[position]
                 val providerModels = models.filter { it.provider == selectedProvider }.map { it.name }
-                val modelAdapter = ArrayAdapter<String>(
+                val modelAdapter = ArrayAdapter(
                     this@GenerateImageActivity,
                     android.R.layout.simple_spinner_item,
                     providerModels
@@ -66,18 +67,18 @@ class GenerateImageActivity : AppCompatActivity() {
                 spinnerModel.adapter = modelAdapter
             }
 
-            override fun onNothingSelected(parent: AdapterView<*>) {}
-        }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        })
 
         // Sync SeekBar and EditText
         seekSimilarity.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 etSimilarity.setText("$progress%")
             }
+
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
-
         etSimilarity.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 val value = s.toString().replace("%", "").toIntOrNull()
@@ -85,6 +86,7 @@ class GenerateImageActivity : AppCompatActivity() {
                     seekSimilarity.progress = value
                 }
             }
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
@@ -100,7 +102,7 @@ class GenerateImageActivity : AppCompatActivity() {
         btnStartGeneration.setOnClickListener {
             val apiKey = apiKeyInput.text.toString().trim()
             if (apiKey.isEmpty()) {
-                ErrorUtils.showErrorDialog(this, "Please enter your OpenAI API key")
+                ErrorUtils.showErrorDialog(this, "Please enter your API key")
                 return@setOnClickListener
             }
 
@@ -119,8 +121,8 @@ class GenerateImageActivity : AppCompatActivity() {
             }
 
             val request = GenerationRequest(
-                provider = spinnerProvider.selectedItem.toString(),
-                model = spinnerModel.selectedItem.toString(),
+                provider = spinnerProvider.selectedItem?.toString() ?: "Unknown",
+                model = spinnerModel.selectedItem?.toString() ?: "Unknown",
                 prompts = etPrompts.text.toString(),
                 negativePrompt = etNegativePrompts.text.toString(),
                 similarity = seekSimilarity.progress,
@@ -133,6 +135,7 @@ class GenerateImageActivity : AppCompatActivity() {
             )
 
             Toast.makeText(this, "Starting image generation…", Toast.LENGTH_SHORT).show()
+
             try {
                 val intent = Intent(this, GeneratedImageResultsActivity::class.java)
                 intent.putExtra("generationRequest", request)
