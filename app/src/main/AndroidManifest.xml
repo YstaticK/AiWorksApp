@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="29" />
+
     <!-- For Android 13+ -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
@@ -38,6 +39,7 @@
         <activity android:name=".LibraryActivity" android:exported="false"/>
         <activity android:name=".ReferenceLibraryActivity" android:exported="false"/>
         <activity android:name=".SettingsActivity" android:exported="false"/>
+        <activity android:name=".PermissionsActivity" android:exported="false"/>
         <activity android:name=".InfoActivity" android:exported="false"/>
         <activity android:name=".GenerateVideoActivity" android:exported="false"/>
         <activity android:name=".GenerateImageActivity" android:exported="false"/>
