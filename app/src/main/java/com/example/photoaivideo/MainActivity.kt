@@ -47,5 +47,23 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, GenerateVideoActivity::class.java)
             startActivity(intent)
         }
+
+        // Settings button
+        val btnSettings = findViewById<Button>(R.id.btnSettings)
+        btnSettings.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
+
+        // Info button
+        val btnInfo = findViewById<Button>(R.id.btnInfo)
+        btnInfo.setOnClickListener {
+            startActivity(Intent(this, InfoActivity::class.java))
+        }
+
+        // Quit button
+        val btnQuit = findViewById<Button>(R.id.btnQuit)
+        btnQuit.setOnClickListener {
+            finishAffinity() // closes the app completely
+        }
     }
 }
