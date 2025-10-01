@@ -1,14 +1,21 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Permissions for storage access -->
-    <!-- For Android 12 and below -->
+    <!-- ===== Necessary permissions ===== -->
+    <!-- Storage for Android 12 and below -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="29" />
 
-    <!-- For Android 13+ -->
+    <!-- Storage for Android 13+ -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+
+    <!-- Camera access -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- ===== Optional permissions ===== -->
+    <!-- Notifications (Android 13+) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -60,5 +67,4 @@
         <activity android:name=".FullScreenImageActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
     </application>
-
 </manifest>
