@@ -1,7 +1,6 @@
 package com.example.photoaivideo
 
 import android.os.Bundle
-import android.text.EditWatcher
 import android.text.InputType
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -52,32 +51,16 @@ class ModelsActivity : AppCompatActivity() {
             setPadding(50, 40, 50, 10)
         }
 
-        val inputName = AutoCompleteTextView(this).apply {
-            hint = "Provider name"
-            val knownNames = ProviderRegistry.knownDefaults.map { it.name }
-            setAdapter(ArrayAdapter(context, android.R.layout.simple_dropdown_item_1line, knownNames))
-        }
+        val inputName = EditText(this).apply { hint = "Provider name" }
         val inputKey = EditText(this).apply {
             hint = "API Key (optional)"
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
         }
-        val inputBaseUrl = EditText(this).apply {
-            hint = "Base URL (optional)"
-        }
+        val inputBaseUrl = EditText(this).apply { hint = "Base URL (optional)" }
 
         layout.addView(inputName)
         layout.addView(inputKey)
         layout.addView(inputBaseUrl)
-
-        // Autofill baseUrl + models when known provider name entered
-        inputName.setOnItemClickListener { _, _, pos, _ ->
-            val name = inputName.adapter.getItem(pos) as String
-            val default = ProviderRegistry.knownDefaults.find { it.name == name }
-            if (default != null) {
-                inputBaseUrl.setText(default.baseUrl ?: "")
-                Toast.makeText(this, "Autofilled defaults for $name", Toast.LENGTH_SHORT).show()
-            }
-        }
 
         AlertDialog.Builder(this)
             .setTitle("Add New Provider")
@@ -88,16 +71,22 @@ class ModelsActivity : AppCompatActivity() {
                 val baseUrlInput = inputBaseUrl.text.toString().trim()
 
                 if (name.isNotEmpty()) {
-                    val default = ProviderRegistry.knownDefaults.find { it.name == name }
-                    val newProvider = if (default != null) {
-                        Provider(
-                            default.name,
+                    val newProvider = when (name) {
+                        "OpenAI" -> Provider(
+                            "OpenAI",
                             if (key.isNotEmpty()) key else null,
-                            default.models.toMutableList(),
-                            default.baseUrl
+                            ProviderRegistry.knownDefaults.find { it.name == "OpenAI" }?.models?.toMutableList()
+                                ?: mutableListOf(),
+                            "https://api.openai.com/v1"
                         )
-                    } else {
-                        Provider(
+                        "Stability AI" -> Provider(
+                            "Stability AI",
+                            if (key.isNotEmpty()) key else null,
+                            ProviderRegistry.knownDefaults.find { it.name == "Stability AI" }?.models?.toMutableList()
+                                ?: mutableListOf(),
+                            "https://api.stability.ai"
+                        )
+                        else -> Provider(
                             name,
                             if (key.isNotEmpty()) key else null,
                             mutableListOf(),
@@ -152,8 +141,7 @@ class ModelsActivity : AppCompatActivity() {
                 }
                 val tv = TextView(context).apply {
                     text = modelName
-                    layoutParams =
-                        LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
                 }
                 val btnDelete = Button(context).apply {
                     text = "Delete"

@@ -15,8 +15,8 @@ data class Provider(
 object ProviderRegistry {
     private const val FILE_NAME = "providers.json"
 
-    // Hardcoded known defaults
-    private val knownDefaults = listOf(
+    // Hardcoded known defaults (public now, not private!)
+    val knownDefaults = listOf(
         Provider(
             "OpenAI",
             null,
@@ -33,19 +33,19 @@ object ProviderRegistry {
             "MidJourney",
             null,
             mutableListOf(),
-            "https://api.midjourney.com" // placeholder
+            "https://api.midjourney.com"
         ),
         Provider(
             "Leonardo.AI",
             null,
             mutableListOf(),
-            "https://cloud.leonardo.ai/api" // placeholder
+            "https://cloud.leonardo.ai/api"
         ),
         Provider(
             "RunDiffusion",
             null,
             mutableListOf(),
-            "https://api.rundiffusion.com" // placeholder
+            "https://api.rundiffusion.com"
         )
     )
 
@@ -70,7 +70,7 @@ object ProviderRegistry {
                     models.add(modelsArr.getString(j))
                 }
 
-                // If provider matches a known default, autofill baseUrl + models if missing
+                // Autofill from known defaults if missing
                 val default = knownDefaults.find { it.name == name }
                 val finalBaseUrl = baseUrl ?: default?.baseUrl
                 val finalModels = if (models.isEmpty() && default != null) {
