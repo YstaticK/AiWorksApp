@@ -5,45 +5,9 @@
     android:padding="16dp">
 
     <LinearLayout
+        android:id="@+id/permissionsContainer"
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content" />
 
-        <!-- Necessary permissions -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Necessary Permissions"
-            android:textStyle="bold"
-            android:paddingTop="8dp"
-            android:paddingBottom="4dp" />
-
-        <Switch
-            android:id="@+id/switchStorage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Storage Access" />
-
-        <Switch
-            android:id="@+id/switchCamera"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Camera Access" />
-
-        <!-- Optional permissions -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Optional Permissions"
-            android:textStyle="bold"
-            android:paddingTop="16dp"
-            android:paddingBottom="4dp" />
-
-        <Switch
-            android:id="@+id/switchNotifications"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Notifications" />
-
-    </LinearLayout>
 </ScrollView>

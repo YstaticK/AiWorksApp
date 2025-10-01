@@ -1,123 +1,80 @@
 package com.example.photoaivideo
 
-import android.content.Context
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
-import android.widget.Switch
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 
 class SettingsActivity : AppCompatActivity() {
 
-    private lateinit var switchStorage: Switch
-    private lateinit var switchCamera: Switch
-    private lateinit var switchNotifications: Switch
+    private val necessaryPermissions = listOf(
+        android.Manifest.permission.INTERNET,
+        android.Manifest.permission.ACCESS_NETWORK_STATE
+    )
 
-    private val prefs by lazy { getSharedPreferences("permissions_prefs", Context.MODE_PRIVATE) }
-
-    private val permissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        permissions.forEach { (perm, granted) ->
-            val status = if (granted) "granted" else "denied"
-            Toast.makeText(this, "$perm: $status", Toast.LENGTH_SHORT).show()
-        }
-        updateSwitchStates()
-        saveSwitchStates()
-    }
+    private val optionalPermissions = listOf(
+        android.Manifest.permission.CAMERA,
+        android.Manifest.permission.RECORD_AUDIO,
+        android.Manifest.permission.POST_NOTIFICATIONS,
+        android.Manifest.permission.READ_MEDIA_IMAGES,
+        android.Manifest.permission.READ_MEDIA_VIDEO,
+        android.Manifest.permission.READ_EXTERNAL_STORAGE,
+        android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
-        switchStorage = findViewById(R.id.switchStorage)
-        switchCamera = findViewById(R.id.switchCamera)
-        switchNotifications = findViewById(R.id.switchNotifications)
+        val container = findViewById<LinearLayout>(R.id.permissionsContainer)
 
-        // Restore saved states first
-        restoreSwitchStates()
-
-        // Then sync with actual Android permission status
-        updateSwitchStates()
-
-        switchStorage.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) requestPermissionsGroup("storage")
-            saveSwitchStates()
+        // Add headers
+        val necessaryHeader = TextView(this).apply {
+            text = "Necessary Permissions"
+            textSize = 18f
+            setPadding(0, 20, 0, 10)
         }
+        container.addView(necessaryHeader)
+        addPermissionSwitches(container, necessaryPermissions)
 
-        switchCamera.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) requestPermissionsGroup("camera")
-            saveSwitchStates()
+        val optionalHeader = TextView(this).apply {
+            text = "Optional Permissions"
+            textSize = 18f
+            setPadding(0, 30, 0, 10)
         }
-
-        switchNotifications.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) requestPermissionsGroup("notifications")
-            saveSwitchStates()
-        }
+        container.addView(optionalHeader)
+        addPermissionSwitches(container, optionalPermissions)
     }
 
-    private fun requestPermissionsGroup(group: String) {
-        when (group) {
-            "storage" -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    permissionLauncher.launch(arrayOf(
-                        android.Manifest.permission.READ_MEDIA_IMAGES,
-                        android.Manifest.permission.READ_MEDIA_VIDEO
-                    ))
-                } else {
-                    permissionLauncher.launch(arrayOf(
-                        android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-                    ))
+    private fun addPermissionSwitches(container: LinearLayout, permissions: List<String>) {
+        for (perm in permissions) {
+            val switch = androidx.appcompat.widget.SwitchCompat(this).apply {
+                text = perm
+                isChecked = ContextCompat.checkSelfPermission(
+                    this@SettingsActivity,
+                    perm
+                ) == PackageManager.PERMISSION_GRANTED
+
+                setOnCheckedChangeListener { _, isChecked ->
+                    if (isChecked) {
+                        ActivityCompat.requestPermissions(
+                            this@SettingsActivity,
+                            arrayOf(perm),
+                            1001
+                        )
+                    } else {
+                        // Can't revoke programmatically, just reset state
+                        this.isChecked = ContextCompat.checkSelfPermission(
+                            this@SettingsActivity,
+                            perm
+                        ) == PackageManager.PERMISSION_GRANTED
+                    }
                 }
             }
-            "camera" -> {
-                permissionLauncher.launch(arrayOf(android.Manifest.permission.CAMERA))
-            }
-            "notifications" -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    permissionLauncher.launch(arrayOf(android.Manifest.permission.POST_NOTIFICATIONS))
-                } else {
-                    Toast.makeText(this, "Notifications don't require permission on this Android version", Toast.LENGTH_SHORT).show()
-                }
-            }
+            container.addView(switch)
         }
-    }
-
-    private fun updateSwitchStates() {
-        switchStorage.isChecked = hasStoragePermission()
-        switchCamera.isChecked =
-            checkSelfPermission(android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
-        switchNotifications.isChecked =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
-            } else {
-                true
-            }
-    }
-
-    private fun hasStoragePermission(): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            checkSelfPermission(android.Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED &&
-            checkSelfPermission(android.Manifest.permission.READ_MEDIA_VIDEO) == PackageManager.PERMISSION_GRANTED
-        } else {
-            checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-        }
-    }
-
-    private fun saveSwitchStates() {
-        prefs.edit()
-            .putBoolean("storage", switchStorage.isChecked)
-            .putBoolean("camera", switchCamera.isChecked)
-            .putBoolean("notifications", switchNotifications.isChecked)
-            .apply()
-    }
-
-    private fun restoreSwitchStates() {
-        switchStorage.isChecked = prefs.getBoolean("storage", false)
-        switchCamera.isChecked = prefs.getBoolean("camera", false)
-        switchNotifications.isChecked = prefs.getBoolean("notifications", false)
     }
 }
