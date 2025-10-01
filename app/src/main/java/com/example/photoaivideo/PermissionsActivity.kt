@@ -1,6 +1,7 @@
 package com.example.photoaivideo
 
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -11,17 +12,37 @@ import androidx.appcompat.widget.SwitchCompat
 
 class PermissionsActivity : AppCompatActivity() {
 
-    private val necessaryPermissions = listOf(
-        android.Manifest.permission.READ_EXTERNAL_STORAGE,
-        android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        android.Manifest.permission.READ_MEDIA_IMAGES,
-        android.Manifest.permission.READ_MEDIA_VIDEO
-    )
+    private val necessaryPermissions: List<String> by lazy {
+        when {
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> listOf(
+                android.Manifest.permission.READ_MEDIA_IMAGES,
+                android.Manifest.permission.READ_MEDIA_VIDEO
+            )
+            Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q -> listOf(
+                android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+            )
+            else -> listOf(
+                android.Manifest.permission.READ_EXTERNAL_STORAGE
+            )
+        }
+    }
 
     private val optionalPermissions = listOf(
         android.Manifest.permission.CAMERA,
         android.Manifest.permission.RECORD_AUDIO,
         android.Manifest.permission.POST_NOTIFICATIONS
+    )
+
+    // Map Android permission constants to human-readable labels
+    private val permissionLabels = mapOf(
+        android.Manifest.permission.READ_MEDIA_IMAGES to "Read Media Images",
+        android.Manifest.permission.READ_MEDIA_VIDEO to "Read Media Videos",
+        android.Manifest.permission.READ_EXTERNAL_STORAGE to "Read Storage (Legacy)",
+        android.Manifest.permission.WRITE_EXTERNAL_STORAGE to "Write Storage (Legacy)",
+        android.Manifest.permission.CAMERA to "Camera",
+        android.Manifest.permission.RECORD_AUDIO to "Microphone",
+        android.Manifest.permission.POST_NOTIFICATIONS to "Notifications"
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,8 +93,9 @@ class PermissionsActivity : AppCompatActivity() {
 
     private fun addPermissionSwitches(container: LinearLayout, permissions: List<String>) {
         for (perm in permissions) {
+            val label = permissionLabels[perm] ?: perm // fallback if missing
             val switch = SwitchCompat(this).apply {
-                text = perm
+                text = label
                 isChecked = ContextCompat.checkSelfPermission(
                     this@PermissionsActivity,
                     perm
