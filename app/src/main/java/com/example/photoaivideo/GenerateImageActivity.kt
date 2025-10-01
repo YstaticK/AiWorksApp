@@ -9,6 +9,8 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import androidx.appcompat.app.AppCompatActivity
+import android.graphics.BitmapFactory
+import java.io.InputStream
 
 class GenerateImageActivity : AppCompatActivity() {
     private var selectedReferenceImageUri: Uri? = null
@@ -53,6 +55,7 @@ class GenerateImageActivity : AppCompatActivity() {
                 spinnerModel.adapter = modelAdapter
                 if (models.isNotEmpty()) spinnerModel.setSelection(0)
             }
+
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
@@ -80,6 +83,7 @@ class GenerateImageActivity : AppCompatActivity() {
                 spinnerSize.adapter = sizeAdapter
                 spinnerSize.setSelection(0)
             }
+
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
         spinnerAspectRatio.setSelection(0)
@@ -96,6 +100,7 @@ class GenerateImageActivity : AppCompatActivity() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 etSimilarity.setText("$progress%")
             }
+
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
@@ -107,6 +112,7 @@ class GenerateImageActivity : AppCompatActivity() {
                     seekSimilarity.progress = value
                 }
             }
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
@@ -174,7 +180,32 @@ class GenerateImageActivity : AppCompatActivity() {
         if (requestCode == 1001 && resultCode == RESULT_OK && data != null) {
             selectedReferenceImageUri = data.data
             val ivReference: ImageView = findViewById(R.id.ivReference)
-            ivReference.setImageURI(selectedReferenceImageUri)
+
+            // Safe decode large image
+            try {
+                val input: InputStream? = contentResolver.openInputStream(selectedReferenceImageUri!!)
+                input?.use {
+                    val options = BitmapFactory.Options().apply {
+                        inJustDecodeBounds = true
+                        BitmapFactory.decodeStream(it, null, this)
+                        val reqSize = 1024 // max width/height
+                        var scale = 1
+                        while (outWidth / scale > reqSize || outHeight / scale > reqSize) {
+                            scale *= 2
+                        }
+                        inSampleSize = scale
+                        inJustDecodeBounds = false
+                    }
+                }
+
+                val input2: InputStream? = contentResolver.openInputStream(selectedReferenceImageUri!!)
+                val bitmap = input2?.use { BitmapFactory.decodeStream(it, null, options) }
+                if (bitmap != null) {
+                    ivReference.setImageBitmap(bitmap)
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this, "Failed to load image: ${e.message}", Toast.LENGTH_LONG).show()
+            }
         }
     }
 }
