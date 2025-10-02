@@ -53,6 +53,16 @@ class GenerateImageActivity : AppCompatActivity() {
                 modelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 spinnerModel.adapter = modelAdapter
                 if (models.isNotEmpty()) spinnerModel.setSelection(0)
+
+                // Update size options whenever provider changes
+                updateSizeOptions(spinnerModel, spinnerSize)
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        spinnerModel.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                updateSizeOptions(spinnerModel, spinnerSize)
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
@@ -64,25 +74,6 @@ class GenerateImageActivity : AppCompatActivity() {
         val aspectAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, aspectRatios)
         aspectAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerAspectRatio.adapter = aspectAdapter
-
-        val sizeOptions = mapOf(
-            "1:1" to listOf("512x512", "768x768", "1024x1024"),
-            "16:9" to listOf("1280x720", "1920x1080"),
-            "4:3" to listOf("800x600", "1024x768"),
-            "3:2" to listOf("900x600", "1500x1000")
-        )
-
-        spinnerAspectRatio.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val aspect = aspectRatios[position]
-                val sizes = sizeOptions[aspect] ?: listOf("512x512")
-                val sizeAdapter = ArrayAdapter(this@GenerateImageActivity, android.R.layout.simple_spinner_item, sizes)
-                sizeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                spinnerSize.adapter = sizeAdapter
-                spinnerSize.setSelection(0)
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
         spinnerAspectRatio.setSelection(0)
 
         // --- Batch sizes ---
@@ -170,6 +161,16 @@ class GenerateImageActivity : AppCompatActivity() {
         }
     }
 
+    private fun updateSizeOptions(spinnerModel: Spinner, spinnerSize: Spinner) {
+        val model = spinnerModel.selectedItem?.toString() ?: return
+        val sizes = ProviderRegistry.modelSizes[model]
+        val sizeList = sizes ?: listOf("512x512", "768x768", "1024x1024") // fallback
+        val sizeAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, sizeList)
+        sizeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerSize.adapter = sizeAdapter
+        spinnerSize.setSelection(0)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 1001 && resultCode == RESULT_OK && data != null) {
@@ -179,15 +180,11 @@ class GenerateImageActivity : AppCompatActivity() {
             try {
                 val inputStream = contentResolver.openInputStream(selectedReferenceImageUri!!)
                 inputStream?.use {
-                    // Setup decode options to avoid OOM with large images
                     val options = BitmapFactory.Options().apply {
                         inJustDecodeBounds = true
                     }
-
-                    // First decode bounds
                     BitmapFactory.decodeStream(it, null, options)
 
-                    // Calculate sample size (scale down if >2048px)
                     val maxDim = 2048
                     var sampleSize = 1
                     while (options.outWidth / sampleSize > maxDim || options.outHeight / sampleSize > maxDim) {
@@ -198,7 +195,6 @@ class GenerateImageActivity : AppCompatActivity() {
                         inSampleSize = sampleSize
                     }
 
-                    // Reopen stream for actual decode
                     val inputStream2 = contentResolver.openInputStream(selectedReferenceImageUri!!)
                     inputStream2?.use { stream2 ->
                         val bitmap = BitmapFactory.decodeStream(stream2, null, decodeOptions)
@@ -207,7 +203,7 @@ class GenerateImageActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                ivReference.setImageURI(selectedReferenceImageUri) // fallback
+                ivReference.setImageURI(selectedReferenceImageUri)
             }
         }
     }
