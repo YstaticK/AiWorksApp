@@ -128,4 +128,10 @@ object ProviderRegistry {
         val providers = loadAll(context)
         return providers.find { it.name == providerName }?.baseUrl
     }
+
+    // NEW: Reset to defaults helper
+    fun resetProviders(context: Context): MutableList<Provider> {
+        saveAll(context, knownDefaults)
+        return knownDefaults.toMutableList()
+    }
 }
