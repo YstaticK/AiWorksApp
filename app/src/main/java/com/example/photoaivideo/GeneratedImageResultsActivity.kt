@@ -79,7 +79,8 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
             runOnUiThread {
                 progressBar.visibility = View.GONE
                 if (!error.isNullOrBlank()) {
-                    ErrorUtils.showErrorDialog(this, error)
+                    // Show full error message instead of generic
+                    ErrorUtils.showErrorDialog(this, "Image generation failed:\n\n$error")
                     showNotification("Generation Failed", error, success = false)
                     return@runOnUiThread
                 }
@@ -135,7 +136,7 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
             0,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
         )
 
         builder.setContentIntent(pendingIntent)
