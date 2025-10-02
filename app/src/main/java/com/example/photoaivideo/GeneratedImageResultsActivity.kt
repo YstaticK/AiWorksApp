@@ -67,8 +67,10 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
             }
         }.start()
 
-        val service = OpenAIService(this, apiKey)
+        val service = ProviderAIService(this)
         service.generateImage(
+            provider = request.provider,
+            model = request.model,
             prompt = request.prompts,
             width = request.width,
             height = request.height,
@@ -133,7 +135,7 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
             0,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
         )
 
         builder.setContentIntent(pendingIntent)
