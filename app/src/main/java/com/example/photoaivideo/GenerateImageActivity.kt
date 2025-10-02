@@ -1,7 +1,5 @@
 package com.example.photoaivideo
 
-import android.app.AlertDialog
-import android.view.View
 import android.widget.*
 import android.content.Intent
 import android.net.Uri
@@ -30,62 +28,38 @@ class GenerateImageActivity : AppCompatActivity() {
 
         val spinnerSize: Spinner = findViewById(R.id.spinnerSize)
         val spinnerBatchSize: Spinner = findViewById(R.id.spinnerBatchSize)
-        val spinnerProvider: Spinner = findViewById(R.id.spinnerProvider)
         val spinnerModel: Spinner = findViewById(R.id.spinnerModel)
 
-        // --- Load providers + models ---
-        val providers = ProviderRegistry.loadAll(this)
-        val providerModels: Map<String, List<String>> = providers
-            .associate { it.name to it.models.sorted() }
+        // Fixed LocalSD model
+        val modelAdapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_spinner_item,
+            listOf("stable-diffusion")
+        )
+        modelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerModel.adapter = modelAdapter
+        spinnerModel.setSelection(0)
 
-        val providerNames = providerModels.keys.sorted()
+        // Fixed sizes (commonly supported)
+        val allowedSizes = listOf("512x512", "768x768", "1024x1024")
+        val sizeAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, allowedSizes)
+        sizeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerSize.adapter = sizeAdapter
+        spinnerSize.setSelection(0)
 
-        val providerAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, providerNames)
-        providerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerProvider.adapter = providerAdapter
-
-        spinnerProvider.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val provider = providerNames[position]
-                val models = providerModels[provider] ?: emptyList()
-                val modelAdapter =
-                    ArrayAdapter(this@GenerateImageActivity, android.R.layout.simple_spinner_item, models)
-                modelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                spinnerModel.adapter = modelAdapter
-                if (models.isNotEmpty()) spinnerModel.setSelection(0)
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
-
-        // --- Wire model size constraints ---
-        spinnerModel.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val modelName = spinnerModel.selectedItem?.toString() ?: ""
-                val allowedSizes = ProviderRegistry.modelSizeConstraints[modelName]
-                    ?: listOf("512x512")
-
-                val sizeAdapter = ArrayAdapter(this@GenerateImageActivity, android.R.layout.simple_spinner_item, allowedSizes)
-                sizeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                spinnerSize.adapter = sizeAdapter
-                spinnerSize.setSelection(0)
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
-
-        if (providerNames.isNotEmpty()) spinnerProvider.setSelection(0)
-
-        // --- Batch sizes ---
-        val batchSizes = listOf("1", "2", "4", "8", "10")
+        // Batch sizes
+        val batchSizes = listOf("1", "2", "4", "8")
         val batchAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, batchSizes)
         batchAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerBatchSize.adapter = batchAdapter
         spinnerBatchSize.setSelection(0)
 
-        // --- Similarity sync ---
+        // Sync SeekBar and EditText
         seekSimilarity.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 etSimilarity.setText("$progress%")
             }
+
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
@@ -101,36 +75,20 @@ class GenerateImageActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
-        // --- Select reference image ---
+        // Select reference image
         btnSelectReference.setOnClickListener {
             val intent = Intent(Intent.ACTION_GET_CONTENT)
             intent.type = "image/*"
             startActivityForResult(intent, 1001)
         }
 
-        // --- Start Generation ---
+        // Start Generation
         btnStartGeneration.setOnClickListener {
-            val provider = spinnerProvider.selectedItem?.toString() ?: ""
-            val apiKey = ProviderRegistry.getApiKey(this, provider)
-            val baseUrl = ProviderRegistry.getBaseUrl(this, provider)
-
-            if (apiKey.isNullOrEmpty() || baseUrl.isNullOrEmpty()) {
-                AlertDialog.Builder(this)
-                    .setTitle("Missing Provider Setup")
-                    .setMessage("Provider $provider is missing API Key or Base URL. Please configure it in Models.")
-                    .setPositiveButton("Open Models") { _, _ ->
-                        startActivity(Intent(this, ModelsActivity::class.java))
-                    }
-                    .setNegativeButton("Cancel", null)
-                    .show()
-                return@setOnClickListener
-            }
-
             val sizeSel = spinnerSize.selectedItem?.toString() ?: "512x512"
             val (w, h) = sizeSel.split("x").map { it.toInt() }
 
             val request = GenerationRequest(
-                provider = provider,
+                provider = "LocalSD",
                 model = spinnerModel.selectedItem.toString(),
                 prompts = etPrompts.text.toString(),
                 negativePrompt = etNegativePrompts.text.toString(),
@@ -147,8 +105,6 @@ class GenerateImageActivity : AppCompatActivity() {
             try {
                 val intent = Intent(this, GeneratedImageResultsActivity::class.java)
                 intent.putExtra("generationRequest", request)
-                intent.putExtra("apiKey", apiKey)
-                intent.putExtra("baseUrl", baseUrl)
                 startActivity(intent)
             } catch (e: Exception) {
                 ErrorUtils.showErrorDialog(
@@ -159,7 +115,7 @@ class GenerateImageActivity : AppCompatActivity() {
         }
     }
 
-    // --- Safe image preview with downsampling ---
+    // Safe image preview with downsampling
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 1001 && resultCode == RESULT_OK && data != null) {
@@ -179,7 +135,6 @@ class GenerateImageActivity : AppCompatActivity() {
                     }
 
                     val decodeOptions = BitmapFactory.Options().apply { inSampleSize = sampleSize }
-
                     val inputStream2 = contentResolver.openInputStream(selectedReferenceImageUri!!)
                     inputStream2?.use { stream2 ->
                         val bitmap = BitmapFactory.decodeStream(stream2, null, decodeOptions)

@@ -15,41 +15,16 @@ data class Provider(
 object ProviderRegistry {
     private const val FILE_NAME = "providers.json"
 
-    // Hardcoded known defaults
+    // Hardcoded single default: Local Stable Diffusion
     private val knownDefaults = listOf(
         Provider(
-            "OpenAI",
+            "LocalSD",
             null,
-            mutableListOf("dall-e-2", "dall-e-3"),
-            "https://api.openai.com/v1"
-        ),
-        Provider(
-            "Stability AI",
-            null,
-            mutableListOf("stable-diffusion-v1.5", "stable-diffusion-xl"),
-            "https://api.stability.ai"
-        ),
-        Provider(
-            "MidJourney",
-            null,
-            mutableListOf(),
-            "https://api.midjourney.com" // placeholder
-        ),
-        Provider(
-            "Leonardo.AI",
-            null,
-            mutableListOf(),
-            "https://cloud.leonardo.ai/api" // placeholder
-        ),
-        Provider(
-            "RunDiffusion",
-            null,
-            mutableListOf(),
-            "https://api.rundiffusion.com" // placeholder
+            mutableListOf("stable-diffusion"),
+            "http://192.168.178.27:7860"
         )
     )
 
-    // Public accessors
     fun getKnownDefaults(): List<Provider> {
         return knownDefaults.map { it.copy() }
     }
@@ -58,12 +33,9 @@ object ProviderRegistry {
         return knownDefaults.find { it.name.equals(name, ignoreCase = true) }
     }
 
-    // Model-specific allowed sizes
+    // Allowed sizes for LocalSD
     val modelSizeConstraints: Map<String, List<String>> = mapOf(
-        "dall-e-2" to listOf("256x256", "512x512", "1024x1024"),
-        "dall-e-3" to listOf("1024x1024", "1024x1792", "1792x1024"),
-        "stable-diffusion-v1.5" to listOf("512x512", "768x768"),
-        "stable-diffusion-xl" to listOf("1024x1024")
+        "stable-diffusion" to listOf("512x512", "768x768", "1024x1024")
     )
 
     fun loadAll(context: Context): MutableList<Provider> {
@@ -129,7 +101,6 @@ object ProviderRegistry {
         return providers.find { it.name == providerName }?.baseUrl
     }
 
-    // NEW: Reset to defaults helper
     fun resetProviders(context: Context): MutableList<Provider> {
         saveAll(context, knownDefaults)
         return knownDefaults.toMutableList()

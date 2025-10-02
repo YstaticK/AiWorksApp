@@ -42,16 +42,9 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
             return
         }
 
-        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
-        val apiKey = intent.getStringExtra("apiKey") ?: prefs.getString("api_key", null)
-        if (apiKey.isNullOrBlank()) {
-            ErrorUtils.showErrorDialog(this, "Missing API key. Please enter it on the previous screen.")
-            return
-        }
-
         createNotificationChannel()
 
-        // Friendly loading animation (non-blocking)
+        // Friendly loading animation
         Thread {
             for (i in 1..100) {
                 Thread.sleep(40)
@@ -79,7 +72,6 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
             runOnUiThread {
                 progressBar.visibility = View.GONE
                 if (!error.isNullOrBlank()) {
-                    // Show full error message instead of generic
                     ErrorUtils.showErrorDialog(this, "Image generation failed:\n\n$error")
                     showNotification("Generation Failed", error, success = false)
                     return@runOnUiThread
@@ -136,7 +128,7 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
             0,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0
         )
 
         builder.setContentIntent(pendingIntent)
