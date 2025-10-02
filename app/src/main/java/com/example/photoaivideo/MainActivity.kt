@@ -1,8 +1,8 @@
 package com.example.photoaivideo
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
@@ -10,60 +10,50 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Reference Library button
-        val btnReferenceLibrary = findViewById<Button>(R.id.btnReferenceLibrary)
+        val btnImage: Button = findViewById(R.id.btnImage)
+        val btnVideo: Button = findViewById(R.id.btnVideo)
+        val btnLibrary: Button = findViewById(R.id.btnLibrary)
+        val btnReferenceLibrary: Button = findViewById(R.id.btnReferenceLibrary)
+        val btnModels: Button = findViewById(R.id.btnModels)
+        val btnRecycleBin: Button = findViewById(R.id.btnRecycleBin)
+        val btnSettings: Button = findViewById(R.id.btnSettings)
+        val btnInfo: Button = findViewById(R.id.btnInfo)
+        val btnQuit: Button = findViewById(R.id.btnQuit)
+
+        btnImage.setOnClickListener {
+            startActivity(Intent(this, GenerateImageActivity::class.java))
+        }
+
+        btnVideo.setOnClickListener {
+            startActivity(Intent(this, VideosLibraryActivity::class.java))
+        }
+
+        btnLibrary.setOnClickListener {
+            startActivity(Intent(this, ImagesLibraryActivity::class.java))
+        }
+
         btnReferenceLibrary.setOnClickListener {
             startActivity(Intent(this, ReferenceLibraryActivity::class.java))
         }
 
-        // Recycle Bin button
-        val btnRecycleBin = findViewById<Button>(R.id.btnRecycleBin)
-        btnRecycleBin.setOnClickListener {
-            startActivity(Intent(this, RecycleBinActivity::class.java))
-        }
-
-        // Models button
-        val btnModels = findViewById<Button>(R.id.btnModels)
         btnModels.setOnClickListener {
             startActivity(Intent(this, ModelsActivity::class.java))
         }
 
-        // Library button
-        val btnLibrary = findViewById<Button>(R.id.btnLibrary)
-        btnLibrary.setOnClickListener {
-            startActivity(Intent(this, LibraryActivity::class.java))
+        btnRecycleBin.setOnClickListener {
+            startActivity(Intent(this, RecycleBinActivity::class.java))
         }
 
-        // Image generation button
-        val btnImage: Button = findViewById(R.id.btnImage)
-        btnImage.setOnClickListener {
-            val intent = Intent(this, GenerateImageActivity::class.java)
-            startActivity(intent)
-        }
-
-        // Video generation button
-        val btnVideo: Button = findViewById(R.id.btnVideo)
-        btnVideo.setOnClickListener {
-            val intent = Intent(this, GenerateVideoActivity::class.java)
-            startActivity(intent)
-        }
-
-        // Settings button
-        val btnSettings = findViewById<Button>(R.id.btnSettings)
         btnSettings.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
 
-        // Info button
-        val btnInfo = findViewById<Button>(R.id.btnInfo)
         btnInfo.setOnClickListener {
             startActivity(Intent(this, InfoActivity::class.java))
         }
 
-        // Quit button
-        val btnQuit = findViewById<Button>(R.id.btnQuit)
         btnQuit.setOnClickListener {
-            finishAffinity() // closes the app completely
+            finishAffinity()
         }
     }
 }

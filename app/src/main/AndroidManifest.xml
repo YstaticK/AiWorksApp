@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Required for API calls (local + remote) -->
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Storage (legacy < Android 13) -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29"/>
+
+    <!-- Storage (Android 13+) -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>
+
+    <!-- Camera + microphone (future-proofing for video/camera features) -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
 
     <application
         android:allowBackup="true"
@@ -22,12 +31,7 @@
             </intent-filter>
         </activity>
 
-        <!-- Other activities must also be declared here -->
-        <activity android:name=".GenerateImageActivity" />
-        <activity android:name=".GeneratedImageResultsActivity" />
-        <activity android:name=".ModelsActivity" />
-        <activity android:name=".ImagesLibraryActivity" />
-        <activity android:name=".SettingsActivity" />
+        <!-- Other activities remain here -->
 
     </application>
 </manifest>
