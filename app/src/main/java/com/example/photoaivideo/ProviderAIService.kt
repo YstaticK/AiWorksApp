@@ -30,7 +30,7 @@ class ProviderAIService(private val context: Context) {
         }
 
         when (provider) {
-            "OpenAI" -> callOpenAI(apiKey, prompt, width, height, n, callback)
+            "OpenAI" -> callOpenAI(apiKey, model, prompt, width, height, n, callback)
             "Stability AI" -> callStabilityAI(apiKey, prompt, width, height, n, callback)
             else -> callGeneric(baseUrl, apiKey, model, prompt, width, height, n, callback)
         }
@@ -38,6 +38,7 @@ class ProviderAIService(private val context: Context) {
 
     private fun callOpenAI(
         apiKey: String,
+        model: String,
         prompt: String,
         width: Int,
         height: Int,
@@ -46,6 +47,7 @@ class ProviderAIService(private val context: Context) {
     ) {
         val url = "https://api.openai.com/v1/images/generations"
         val body = JSONObject().apply {
+            put("model", model) // REQUIRED for DALL·E 2/3
             put("prompt", prompt)
             put("n", n)
             put("size", "${width}x${height}")
@@ -73,7 +75,8 @@ class ProviderAIService(private val context: Context) {
         n: Int,
         callback: (List<File>?, String?) -> Unit
     ) {
-        val url = "https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image"
+        val url =
+            "https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image"
         val body = JSONObject().apply {
             put("text_prompts", listOf(mapOf("text" to prompt)))
             put("cfg_scale", 7)
@@ -146,7 +149,6 @@ class ProviderAIService(private val context: Context) {
 
                 val json = JSONObject(response.body?.string() ?: "{}")
                 val urls = extractUrls(json)
-
                 if (urls.isEmpty()) {
                     callback(null, "No images returned")
                     return
@@ -159,7 +161,8 @@ class ProviderAIService(private val context: Context) {
                         client.newCall(imgReq).execute().use { resp ->
                             val saveDir = File(context.getExternalFilesDir("images"), "misc")
                             if (!saveDir.exists()) saveDir.mkdirs()
-                            val file = File(saveDir, "ai_${System.currentTimeMillis()}_$i.png")
+                            val file =
+                                File(saveDir, "ai_${System.currentTimeMillis()}_$i.png")
                             resp.body?.byteStream()?.use { input ->
                                 file.outputStream().use { output -> input.copyTo(output) }
                             }
