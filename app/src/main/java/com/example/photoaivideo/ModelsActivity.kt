@@ -18,7 +18,6 @@ class ModelsActivity : AppCompatActivity() {
         listView = findViewById(R.id.listViewModels)
         val btnAddProvider: Button = findViewById(R.id.btnAddModel)
 
-        // Load providers
         providers.clear()
         providers.addAll(ProviderRegistry.loadAll(this))
 
@@ -71,22 +70,16 @@ class ModelsActivity : AppCompatActivity() {
                 val baseUrlInput = inputBaseUrl.text.toString().trim()
 
                 if (name.isNotEmpty()) {
-                    val newProvider = when (name) {
-                        "OpenAI" -> Provider(
-                            "OpenAI",
+                    val default = ProviderRegistry.getDefaultProviderByName(name)
+                    val newProvider = if (default != null) {
+                        Provider(
+                            default.name,
                             if (key.isNotEmpty()) key else null,
-                            ProviderRegistry.knownDefaults.find { it.name == "OpenAI" }?.models?.toMutableList()
-                                ?: mutableListOf(),
-                            "https://api.openai.com/v1"
+                            default.models.toMutableList(),
+                            default.baseUrl
                         )
-                        "Stability AI" -> Provider(
-                            "Stability AI",
-                            if (key.isNotEmpty()) key else null,
-                            ProviderRegistry.knownDefaults.find { it.name == "Stability AI" }?.models?.toMutableList()
-                                ?: mutableListOf(),
-                            "https://api.stability.ai"
-                        )
-                        else -> Provider(
+                    } else {
+                        Provider(
                             name,
                             if (key.isNotEmpty()) key else null,
                             mutableListOf(),
@@ -131,7 +124,6 @@ class ModelsActivity : AppCompatActivity() {
             container.addView(inputKey)
             container.addView(inputBaseUrl)
 
-            // Existing models with delete buttons
             val modelsLayout = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
             }
@@ -141,14 +133,15 @@ class ModelsActivity : AppCompatActivity() {
                 }
                 val tv = TextView(context).apply {
                     text = modelName
-                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                    layoutParams =
+                        LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
                 }
                 val btnDelete = Button(context).apply {
                     text = "Delete"
                     setOnClickListener {
                         provider.models.removeAt(i)
                         ProviderRegistry.saveAll(this@ModelsActivity, providers)
-                        showEditProviderDialog(index) // reopen to refresh
+                        showEditProviderDialog(index)
                     }
                 }
                 row.addView(tv)
@@ -157,7 +150,6 @@ class ModelsActivity : AppCompatActivity() {
             }
             container.addView(modelsLayout)
 
-            // Add new model
             val inputModel = EditText(context).apply { hint = "Add new model" }
             container.addView(inputModel)
 

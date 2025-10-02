@@ -32,7 +32,6 @@ class GenerateImageActivity : AppCompatActivity() {
         val spinnerBatchSize: Spinner = findViewById(R.id.spinnerBatchSize)
         val spinnerProvider: Spinner = findViewById(R.id.spinnerProvider)
         val spinnerModel: Spinner = findViewById(R.id.spinnerModel)
-        val spinnerAspectRatio: Spinner = findViewById(R.id.spinnerAspectRatio)
 
         // --- Load providers + models ---
         val providers = ProviderRegistry.loadAll(this)
@@ -49,32 +48,31 @@ class GenerateImageActivity : AppCompatActivity() {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val provider = providerNames[position]
                 val models = providerModels[provider] ?: emptyList()
-                val modelAdapter = ArrayAdapter(this@GenerateImageActivity, android.R.layout.simple_spinner_item, models)
+                val modelAdapter =
+                    ArrayAdapter(this@GenerateImageActivity, android.R.layout.simple_spinner_item, models)
                 modelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 spinnerModel.adapter = modelAdapter
                 if (models.isNotEmpty()) spinnerModel.setSelection(0)
-
-                // Update size options whenever provider changes
-                updateSizeOptions(spinnerModel, spinnerSize)
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
+        // --- Wire model size constraints ---
         spinnerModel.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                updateSizeOptions(spinnerModel, spinnerSize)
+                val modelName = spinnerModel.selectedItem?.toString() ?: ""
+                val allowedSizes = ProviderRegistry.modelSizeConstraints[modelName]
+                    ?: listOf("512x512")
+
+                val sizeAdapter = ArrayAdapter(this@GenerateImageActivity, android.R.layout.simple_spinner_item, allowedSizes)
+                sizeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                spinnerSize.adapter = sizeAdapter
+                spinnerSize.setSelection(0)
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
         if (providerNames.isNotEmpty()) spinnerProvider.setSelection(0)
-
-        // --- Aspect ratios ---
-        val aspectRatios = listOf("1:1", "16:9", "4:3", "3:2")
-        val aspectAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, aspectRatios)
-        aspectAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerAspectRatio.adapter = aspectAdapter
-        spinnerAspectRatio.setSelection(0)
 
         // --- Batch sizes ---
         val batchSizes = listOf("1", "2", "4", "8", "10")
@@ -83,7 +81,7 @@ class GenerateImageActivity : AppCompatActivity() {
         spinnerBatchSize.adapter = batchAdapter
         spinnerBatchSize.setSelection(0)
 
-        // Sync SeekBar and EditText
+        // --- Similarity sync ---
         seekSimilarity.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 etSimilarity.setText("$progress%")
@@ -103,14 +101,14 @@ class GenerateImageActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
-        // Select reference image
+        // --- Select reference image ---
         btnSelectReference.setOnClickListener {
             val intent = Intent(Intent.ACTION_GET_CONTENT)
             intent.type = "image/*"
             startActivityForResult(intent, 1001)
         }
 
-        // Start Generation
+        // --- Start Generation ---
         btnStartGeneration.setOnClickListener {
             val provider = spinnerProvider.selectedItem?.toString() ?: ""
             val apiKey = ProviderRegistry.getApiKey(this, provider)
@@ -161,16 +159,7 @@ class GenerateImageActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateSizeOptions(spinnerModel: Spinner, spinnerSize: Spinner) {
-        val model = spinnerModel.selectedItem?.toString() ?: return
-        val sizes = ProviderRegistry.modelSizes[model]
-        val sizeList = sizes ?: listOf("512x512", "768x768", "1024x1024") // fallback
-        val sizeAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, sizeList)
-        sizeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerSize.adapter = sizeAdapter
-        spinnerSize.setSelection(0)
-    }
-
+    // --- Safe image preview with downsampling ---
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 1001 && resultCode == RESULT_OK && data != null) {
@@ -180,9 +169,7 @@ class GenerateImageActivity : AppCompatActivity() {
             try {
                 val inputStream = contentResolver.openInputStream(selectedReferenceImageUri!!)
                 inputStream?.use {
-                    val options = BitmapFactory.Options().apply {
-                        inJustDecodeBounds = true
-                    }
+                    val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
                     BitmapFactory.decodeStream(it, null, options)
 
                     val maxDim = 2048
@@ -191,9 +178,7 @@ class GenerateImageActivity : AppCompatActivity() {
                         sampleSize *= 2
                     }
 
-                    val decodeOptions = BitmapFactory.Options().apply {
-                        inSampleSize = sampleSize
-                    }
+                    val decodeOptions = BitmapFactory.Options().apply { inSampleSize = sampleSize }
 
                     val inputStream2 = contentResolver.openInputStream(selectedReferenceImageUri!!)
                     inputStream2?.use { stream2 ->
@@ -203,7 +188,7 @@ class GenerateImageActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                ivReference.setImageURI(selectedReferenceImageUri)
+                ivReference.setImageURI(selectedReferenceImageUri) // fallback
             }
         }
     }

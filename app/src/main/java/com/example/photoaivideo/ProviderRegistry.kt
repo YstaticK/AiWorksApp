@@ -15,7 +15,7 @@ data class Provider(
 object ProviderRegistry {
     private const val FILE_NAME = "providers.json"
 
-    // Hardcoded known defaults with correct model IDs
+    // Hardcoded known defaults
     private val knownDefaults = listOf(
         Provider(
             "OpenAI",
@@ -26,28 +26,44 @@ object ProviderRegistry {
         Provider(
             "Stability AI",
             null,
-            mutableListOf("stable-diffusion-v1-5", "stable-diffusion-xl"),
+            mutableListOf("stable-diffusion-v1.5", "stable-diffusion-xl"),
             "https://api.stability.ai"
         ),
-        Provider("MidJourney", null, mutableListOf(), "https://api.midjourney.com"), // placeholder
-        Provider("Leonardo.AI", null, mutableListOf(), "https://cloud.leonardo.ai/api"), // placeholder
-        Provider("RunDiffusion", null, mutableListOf(), "https://api.rundiffusion.com") // placeholder
+        Provider(
+            "MidJourney",
+            null,
+            mutableListOf(),
+            "https://api.midjourney.com" // placeholder
+        ),
+        Provider(
+            "Leonardo.AI",
+            null,
+            mutableListOf(),
+            "https://cloud.leonardo.ai/api" // placeholder
+        ),
+        Provider(
+            "RunDiffusion",
+            null,
+            mutableListOf(),
+            "https://api.rundiffusion.com" // placeholder
+        )
     )
+
+    // Public accessors
+    fun getKnownDefaults(): List<Provider> {
+        return knownDefaults.map { it.copy() }
+    }
+
+    fun getDefaultProviderByName(name: String): Provider? {
+        return knownDefaults.find { it.name.equals(name, ignoreCase = true) }
+    }
 
     // Model-specific allowed sizes
-    val modelSizes = mapOf(
+    val modelSizeConstraints: Map<String, List<String>> = mapOf(
         "dall-e-2" to listOf("256x256", "512x512", "1024x1024"),
         "dall-e-3" to listOf("1024x1024", "1024x1792", "1792x1024"),
-        "stable-diffusion-v1-5" to listOf("512x512", "768x768", "1024x1024"),
-        "stable-diffusion-xl" to listOf("1024x1024", "2048x2048")
-    )
-
-    // Migration map: old display names → correct IDs
-    private val migrationMap = mapOf(
-        "DALL·E 2" to "dall-e-2",
-        "DALL·E 3" to "dall-e-3",
-        "Stable Diffusion v1.5" to "stable-diffusion-v1-5",
-        "Stable Diffusion XL" to "stable-diffusion-xl"
+        "stable-diffusion-v1.5" to listOf("512x512", "768x768"),
+        "stable-diffusion-xl" to listOf("1024x1024")
     )
 
     fun loadAll(context: Context): MutableList<Provider> {
@@ -68,13 +84,9 @@ object ProviderRegistry {
                 val modelsArr = obj.optJSONArray("models") ?: JSONArray()
                 val models = mutableListOf<String>()
                 for (j in 0 until modelsArr.length()) {
-                    var model = modelsArr.getString(j)
-                    // Auto-migrate old names to correct API IDs
-                    model = migrationMap[model] ?: model
-                    models.add(model)
+                    models.add(modelsArr.getString(j))
                 }
 
-                // Autofill from defaults if missing
                 val default = knownDefaults.find { it.name == name }
                 val finalBaseUrl = baseUrl ?: default?.baseUrl
                 val finalModels = if (models.isEmpty() && default != null) {
@@ -85,10 +97,6 @@ object ProviderRegistry {
 
                 list.add(Provider(name, apiKey, finalModels, finalBaseUrl))
             }
-
-            // If migration changed something, save it back
-            saveAll(context, list)
-
             list
         } catch (e: Exception) {
             e.printStackTrace()
