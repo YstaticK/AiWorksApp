@@ -17,7 +17,9 @@ class ModelsActivity : AppCompatActivity() {
 
         listView = findViewById(R.id.listViewModels)
         val btnAddProvider: Button = findViewById(R.id.btnAddModel)
+        val btnResetProviders: Button = findViewById(R.id.btnResetProviders)
 
+        // Load providers
         providers.clear()
         providers.addAll(ProviderRegistry.loadAll(this))
 
@@ -31,6 +33,21 @@ class ModelsActivity : AppCompatActivity() {
         btnAddProvider.text = "Add Provider"
         btnAddProvider.setOnClickListener {
             showAddProviderDialog()
+        }
+
+        btnResetProviders.setOnClickListener {
+            AlertDialog.Builder(this)
+                .setTitle("Reset Providers")
+                .setMessage("This will remove all changes and restore default providers. Are you sure?")
+                .setPositiveButton("Yes") { _, _ ->
+                    ProviderRegistry.resetProviders(this)
+                    providers.clear()
+                    providers.addAll(ProviderRegistry.loadAll(this))
+                    refreshList()
+                    Toast.makeText(this, "Providers reset to defaults", Toast.LENGTH_SHORT).show()
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
 
         listView.setOnItemClickListener { _, _, position, _ ->
@@ -73,7 +90,7 @@ class ModelsActivity : AppCompatActivity() {
                     val default = ProviderRegistry.getDefaultProviderByName(name)
                     val newProvider = if (default != null) {
                         Provider(
-                            default.name,
+                            name,
                             if (key.isNotEmpty()) key else null,
                             default.models.toMutableList(),
                             default.baseUrl
@@ -124,6 +141,7 @@ class ModelsActivity : AppCompatActivity() {
             container.addView(inputKey)
             container.addView(inputBaseUrl)
 
+            // Existing models with delete buttons
             val modelsLayout = LinearLayout(context).apply {
                 orientation = LinearLayout.VERTICAL
             }
@@ -133,15 +151,14 @@ class ModelsActivity : AppCompatActivity() {
                 }
                 val tv = TextView(context).apply {
                     text = modelName
-                    layoutParams =
-                        LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
                 }
                 val btnDelete = Button(context).apply {
                     text = "Delete"
                     setOnClickListener {
                         provider.models.removeAt(i)
                         ProviderRegistry.saveAll(this@ModelsActivity, providers)
-                        showEditProviderDialog(index)
+                        showEditProviderDialog(index) // reopen to refresh
                     }
                 }
                 row.addView(tv)
@@ -150,6 +167,7 @@ class ModelsActivity : AppCompatActivity() {
             }
             container.addView(modelsLayout)
 
+            // Add new model
             val inputModel = EditText(context).apply { hint = "Add new model" }
             container.addView(inputModel)
 
