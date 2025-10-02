@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Required for API calls (local + remote) -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -19,8 +22,12 @@
             </intent-filter>
         </activity>
 
-        <!-- Other activities go here -->
+        <!-- Other activities must also be declared here -->
+        <activity android:name=".GenerateImageActivity" />
+        <activity android:name=".GeneratedImageResultsActivity" />
+        <activity android:name=".ModelsActivity" />
+        <activity android:name=".ImagesLibraryActivity" />
+        <activity android:name=".SettingsActivity" />
 
     </application>
-
 </manifest>
