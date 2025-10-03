@@ -15,13 +15,13 @@ data class Provider(
 object ProviderRegistry {
     private const val FILE_NAME = "providers.json"
 
-    // Hardcoded single default: Local Stable Diffusion
+    // Hardcoded default: Local Stable Diffusion only
     private val knownDefaults = listOf(
         Provider(
-            "LocalSD",
-            null,
-            mutableListOf("stable-diffusion"),
-            "http://192.168.178.27:7860"
+            name = "LocalSD",
+            apiKey = null,
+            models = mutableListOf("stable-diffusion"),
+            baseUrl = "http://192.168.178.27:7860" // Local webUI
         )
     )
 
@@ -33,7 +33,7 @@ object ProviderRegistry {
         return knownDefaults.find { it.name.equals(name, ignoreCase = true) }
     }
 
-    // Allowed sizes for LocalSD
+    // Supported size constraints
     val modelSizeConstraints: Map<String, List<String>> = mapOf(
         "stable-diffusion" to listOf("512x512", "768x768", "1024x1024")
     )

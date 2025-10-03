@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
@@ -15,20 +16,26 @@ import androidx.core.content.ContextCompat
 import android.graphics.PorterDuff
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import okhttp3.Call
 
 class GeneratedImageResultsActivity : AppCompatActivity() {
 
     private val CHANNEL_ID = "generation_status_channel"
+    private var ongoingCall: Call? = null
+    private lateinit var progressBar: ProgressBar
+    private lateinit var btnCancel: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_generated_image_results)
 
-        val progressBar: ProgressBar = findViewById(R.id.progressBarGeneration)
-        progressBar.max = 100
-        progressBar.visibility = View.VISIBLE
-
+        progressBar = findViewById(R.id.progressBarGeneration)
+        btnCancel = findViewById(R.id.btnCancelGeneration)
         val recyclerView: RecyclerView = findViewById(R.id.gridGeneratedImages)
+
+        progressBar.isIndeterminate = true
+        progressBar.visibility = View.VISIBLE
+        btnCancel.visibility = View.VISIBLE
         recyclerView.layoutManager = GridLayoutManager(this, 2)
 
         val request: GenerationRequest = try {
@@ -44,34 +51,26 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
 
         createNotificationChannel()
 
-        // Friendly loading animation
-        Thread {
-            for (i in 1..100) {
-                Thread.sleep(40)
-                runOnUiThread {
-                    progressBar.progress = i
-                    if (i == 100) {
-                        progressBar.progressDrawable.setColorFilter(
-                            ContextCompat.getColor(this, android.R.color.holo_green_light),
-                            PorterDuff.Mode.SRC_IN
-                        )
-                    }
-                }
-            }
-        }.start()
-
         val service = ProviderAIService(this)
-        service.generateImage(
+        ongoingCall = service.generateImage(
             provider = request.provider,
             model = request.model,
             prompt = request.prompts,
             width = request.width,
             height = request.height,
-            n = request.batchSize
+            n = request.batchSize,
+            referenceImageUri = request.referenceImageUri
         ) { files, error ->
             runOnUiThread {
-                progressBar.visibility = View.GONE
+                btnCancel.visibility = View.GONE
+                progressBar.isIndeterminate = false
+                progressBar.progress = 100
+
                 if (!error.isNullOrBlank()) {
+                    progressBar.progressDrawable.setColorFilter(
+                        ContextCompat.getColor(this, android.R.color.holo_red_light),
+                        PorterDuff.Mode.SRC_IN
+                    )
                     ErrorUtils.showErrorDialog(this, "Image generation failed:\n\n$error")
                     showNotification("Generation Failed", error, success = false)
                     return@runOnUiThread
@@ -79,6 +78,10 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
 
                 if (files != null && files.isNotEmpty()) {
                     recyclerView.adapter = GeneratedImageAdapter(this, files, request)
+                    progressBar.progressDrawable.setColorFilter(
+                        ContextCompat.getColor(this, android.R.color.holo_green_light),
+                        PorterDuff.Mode.SRC_IN
+                    )
                     showNotification(
                         "AI Image Generation Finished",
                         "Your images were saved in the library.",
@@ -86,10 +89,26 @@ class GeneratedImageResultsActivity : AppCompatActivity() {
                     )
                 } else {
                     val msg = "Image generation did not return any files."
+                    progressBar.progressDrawable.setColorFilter(
+                        ContextCompat.getColor(this, android.R.color.holo_red_light),
+                        PorterDuff.Mode.SRC_IN
+                    )
                     ErrorUtils.showErrorDialog(this, msg)
                     showNotification("Generation Failed", msg, success = false)
                 }
             }
+        }
+
+        btnCancel.setOnClickListener {
+            ongoingCall?.cancel()
+            progressBar.isIndeterminate = false
+            progressBar.progress = 0
+            progressBar.progressDrawable.setColorFilter(
+                ContextCompat.getColor(this, android.R.color.holo_red_light),
+                PorterDuff.Mode.SRC_IN
+            )
+            ErrorUtils.showErrorDialog(this, "Generation canceled by user.")
+            btnCancel.visibility = View.GONE
         }
     }
 
