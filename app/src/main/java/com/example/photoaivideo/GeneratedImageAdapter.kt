@@ -34,37 +34,48 @@ class GeneratedImageAdapter(
         val file = files[position]
         Glide.with(context).load(file).into(holder.imageView)
 
-        holder.overlay.visibility = if (selectable && selectedFiles.contains(file)) View.VISIBLE else View.GONE
+        if (selectable && selectedFiles.contains(file)) {
+            holder.overlay.visibility = View.VISIBLE
+        } else {
+            holder.overlay.visibility = View.GONE
+        }
 
         holder.itemView.setOnClickListener {
             if (selectable) {
-                toggleSelection(file)
-                notifyItemChanged(position)
-                selectionListener?.invoke(file, selectedFiles.contains(file))
-            } else {
-                // Open fullscreen preview
-                val intent = Intent(context, ImagePreviewActivity::class.java).apply {
-                    putExtra("filePath", file.absolutePath)
-                    request?.let { putExtra("generationRequest", it) }
+                if (selectedFiles.isNotEmpty()) {
+                    toggleSelection(file)
+                    notifyItemChanged(position)
+                    selectionListener?.invoke(file, selectedFiles.contains(file))
+                } else {
+                    openPreview(file)
                 }
-                context.startActivity(intent)
+            } else {
+                openPreview(file)
             }
         }
 
         holder.itemView.setOnLongClickListener {
-            if (selectable) {
-                toggleSelection(file)
-                notifyItemChanged(position)
-                selectionListener?.invoke(file, selectedFiles.contains(file))
-                true
-            } else false
+            toggleSelection(file)
+            notifyItemChanged(position)
+            selectionListener?.invoke(file, selectedFiles.contains(file))
+            true
         }
     }
 
     override fun getItemCount(): Int = files.size
 
     private fun toggleSelection(file: File) {
-        if (selectedFiles.contains(file)) selectedFiles.remove(file) else selectedFiles.add(file)
+        if (selectedFiles.contains(file)) selectedFiles.remove(file)
+        else selectedFiles.add(file)
+    }
+
+    private fun openPreview(file: File) {
+        val intent = Intent(context, ImagePreviewActivity::class.java)
+        intent.putExtra("filePath", file.absolutePath)
+        if (request != null) {
+            intent.putExtra("generationRequest", request)
+        }
+        context.startActivity(intent)
     }
 
     fun clearSelection() {

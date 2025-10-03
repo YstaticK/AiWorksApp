@@ -1,71 +1,59 @@
 package com.example.photoaivideo
 
+import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import java.io.File
 
 class RecycleBinAdapter(
+    private val context: Context,
     private val items: MutableList<File>,
-    private val selectable: Boolean = false,
-    private val selectionListener: ((File, Boolean) -> Unit)? = null,
-    private val onRestore: (File) -> Unit,
-    private val onDelete: (File) -> Unit
+    private val onSelectionChanged: (Set<File>) -> Unit
 ) : RecyclerView.Adapter<RecycleBinAdapter.BinViewHolder>() {
 
     private val selectedFiles = mutableSetOf<File>()
 
-    class BinViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val textName: TextView = view.findViewById(R.id.textDeletedItemName)
+    inner class BinViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val imageView: ImageView = view.findViewById(R.id.imageView)
         val overlay: View = view.findViewById(R.id.selectionOverlay)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BinViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_recycle_bin, parent, false)
+            .inflate(R.layout.item_generated_image, parent, false)
         return BinViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: BinViewHolder, position: Int) {
         val file = items[position]
-        holder.textName.text = file.name
+        Glide.with(context).load(file).into(holder.imageView)
 
-        if (selectable && selectedFiles.contains(file)) {
-            holder.overlay.visibility = View.VISIBLE
-        } else {
-            holder.overlay.visibility = View.GONE
-        }
+        holder.overlay.visibility =
+            if (selectedFiles.contains(file)) View.VISIBLE else View.GONE
 
         holder.itemView.setOnClickListener {
-            if (selectable) {
+            if (selectedFiles.isNotEmpty()) {
                 toggleSelection(file)
                 notifyItemChanged(position)
-                selectionListener?.invoke(file, selectedFiles.contains(file))
+                onSelectionChanged(selectedFiles)
+            } else {
+                // open fullscreen preview
+                val intent = Intent(context, ImagePreviewActivity::class.java)
+                intent.putExtra("filePath", file.absolutePath)
+                context.startActivity(intent)
             }
         }
 
         holder.itemView.setOnLongClickListener {
-            if (selectable) {
-                toggleSelection(file)
-                notifyItemChanged(position)
-                selectionListener?.invoke(file, selectedFiles.contains(file))
-                true
-            } else {
-                // single restore if not in multi-select mode
-                onRestore(file)
-                true
-            }
-        }
-
-        // Single tap restore/delete if not in multi-select mode
-        if (!selectable) {
-            holder.itemView.setOnClickListener { onRestore(file) }
-            holder.itemView.setOnLongClickListener {
-                onDelete(file)
-                true
-            }
+            toggleSelection(file)
+            notifyItemChanged(position)
+            onSelectionChanged(selectedFiles)
+            true
         }
     }
 
@@ -76,10 +64,11 @@ class RecycleBinAdapter(
         else selectedFiles.add(file)
     }
 
-    fun getSelectedFiles(): Set<File> = selectedFiles
-
     fun clearSelection() {
         selectedFiles.clear()
         notifyDataSetChanged()
+        onSelectionChanged(selectedFiles)
     }
+
+    fun getSelectedFiles(): Set<File> = selectedFiles
 }

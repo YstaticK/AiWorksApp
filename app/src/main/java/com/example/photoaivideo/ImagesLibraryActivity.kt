@@ -10,36 +10,26 @@ import java.io.File
 
 class ImagesLibraryActivity : AppCompatActivity() {
 
-    private lateinit var recycler: RecyclerView
-    private lateinit var adapter: GeneratedImageAdapter
-    private lateinit var btnDeleteSelected: FloatingActionButton
-    private lateinit var btnCancelSelection: FloatingActionButton
-
     private val selectedFiles = mutableSetOf<File>()
+    private lateinit var adapter: GeneratedImageAdapter
+    private lateinit var btnDelete: FloatingActionButton
+    private lateinit var btnCancel: FloatingActionButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_images_library)
 
-        recycler = findViewById(R.id.recyclerViewLibrary)
+        val recycler = findViewById<RecyclerView>(R.id.recyclerViewLibrary)
         recycler.layoutManager = GridLayoutManager(this, 2)
 
-        btnDeleteSelected = findViewById(R.id.btnDeleteSelected)
-        btnCancelSelection = findViewById(R.id.btnCancelSelection)
+        // Floating action buttons
+        btnDelete = findViewById(R.id.btnDelete)
+        btnCancel = findViewById(R.id.btnCancel)
 
-        btnDeleteSelected.setOnClickListener { deleteSelected() }
-        btnCancelSelection.setOnClickListener { cancelSelection() }
-
-        refreshList()
-        updateButtons()
-    }
-
-    private fun refreshList() {
+        // Load generated images from app storage
         val imagesDir = File(getExternalFilesDir("images"), "misc")
         val files = (imagesDir.listFiles()?.filter { it.isFile } ?: emptyList())
             .sortedByDescending { it.lastModified() }
-
-        selectedFiles.clear()
 
         adapter = GeneratedImageAdapter(
             context = this,
@@ -52,28 +42,33 @@ class ImagesLibraryActivity : AppCompatActivity() {
         }
 
         recycler.adapter = adapter
-    }
 
-    private fun deleteSelected() {
-        if (selectedFiles.isEmpty()) return
-        val recycleDir = File(getExternalFilesDir("images"), "recycle_bin")
-        recycleDir.mkdirs()
-        for (f in selectedFiles) {
-            f.renameTo(File(recycleDir, f.name))
+        btnDelete.setOnClickListener {
+            for (file in selectedFiles) {
+                val recycleDir = File(getExternalFilesDir("images"), "recycle_bin")
+                recycleDir.mkdirs()
+                file.renameTo(File(recycleDir, file.name))
+            }
+            reload()
         }
-        refreshList()
-        updateButtons()
-    }
 
-    private fun cancelSelection() {
-        selectedFiles.clear()
-        adapter.clearSelection()
+        btnCancel.setOnClickListener {
+            selectedFiles.clear()
+            adapter.clearSelection()
+            updateButtons()
+        }
+
         updateButtons()
     }
 
     private fun updateButtons() {
         val visible = selectedFiles.isNotEmpty()
-        btnDeleteSelected.visibility = if (visible) View.VISIBLE else View.GONE
-        btnCancelSelection.visibility = if (visible) View.VISIBLE else View.GONE
+        btnDelete.visibility = if (visible) View.VISIBLE else View.GONE
+        btnCancel.visibility = if (visible) View.VISIBLE else View.GONE
+    }
+
+    private fun reload() {
+        finish()
+        startActivity(intent)
     }
 }
