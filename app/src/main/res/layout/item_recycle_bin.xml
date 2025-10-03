@@ -11,17 +11,17 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:text="Deleted item"
-        android:textSize="16sp"/>
+        android:textSize="16sp" />
 
     <Button
-        android:id="@+id/btnRestore"
+        android:id="@+id/btnRestoreItem"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Restore"/>
+        android:text="Restore" />
 
     <Button
-        android:id="@+id/btnDelete"
+        android:id="@+id/btnDeleteItem"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Delete"/>
+        android:text="Delete" />
 </LinearLayout>

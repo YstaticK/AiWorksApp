@@ -22,9 +22,9 @@ class ImagesLibraryActivity : AppCompatActivity() {
         val recycler = findViewById<RecyclerView>(R.id.recyclerViewLibrary)
         recycler.layoutManager = GridLayoutManager(this, 2)
 
-        // Floating action buttons
-        btnDelete = findViewById(R.id.btnDelete)
-        btnCancel = findViewById(R.id.btnCancel)
+        // ✅ Correct IDs from XML
+        btnDelete = findViewById(R.id.btnDeleteSelected)
+        btnCancel = findViewById(R.id.btnCancelSelection)
 
         // Load generated images from app storage
         val imagesDir = File(getExternalFilesDir("images"), "misc")

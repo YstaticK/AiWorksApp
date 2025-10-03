@@ -1,6 +1,7 @@
 package com.example.photoaivideo
 
 import android.os.Bundle
+import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
@@ -9,8 +10,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.File
 
 class RecycleBinActivity : AppCompatActivity() {
+
     private val selectedFiles = mutableSetOf<File>()
     private lateinit var adapter: GeneratedImageAdapter
+
     private lateinit var btnRestore: FloatingActionButton
     private lateinit var btnDelete: FloatingActionButton
     private lateinit var btnCancel: FloatingActionButton
@@ -22,18 +25,19 @@ class RecycleBinActivity : AppCompatActivity() {
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewRecycleBin)
         val emptyText = findViewById<TextView>(R.id.txtEmptyRecycleBin)
 
-        val recycleDir = File(getExternalFilesDir("images"), "recycle_bin")
-        val files = recycleDir.listFiles()?.toList() ?: emptyList()
-
+        // ✅ Correct IDs (match XML)
         btnRestore = findViewById(R.id.btnRestore)
         btnDelete = findViewById(R.id.btnDelete)
         btnCancel = findViewById(R.id.btnCancel)
 
+        val recycleDir = File(getExternalFilesDir("images"), "recycle_bin")
+        val files = recycleDir.listFiles()?.toList() ?: emptyList()
+
         fun updateButtons() {
             val visible = selectedFiles.isNotEmpty()
-            btnRestore.visibility = if (visible) android.view.View.VISIBLE else android.view.View.GONE
-            btnDelete.visibility = if (visible) android.view.View.VISIBLE else android.view.View.GONE
-            btnCancel.visibility = if (visible) android.view.View.VISIBLE else android.view.View.GONE
+            btnRestore.visibility = if (visible) View.VISIBLE else View.GONE
+            btnDelete.visibility = if (visible) View.VISIBLE else View.GONE
+            btnCancel.visibility = if (visible) View.VISIBLE else View.GONE
         }
 
         if (files.isEmpty()) {
@@ -44,7 +48,12 @@ class RecycleBinActivity : AppCompatActivity() {
             emptyText.text = ""
             recyclerView.layoutManager = GridLayoutManager(this, 2)
 
-            adapter = GeneratedImageAdapter(this, files, null, selectable = true) { file, isSelected ->
+            adapter = GeneratedImageAdapter(
+                this,
+                files,
+                null,
+                selectable = true
+            ) { file, isSelected ->
                 if (isSelected) selectedFiles.add(file) else selectedFiles.remove(file)
                 updateButtons()
             }
@@ -57,12 +66,12 @@ class RecycleBinActivity : AppCompatActivity() {
                 targetDir.mkdirs()
                 file.renameTo(File(targetDir, file.name))
             }
-            finish(); startActivity(intent) // reload
+            reload()
         }
 
         btnDelete.setOnClickListener {
             for (file in selectedFiles) file.delete()
-            finish(); startActivity(intent) // reload
+            reload()
         }
 
         btnCancel.setOnClickListener {
@@ -72,5 +81,10 @@ class RecycleBinActivity : AppCompatActivity() {
         }
 
         updateButtons()
+    }
+
+    private fun reload() {
+        finish()
+        startActivity(intent)
     }
 }
