@@ -41,6 +41,9 @@
         <activity android:name=".ImagesLibraryActivity" android:exported="false" />
         <activity android:name=".VideosLibraryActivity" android:exported="false" />
 
+        <!-- Library -->
+        <activity android:name=".LibraryActivity" android:exported="false" />
+
         <!-- Reference library -->
         <activity android:name=".ReferenceLibraryActivity" android:exported="false" />
         <activity android:name=".ReferenceImagesActivity" android:exported="false" />
