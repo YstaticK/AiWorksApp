@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         btnLibrary.setOnClickListener {
-            startActivity(Intent(this, ImagesLibraryActivity::class.java))
+            startActivity(Intent(this, LibraryActivity::class.java))
         }
 
         btnReferenceLibrary.setOnClickListener {
