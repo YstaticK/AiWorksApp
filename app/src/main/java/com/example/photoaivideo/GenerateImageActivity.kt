@@ -8,9 +8,11 @@ import android.text.Editable
 import android.text.TextWatcher
 import androidx.appcompat.app.AppCompatActivity
 import android.graphics.BitmapFactory
+import java.io.File
+import java.io.FileInputStream
 
 class GenerateImageActivity : AppCompatActivity() {
-    private var selectedReferenceImageUri: Uri? = null
+    private var selectedReferenceImageUri: Uri? = null  // can be content:// or file://
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,16 +56,14 @@ class GenerateImageActivity : AppCompatActivity() {
         spinnerBatchSize.adapter = batchAdapter
         spinnerBatchSize.setSelection(0)
 
-        // Sync SeekBar and EditText
+        // Similarity/denoise UI (cosmetic)
         seekSimilarity.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 etSimilarity.setText("$progress%")
             }
-
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
-
         etSimilarity.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {
                 val value = s.toString().replace("%", "").toIntOrNull()
@@ -75,7 +75,25 @@ class GenerateImageActivity : AppCompatActivity() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
         })
 
-        // Select reference image
+        // If we were launched with a reference image from preview, it is an absolute file path
+        intent.getStringExtra("referenceUri")?.let { path ->
+            val file = File(path)
+            if (file.exists()) {
+                // Show preview from file path
+                try {
+                    FileInputStream(file).use { stream ->
+                        val bitmap = BitmapFactory.decodeStream(stream)
+                        ivReference.setImageBitmap(bitmap)
+                        selectedReferenceImageUri = Uri.fromFile(file) // normalize to file://
+                    }
+                } catch (_: Exception) {
+                    ivReference.setImageURI(Uri.fromFile(file))
+                    selectedReferenceImageUri = Uri.fromFile(file)
+                }
+            }
+        }
+
+        // Select reference image from gallery (content://)
         btnSelectReference.setOnClickListener {
             val intent = Intent(Intent.ACTION_GET_CONTENT)
             intent.type = "image/*"
@@ -115,7 +133,7 @@ class GenerateImageActivity : AppCompatActivity() {
         }
     }
 
-    // Safe image preview with downsampling
+    // Safe image preview with downsampling (content://)
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 1001 && resultCode == RESULT_OK && data != null) {
@@ -123,21 +141,29 @@ class GenerateImageActivity : AppCompatActivity() {
             val ivReference: ImageView = findViewById(R.id.ivReference)
 
             try {
-                val inputStream = contentResolver.openInputStream(selectedReferenceImageUri!!)
-                inputStream?.use {
-                    val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-                    BitmapFactory.decodeStream(it, null, options)
+                val uri = selectedReferenceImageUri
+                if (uri != null && uri.scheme?.startsWith("content") == true) {
+                    contentResolver.openInputStream(uri)?.use { it1 ->
+                        val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                        BitmapFactory.decodeStream(it1, null, options)
 
-                    val maxDim = 2048
-                    var sampleSize = 1
-                    while (options.outWidth / sampleSize > maxDim || options.outHeight / sampleSize > maxDim) {
-                        sampleSize *= 2
+                        val maxDim = 2048
+                        var sampleSize = 1
+                        while (options.outWidth / sampleSize > maxDim || options.outHeight / sampleSize > maxDim) {
+                            sampleSize *= 2
+                        }
+                        val decodeOptions = BitmapFactory.Options().apply { inSampleSize = sampleSize }
                     }
-
-                    val decodeOptions = BitmapFactory.Options().apply { inSampleSize = sampleSize }
-                    val inputStream2 = contentResolver.openInputStream(selectedReferenceImageUri!!)
-                    inputStream2?.use { stream2 ->
-                        val bitmap = BitmapFactory.decodeStream(stream2, null, decodeOptions)
+                    // reopen for actual decode
+                    contentResolver.openInputStream(uri)?.use { stream2 ->
+                        val bitmap = BitmapFactory.decodeStream(stream2, null, BitmapFactory.Options())
+                        ivReference.setImageBitmap(bitmap)
+                    }
+                } else if (uri != null) {
+                    // file://
+                    val file = File(uri.path!!)
+                    FileInputStream(file).use { stream ->
+                        val bitmap = BitmapFactory.decodeStream(stream)
                         ivReference.setImageBitmap(bitmap)
                     }
                 }

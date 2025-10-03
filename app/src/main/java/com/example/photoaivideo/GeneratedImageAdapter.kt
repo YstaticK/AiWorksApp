@@ -2,7 +2,6 @@ package com.example.photoaivideo
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,11 +34,7 @@ class GeneratedImageAdapter(
         val file = files[position]
         Glide.with(context).load(file).into(holder.imageView)
 
-        if (selectable && selectedFiles.contains(file)) {
-            holder.overlay.visibility = View.VISIBLE
-        } else {
-            holder.overlay.visibility = View.GONE
-        }
+        holder.overlay.visibility = if (selectable && selectedFiles.contains(file)) View.VISIBLE else View.GONE
 
         holder.itemView.setOnClickListener {
             if (selectable) {
@@ -69,8 +64,7 @@ class GeneratedImageAdapter(
     override fun getItemCount(): Int = files.size
 
     private fun toggleSelection(file: File) {
-        if (selectedFiles.contains(file)) selectedFiles.remove(file)
-        else selectedFiles.add(file)
+        if (selectedFiles.contains(file)) selectedFiles.remove(file) else selectedFiles.add(file)
     }
 
     fun clearSelection() {
