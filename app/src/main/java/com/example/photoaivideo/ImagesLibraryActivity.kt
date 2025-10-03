@@ -1,46 +1,73 @@
 package com.example.photoaivideo
 
 import android.os.Bundle
-import android.widget.Toast
+import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.File
 
 class ImagesLibraryActivity : AppCompatActivity() {
-
-    private lateinit var recyclerView: RecyclerView
+    private val selectedFiles = mutableSetOf<File>()
     private lateinit var adapter: GeneratedImageAdapter
+    private lateinit var btnDelete: FloatingActionButton
+    private lateinit var btnCancel: FloatingActionButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_images_library)
 
-        recyclerView = findViewById(R.id.recyclerViewLibrary)
-        recyclerView.layoutManager = GridLayoutManager(this, 2)
-
-        loadImages()
-    }
-
-    private fun loadImages() {
-        val saveDir = File(getExternalFilesDir("images"), "misc")
-
-        if (!saveDir.exists() || saveDir.listFiles().isNullOrEmpty()) {
-            Toast.makeText(this, "No images in library yet", Toast.LENGTH_SHORT).show()
-            return
+        val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewLibrary)
+        val emptyText = TextView(this).apply {
+            text = "No images in library"
+            visibility = View.GONE
         }
+        (recyclerView.parent as? ViewGroup)?.addView(emptyText)
 
-        val files = saveDir.listFiles()
-            ?.filter { it.isFile && (it.name.endsWith(".png") || it.name.endsWith(".jpg")) }
-            ?.sortedByDescending { it.lastModified() }
-            ?: emptyList()
+        val miscDir = File(getExternalFilesDir("images"), "misc")
+        val files = miscDir.listFiles()?.toList() ?: emptyList()
+
+        btnDelete = findViewById(R.id.btnDelete)
+        btnCancel = findViewById(R.id.btnCancel)
+
+        fun updateButtons() {
+            val visible = selectedFiles.isNotEmpty()
+            btnDelete.visibility = if (visible) View.VISIBLE else View.GONE
+            btnCancel.visibility = if (visible) View.VISIBLE else View.GONE
+        }
 
         if (files.isEmpty()) {
-            Toast.makeText(this, "No images in library yet", Toast.LENGTH_SHORT).show()
-            return
+            recyclerView.visibility = RecyclerView.GONE
+            emptyText.visibility = View.VISIBLE
+        } else {
+            recyclerView.visibility = RecyclerView.VISIBLE
+            emptyText.visibility = View.GONE
+            recyclerView.layoutManager = GridLayoutManager(this, 2)
+
+            adapter = GeneratedImageAdapter(this, files, null, selectable = true) { file, isSelected ->
+                if (isSelected) selectedFiles.add(file) else selectedFiles.remove(file)
+                updateButtons()
+            }
+            recyclerView.adapter = adapter
         }
 
-        adapter = GeneratedImageAdapter(this, files, null)
-        recyclerView.adapter = adapter
+        btnDelete.setOnClickListener {
+            val recycleDir = File(getExternalFilesDir("images"), "recycle_bin")
+            recycleDir.mkdirs()
+            for (file in selectedFiles) {
+                file.renameTo(File(recycleDir, file.name))
+            }
+            finish(); startActivity(intent) // reload
+        }
+
+        btnCancel.setOnClickListener {
+            selectedFiles.clear()
+            adapter.clearSelection()
+            updateButtons()
+        }
+
+        updateButtons()
     }
 }

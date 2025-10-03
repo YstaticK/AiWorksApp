@@ -2,50 +2,81 @@ package com.example.photoaivideo
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import java.io.File
 
 class GeneratedImageAdapter(
     private val context: Context,
-    private var images: List<File>,
-    private val request: GenerationRequest?
-) : RecyclerView.Adapter<GeneratedImageAdapter.ImageViewHolder>() {
+    private val files: List<File>,
+    private val request: GenerationRequest? = null,
+    private val selectable: Boolean = false,
+    private val selectionListener: ((File, Boolean) -> Unit)? = null
+) : RecyclerView.Adapter<GeneratedImageAdapter.ViewHolder>() {
 
-    class ImageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val imageView: ImageView = itemView.findViewById(R.id.ivGeneratedImage)
+    private val selectedFiles = mutableSetOf<File>()
+
+    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val imageView: ImageView = view.findViewById(R.id.imageView)
+        val overlay: View = view.findViewById(R.id.selectionOverlay)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_generated_image, parent, false)
-        return ImageViewHolder(view)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(context).inflate(R.layout.item_generated_image, parent, false)
+        return ViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
-        val file = images[position]
-        if (file.exists()) {
-            val bitmap = BitmapFactory.decodeFile(file.absolutePath)
-            holder.imageView.setImageBitmap(bitmap)
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val file = files[position]
+        Glide.with(context).load(file).into(holder.imageView)
 
-            holder.imageView.setOnClickListener {
-                val intent = Intent(context, FullScreenImageActivity::class.java)
-                intent.putExtra("imagePath", file.absolutePath)
-                intent.putExtra("generationRequest", request)
+        if (selectable && selectedFiles.contains(file)) {
+            holder.overlay.visibility = View.VISIBLE
+        } else {
+            holder.overlay.visibility = View.GONE
+        }
+
+        holder.itemView.setOnClickListener {
+            if (selectable) {
+                toggleSelection(file)
+                notifyItemChanged(position)
+                selectionListener?.invoke(file, selectedFiles.contains(file))
+            } else {
+                // Open fullscreen preview
+                val intent = Intent(context, ImagePreviewActivity::class.java).apply {
+                    putExtra("filePath", file.absolutePath)
+                    request?.let { putExtra("generationRequest", it) }
+                }
                 context.startActivity(intent)
             }
         }
+
+        holder.itemView.setOnLongClickListener {
+            if (selectable) {
+                toggleSelection(file)
+                notifyItemChanged(position)
+                selectionListener?.invoke(file, selectedFiles.contains(file))
+                true
+            } else false
+        }
     }
 
-    override fun getItemCount(): Int = images.size
+    override fun getItemCount(): Int = files.size
 
-    // 🔥 Allow data refresh when new images are generated
-    fun updateData(newImages: List<File>) {
-        images = newImages
+    private fun toggleSelection(file: File) {
+        if (selectedFiles.contains(file)) selectedFiles.remove(file)
+        else selectedFiles.add(file)
+    }
+
+    fun clearSelection() {
+        selectedFiles.clear()
         notifyDataSetChanged()
     }
+
+    fun getSelectedFiles(): Set<File> = selectedFiles
 }

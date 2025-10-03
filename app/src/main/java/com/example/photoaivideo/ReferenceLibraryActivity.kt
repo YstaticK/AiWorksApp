@@ -11,19 +11,10 @@ class ReferenceLibraryActivity : AppCompatActivity() {
         setContentView(R.layout.activity_reference_library)
 
         val btnImages = findViewById<Button>(R.id.btnReferenceImages)
-        val btnVideos = findViewById<Button>(R.id.btnReferenceVideos)
-        val btnUrls = findViewById<Button>(R.id.btnReferenceUrls)
-
         btnImages.setOnClickListener {
             startActivity(Intent(this, ReferenceImagesActivity::class.java))
         }
 
-        btnVideos.setOnClickListener {
-            startActivity(Intent(this, ReferenceVideosActivity::class.java))
-        }
-
-        btnUrls.setOnClickListener {
-            startActivity(Intent(this, ReferenceUrlsActivity::class.java))
-        }
+        // Videos and URLs can remain placeholders for now
     }
 }

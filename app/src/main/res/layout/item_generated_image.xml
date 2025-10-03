@@ -2,23 +2,19 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="4dp">
+    android:layout_margin="4dp">
 
-    <!-- Image placeholder / final image -->
     <ImageView
-        android:id="@+id/ivGeneratedImage"
+        android:id="@+id/imageView"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:scaleType="centerCrop"
-        android:contentDescription="Generated Image"
-        android:background="@android:color/darker_gray" />
+        android:scaleType="centerCrop" />
 
-    <!-- Spinner overlay -->
-    <ProgressBar
-        android:id="@+id/pbLoading"
-        style="?android:attr/progressBarStyleSmall"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_gravity="center"
-        android:visibility="visible" />
+    <!-- Selection overlay -->
+    <View
+        android:id="@+id/selectionOverlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#8000FF00"
+        android:visibility="gone"/>
 </FrameLayout>
