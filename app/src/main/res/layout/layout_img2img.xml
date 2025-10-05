@@ -12,42 +12,23 @@
         android:divider="?android:attr/dividerVertical"
         android:showDividers="middle">
 
-        <!-- Header -->
-        <LinearLayout
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="8dp">
-
-            <Button
-                android:id="@+id/btnBackToTxt2Img"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="← txt2img"
-                android:textColor="#FFFFFF"
-                android:backgroundTint="#555555" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="img2img"
-                android:gravity="end"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:textColor="#FF5555" />
-        </LinearLayout>
-
         <!-- Image preview -->
-        <ImageView
-            android:id="@+id/imgPreview"
+        <FrameLayout
+            android:id="@+id/framePreview"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:layout_marginBottom="12dp"
-            android:background="#333333"
-            android:scaleType="centerCrop" />
+            android:background="#2E2E2E"
+            android:layout_marginBottom="12dp">
 
+            <ImageView
+                android:id="@+id/imagePreview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:src="@android:drawable/ic_menu_gallery" />
+        </FrameLayout>
+
+        <!-- Choose Image -->
         <Button
             android:id="@+id/btnChooseImage"
             android:layout_width="match_parent"
@@ -55,10 +36,279 @@
             android:text="Choose Image"
             android:textColor="#FFFFFF"
             android:backgroundTint="#B71C1C"
+            android:layout_marginBottom="20dp" />
+
+        <!-- Model -->
+        <TextView
+            android:text="Model"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <Spinner
+            android:id="@+id/spinnerModel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Prompt -->
+        <EditText
+            android:id="@+id/etPrompt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Prompt"
+            android:minLines="3"
+            android:inputType="textMultiLine"
+            android:gravity="top|start"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#AAAAAA"
+            android:backgroundTint="#FF4444"
+            android:layout_marginBottom="8dp" />
+
+        <!-- Negative prompt -->
+        <EditText
+            android:id="@+id/etNegativePrompt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Negative Prompt"
+            android:minLines="2"
+            android:inputType="textMultiLine"
+            android:gravity="top|start"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#AAAAAA"
+            android:backgroundTint="#FF4444"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Sampling method -->
+        <TextView
+            android:text="Sampling Method"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <Spinner
+            android:id="@+id/spinnerSampler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Sampling steps -->
+        <TextView
+            android:text="Sampling Steps"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <SeekBar
+            android:id="@+id/seekSteps"
+            android:max="140"
+            android:progress="20"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/txtStepsValue"
+            android:text="20"
+            android:textColor="#FF7777"
+            android:layout_gravity="end"
+            android:layout_marginBottom="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <!-- Hires Fix -->
+        <CheckBox
+            android:id="@+id/chkHiresFix"
+            android:text="Hires Fix"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <!-- Refiner -->
+        <CheckBox
+            android:id="@+id/chkRefiner"
+            android:text="Use Refiner"
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <!-- Width -->
+        <TextView
+            android:text="Width"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <SeekBar
+            android:id="@+id/seekWidth"
+            android:max="1536"
+            android:progress="512"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/txtWidthValue"
+            android:text="512"
+            android:textColor="#FF7777"
+            android:layout_gravity="end"
+            android:layout_marginBottom="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <!-- Height -->
+        <TextView
+            android:text="Height"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <SeekBar
+            android:id="@+id/seekHeight"
+            android:max="1536"
+            android:progress="512"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/txtHeightValue"
+            android:text="512"
+            android:textColor="#FF7777"
+            android:layout_gravity="end"
+            android:layout_marginBottom="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <!-- Batch Count -->
+        <TextView
+            android:text="Batch Count"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <SeekBar
+            android:id="@+id/seekBatchCount"
+            android:max="3"
+            android:progress="0"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/txtBatchCountValue"
+            android:text="1"
+            android:textColor="#FF7777"
+            android:layout_gravity="end"
+            android:layout_marginBottom="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <!-- Batch Size -->
+        <TextView
+            android:text="Batch Size"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <SeekBar
+            android:id="@+id/seekBatchSize"
+            android:max="1"
+            android:progress="0"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/txtBatchSizeValue"
+            android:text="1"
+            android:textColor="#FF7777"
+            android:layout_gravity="end"
+            android:layout_marginBottom="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <!-- CFG Scale -->
+        <TextView
+            android:text="CFG Scale"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <SeekBar
+            android:id="@+id/seekCFG"
+            android:max="19"
+            android:progress="6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/txtCFGValue"
+            android:text="7"
+            android:textColor="#FF7777"
+            android:layout_gravity="end"
+            android:layout_marginBottom="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <!-- Seed -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <EditText
+                android:id="@+id/etSeed"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Seed (optional)"
+                android:inputType="number"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#AAAAAA"
+                android:backgroundTint="#FF5555" />
+
+            <Button
+                android:id="@+id/btnRandomSeed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🎲"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#B71C1C"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
+        <!-- LoRA -->
+        <TextView
+            android:text="LoRA"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <Spinner
+            android:id="@+id/spinnerLora"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="16dp" />
 
-        <!-- The rest is identical to txt2img -->
-        <include layout="@layout/layout_txt2img" />
-
+        <!-- Generate -->
+        <Button
+            android:id="@+id/btnGenerateImg2Img"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Generate"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:backgroundTint="#D32F2F"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp" />
     </LinearLayout>
 </ScrollView>
