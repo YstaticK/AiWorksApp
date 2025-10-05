@@ -1,176 +1,147 @@
 package com.example.photoaivideo
 
-import android.widget.*
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
+import android.view.LayoutInflater
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import android.graphics.BitmapFactory
-import java.io.File
-import java.io.FileInputStream
 
 class GenerateImageActivity : AppCompatActivity() {
-    private var selectedReferenceImageUri: Uri? = null  // can be content:// or file://
+
+    private lateinit var btnTxt2Img: Button
+    private lateinit var btnImg2Img: Button
+    private lateinit var container: FrameLayout
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_generate_image)
 
-        val btnStartGeneration: Button = findViewById(R.id.btnStartGeneration)
-        val seekSimilarity: SeekBar = findViewById(R.id.seekSimilarity)
-        val etSimilarity: EditText = findViewById(R.id.etSimilarity)
-        val btnSelectReference: Button = findViewById(R.id.btnSelectReference)
-        val ivReference: ImageView = findViewById(R.id.ivReference)
+        btnTxt2Img = findViewById(R.id.btnTxt2Img)
+        btnImg2Img = findViewById(R.id.btnImg2Img)
+        container = findViewById(R.id.modeContainer)
 
-        val etPrompts: EditText = findViewById(R.id.etPrompts)
-        val etNegativePrompts: EditText = findViewById(R.id.etNegativePrompts)
-        val etSeed: EditText = findViewById(R.id.etSeed)
+        // Default tab
+        loadTxt2ImgLayout()
+        setActiveTab(true)
 
-        val spinnerSize: Spinner = findViewById(R.id.spinnerSize)
-        val spinnerBatchSize: Spinner = findViewById(R.id.spinnerBatchSize)
-        val spinnerModel: Spinner = findViewById(R.id.spinnerModel)
-
-        // Fixed LocalSD model
-        val modelAdapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_item,
-            listOf("stable-diffusion")
-        )
-        modelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerModel.adapter = modelAdapter
-        spinnerModel.setSelection(0)
-
-        // Fixed sizes (commonly supported)
-        val allowedSizes = listOf("512x512", "768x768", "1024x1024")
-        val sizeAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, allowedSizes)
-        sizeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerSize.adapter = sizeAdapter
-        spinnerSize.setSelection(0)
-
-        // Batch sizes
-        val batchSizes = listOf("1", "2", "4", "8")
-        val batchAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, batchSizes)
-        batchAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        spinnerBatchSize.adapter = batchAdapter
-        spinnerBatchSize.setSelection(0)
-
-        // Similarity/denoise UI (cosmetic)
-        seekSimilarity.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                etSimilarity.setText("$progress%")
-            }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-        })
-        etSimilarity.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                val value = s.toString().replace("%", "").toIntOrNull()
-                if (value != null && value in 0..100) {
-                    seekSimilarity.progress = value
-                }
-            }
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        })
-
-        // If we were launched with a reference image from preview, it is an absolute file path
-        intent.getStringExtra("referenceUri")?.let { path ->
-            val file = File(path)
-            if (file.exists()) {
-                // Show preview from file path
-                try {
-                    FileInputStream(file).use { stream ->
-                        val bitmap = BitmapFactory.decodeStream(stream)
-                        ivReference.setImageBitmap(bitmap)
-                        selectedReferenceImageUri = Uri.fromFile(file) // normalize to file://
-                    }
-                } catch (_: Exception) {
-                    ivReference.setImageURI(Uri.fromFile(file))
-                    selectedReferenceImageUri = Uri.fromFile(file)
-                }
-            }
+        btnTxt2Img.setOnClickListener {
+            setActiveTab(true)
+            loadTxt2ImgLayout()
         }
 
-        // Select reference image from gallery (content://)
-        btnSelectReference.setOnClickListener {
-            val intent = Intent(Intent.ACTION_GET_CONTENT)
-            intent.type = "image/*"
-            startActivityForResult(intent, 1001)
-        }
-
-        // Start Generation
-        btnStartGeneration.setOnClickListener {
-            val sizeSel = spinnerSize.selectedItem?.toString() ?: "512x512"
-            val (w, h) = sizeSel.split("x").map { it.toInt() }
-
-            val request = GenerationRequest(
-                provider = "LocalSD",
-                model = spinnerModel.selectedItem.toString(),
-                prompts = etPrompts.text.toString(),
-                negativePrompt = etNegativePrompts.text.toString(),
-                similarity = seekSimilarity.progress,
-                seed = etSeed.text.toString().takeIf { it.isNotBlank() },
-                width = w,
-                height = h,
-                quality = "standard",
-                batchSize = spinnerBatchSize.selectedItem.toString().toInt(),
-                referenceImageUri = selectedReferenceImageUri?.toString()
-            )
-
-            Toast.makeText(this, "Starting image generation…", Toast.LENGTH_SHORT).show()
-            try {
-                val intent = Intent(this, GeneratedImageResultsActivity::class.java)
-                intent.putExtra("generationRequest", request)
-                startActivity(intent)
-            } catch (e: Exception) {
-                ErrorUtils.showErrorDialog(
-                    this,
-                    "Failed to start results screen.\n\n${e::class.java.simpleName}: ${e.message}"
-                )
-            }
+        btnImg2Img.setOnClickListener {
+            setActiveTab(false)
+            loadImg2ImgLayout()
         }
     }
 
-    // Safe image preview with downsampling (content://)
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 1001 && resultCode == RESULT_OK && data != null) {
-            selectedReferenceImageUri = data.data
-            val ivReference: ImageView = findViewById(R.id.ivReference)
-
-            try {
-                val uri = selectedReferenceImageUri
-                if (uri != null && uri.scheme?.startsWith("content") == true) {
-                    contentResolver.openInputStream(uri)?.use { it1 ->
-                        val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-                        BitmapFactory.decodeStream(it1, null, options)
-
-                        val maxDim = 2048
-                        var sampleSize = 1
-                        while (options.outWidth / sampleSize > maxDim || options.outHeight / sampleSize > maxDim) {
-                            sampleSize *= 2
-                        }
-                        val decodeOptions = BitmapFactory.Options().apply { inSampleSize = sampleSize }
-                    }
-                    // reopen for actual decode
-                    contentResolver.openInputStream(uri)?.use { stream2 ->
-                        val bitmap = BitmapFactory.decodeStream(stream2, null, BitmapFactory.Options())
-                        ivReference.setImageBitmap(bitmap)
-                    }
-                } else if (uri != null) {
-                    // file://
-                    val file = File(uri.path!!)
-                    FileInputStream(file).use { stream ->
-                        val bitmap = BitmapFactory.decodeStream(stream)
-                        ivReference.setImageBitmap(bitmap)
-                    }
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-                ivReference.setImageURI(selectedReferenceImageUri) // fallback
-            }
+    private fun setActiveTab(isTxt2Img: Boolean) {
+        if (isTxt2Img) {
+            btnTxt2Img.setBackgroundColor(getColor(android.R.color.holo_blue_dark))
+            btnImg2Img.setBackgroundColor(getColor(android.R.color.darker_gray))
+        } else {
+            btnImg2Img.setBackgroundColor(getColor(android.R.color.holo_blue_dark))
+            btnTxt2Img.setBackgroundColor(getColor(android.R.color.darker_gray))
         }
+    }
+
+    /** Inflate and handle txt2img layout */
+    private fun loadTxt2ImgLayout() {
+        container.removeAllViews()
+        val inflater = LayoutInflater.from(this)
+        val view = inflater.inflate(R.layout.layout_txt2img, container, false)
+        container.addView(view)
+
+        val etPrompt = view.findViewById<EditText>(R.id.etPrompt)
+        val etNegative = view.findViewById<EditText>(R.id.etNegativePrompt)
+        val spinnerModel = view.findViewById<Spinner>(R.id.spinnerModel)
+        val spinnerSampler = view.findViewById<Spinner>(R.id.spinnerSampler)
+        val etSeed = view.findViewById<EditText>(R.id.etSeed)
+        val btnRandomSeed = view.findViewById<Button>(R.id.btnRandomSeed)
+        val seekSteps = view.findViewById<SeekBar>(R.id.seekSteps)
+        val txtStepsValue = view.findViewById<TextView>(R.id.txtStepsValue)
+        val seekCFG = view.findViewById<SeekBar>(R.id.seekCFG)
+        val txtCFGValue = view.findViewById<TextView>(R.id.txtCFGValue)
+        val seekWidth = view.findViewById<SeekBar>(R.id.seekWidth)
+        val txtWidthValue = view.findViewById<TextView>(R.id.txtWidthValue)
+        val seekHeight = view.findViewById<SeekBar>(R.id.seekHeight)
+        val txtHeightValue = view.findViewById<TextView>(R.id.txtHeightValue)
+        val spinnerBatchCount = view.findViewById<Spinner>(R.id.spinnerBatchCount)
+        val spinnerBatchSize = view.findViewById<Spinner>(R.id.spinnerBatchSize)
+        val btnGenerate = view.findViewById<Button>(R.id.btnGenerateTxt2Img)
+
+        // Populate model and sampler dropdowns
+        spinnerModel.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, listOf("stable-diffusion")).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+
+        spinnerSampler.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, listOf("Euler a", "DPM++ 2M", "DDIM")).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+
+        spinnerBatchCount.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, listOf("1", "2", "4")).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+
+        spinnerBatchSize.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, listOf("1", "2")).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+
+        // Setup seed randomization
+        btnRandomSeed.setOnClickListener {
+            val randomSeed = (0..999999999).random()
+            etSeed.setText(randomSeed.toString())
+        }
+
+        // Setup seekbars
+        setupSeekBar(seekSteps, txtStepsValue, 10)
+        setupSeekBar(seekCFG, txtCFGValue, 7)
+        setupSeekBar(seekWidth, txtWidthValue, 512)
+        setupSeekBar(seekHeight, txtHeightValue, 512)
+
+        // Generate image button
+        btnGenerate.setOnClickListener {
+            val steps = seekSteps.progress + 10
+            val cfg = seekCFG.progress + 7
+            val width = seekWidth.progress + 512
+            val height = seekHeight.progress + 512
+            val request = GenerationRequest(
+                provider = "LocalSD",
+                model = spinnerModel.selectedItem.toString(),
+                prompts = etPrompt.text.toString(),
+                negativePrompt = etNegative.text.toString(),
+                steps = steps,
+                cfgScale = cfg.toFloat(),
+                width = width,
+                height = height,
+                batchCount = spinnerBatchCount.selectedItem.toString().toInt(),
+                batchSize = spinnerBatchSize.selectedItem.toString().toInt(),
+                seed = etSeed.text.toString()
+            )
+            val intent = Intent(this, GeneratedImageResultsActivity::class.java)
+            intent.putExtra("generationRequest", request)
+            startActivity(intent)
+        }
+    }
+
+    /** Placeholder for img2img layout */
+    private fun loadImg2ImgLayout() {
+        container.removeAllViews()
+        val textView = TextView(this)
+        textView.text = "img2img layout coming soon..."
+        textView.textSize = 18f
+        textView.setPadding(24, 24, 24, 24)
+        container.addView(textView)
+    }
+
+    private fun setupSeekBar(seek: SeekBar, txt: TextView, base: Int) {
+        txt.text = base.toString()
+        seek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(sb: SeekBar?, progress: Int, fromUser: Boolean) {
+                txt.text = (progress + base).toString()
+            }
+            override fun onStartTrackingTouch(sb: SeekBar?) {}
+            override fun onStopTrackingTouch(sb: SeekBar?) {}
+        })
     }
 }

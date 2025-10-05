@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#1C1C1C"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="?android:attr/dividerVertical"
+        android:showDividers="middle">
+
+        <!-- Header -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="space_between"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Text to Image"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="#FF5555" />
+
+            <Button
+                android:id="@+id/btnSwitchToImg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="img2img →"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#B71C1C" />
+        </LinearLayout>
+
+        <!-- Model -->
+        <TextView
+            android:text="Model"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <Spinner
+            android:id="@+id/spinnerModel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#FF5555"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Prompts -->
+        <EditText
+            android:id="@+id/etPrompt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter prompt..."
+            android:inputType="textMultiLine"
+            android:minLines="3"
+            android:backgroundTint="#FF4444"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#AAAAAA"
+            android:gravity="top|start"
+            android:layout_marginBottom="8dp" />
+
+        <EditText
+            android:id="@+id/etNegativePrompt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Negative prompt..."
+            android:inputType="textMultiLine"
+            android:minLines="2"
+            android:backgroundTint="#FF4444"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#AAAAAA"
+            android:gravity="top|start"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Sampler -->
+        <TextView
+            android:text="Sampling Method"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <Spinner
+            android:id="@+id/spinnerSampler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Sampling Steps -->
+        <TextView
+            android:text="Sampling Steps"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <SeekBar
+            android:id="@+id/seekSteps"
+            android:max="140"
+            android:progress="10"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/txtStepsValue"
+            android:text="20"
+            android:textColor="#FF7777"
+            android:layout_gravity="end"
+            android:layout_marginBottom="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <!-- CFG Scale -->
+        <TextView
+            android:text="CFG Scale"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <SeekBar
+            android:id="@+id/seekCFG"
+            android:max="13"
+            android:progress="0"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/txtCFGValue"
+            android:text="7"
+            android:textColor="#FF7777"
+            android:layout_gravity="end"
+            android:layout_marginBottom="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <!-- Width / Height -->
+        <TextView
+            android:text="Width"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <SeekBar
+            android:id="@+id/seekWidth"
+            android:max="1536"
+            android:progress="0"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/txtWidthValue"
+            android:text="512"
+            android:textColor="#FF7777"
+            android:layout_gravity="end"
+            android:layout_marginBottom="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:text="Height"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <SeekBar
+            android:id="@+id/seekHeight"
+            android:max="1536"
+            android:progress="0"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/txtHeightValue"
+            android:text="512"
+            android:textColor="#FF7777"
+            android:layout_gravity="end"
+            android:layout_marginBottom="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <!-- Batch count/size -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="2"
+            android:layout_marginBottom="12dp">
+
+            <Spinner
+                android:id="@+id/spinnerBatchCount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp" />
+
+            <Spinner
+                android:id="@+id/spinnerBatchSize"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <!-- Seed -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <EditText
+                android:id="@+id/etSeed"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Seed (optional)"
+                android:inputType="number"
+                android:backgroundTint="#FF5555"
+                android:textColor="#FFFFFF"
+                android:textColorHint="#AAAAAA" />
+
+            <Button
+                android:id="@+id/btnRandomSeed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🎲"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#B71C1C"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
+        <!-- Generate button -->
+        <Button
+            android:id="@+id/btnGenerateTxt2Img"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Generate"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp"
+            android:backgroundTint="#D32F2F"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp" />
+    </LinearLayout>
+</ScrollView>
