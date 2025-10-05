@@ -20,27 +20,26 @@
             android:layout_height="wrap_content"
             android:paddingBottom="8dp">
 
-            <TextView
+            <Button
+                android:id="@+id/btnTxt2Img"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Text to Image"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:textColor="#FF5555" />
+                android:text="txt2img"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#B71C1C" />
 
             <Button
-                android:id="@+id/btnSwitchToImg"
+                android:id="@+id/btnImg2Img"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="img2img →"
                 android:textColor="#FFFFFF"
-                android:backgroundTint="#B71C1C" />
+                android:backgroundTint="#555555" />
         </LinearLayout>
 
         <!-- Model -->
-        <TextView
-            android:text="Model"
+        <TextView android:text="Stable Diffusion Checkpoint / Model"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
             android:layout_marginBottom="4dp"
@@ -59,7 +58,7 @@
             android:id="@+id/etPrompt"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Enter prompt..."
+            android:hint="Prompt..."
             android:inputType="textMultiLine"
             android:minLines="3"
             android:backgroundTint="#FF4444"
@@ -81,12 +80,10 @@
             android:gravity="top|start"
             android:layout_marginBottom="12dp" />
 
-        <!-- Sampler -->
-        <TextView
-            android:text="Sampling Method"
+        <!-- Sampling method -->
+        <TextView android:text="Sampling Method"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
-            android:layout_marginBottom="4dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -97,8 +94,7 @@
             android:layout_marginBottom="12dp" />
 
         <!-- Sampling Steps -->
-        <TextView
-            android:text="Sampling Steps"
+        <TextView android:text="Sampling Steps"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
             android:layout_width="wrap_content"
@@ -120,33 +116,52 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
-        <!-- CFG Scale -->
-        <TextView
-            android:text="CFG Scale"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <SeekBar
-            android:id="@+id/seekCFG"
-            android:max="13"
-            android:progress="0"
+        <!-- Hires Fix -->
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
 
-        <TextView
-            android:id="@+id/txtCFGValue"
-            android:text="7"
-            android:textColor="#FF7777"
-            android:layout_gravity="end"
-            android:layout_marginBottom="12dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            <CheckBox
+                android:id="@+id/chkHiresFix"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hires fix"
+                android:textColor="#FFFFFF" />
 
-        <!-- Width / Height -->
-        <TextView
-            android:text="Width"
+            <Spinner
+                android:id="@+id/spinnerHiresFix"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp" />
+        </LinearLayout>
+
+        <!-- Refiner -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="12dp">
+
+            <CheckBox
+                android:id="@+id/chkRefiner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Refiner"
+                android:textColor="#FFFFFF" />
+
+            <Spinner
+                android:id="@+id/spinnerRefiner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp" />
+        </LinearLayout>
+
+        <!-- Width / Batch Count -->
+        <TextView android:text="Width"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
             android:layout_width="wrap_content"
@@ -155,12 +170,11 @@
         <SeekBar
             android:id="@+id/seekWidth"
             android:max="1536"
-            android:progress="0"
+            android:progress="512"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/txtWidthValue"
+        <TextView android:id="@+id/txtWidthValue"
             android:text="512"
             android:textColor="#FF7777"
             android:layout_gravity="end"
@@ -168,8 +182,29 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
-        <TextView
-            android:text="Height"
+        <TextView android:text="Batch Count"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <SeekBar
+            android:id="@+id/seekBatchCount"
+            android:max="3"
+            android:progress="0"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView android:id="@+id/txtBatchCountValue"
+            android:text="1"
+            android:textColor="#FF7777"
+            android:layout_gravity="end"
+            android:layout_marginBottom="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <!-- Height / Batch Size -->
+        <TextView android:text="Height"
             android:textColor="#FFFFFF"
             android:textStyle="bold"
             android:layout_width="wrap_content"
@@ -178,12 +213,11 @@
         <SeekBar
             android:id="@+id/seekHeight"
             android:max="1536"
-            android:progress="0"
+            android:progress="512"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/txtHeightValue"
+        <TextView android:id="@+id/txtHeightValue"
             android:text="512"
             android:textColor="#FF7777"
             android:layout_gravity="end"
@@ -191,27 +225,48 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
-        <!-- Batch count/size -->
-        <LinearLayout
-            android:orientation="horizontal"
+        <TextView android:text="Batch Size"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <SeekBar
+            android:id="@+id/seekBatchSize"
+            android:max="1"
+            android:progress="0"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:weightSum="2"
-            android:layout_marginBottom="12dp">
+            android:layout_height="wrap_content" />
 
-            <Spinner
-                android:id="@+id/spinnerBatchCount"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="8dp" />
+        <TextView android:id="@+id/txtBatchSizeValue"
+            android:text="1"
+            android:textColor="#FF7777"
+            android:layout_gravity="end"
+            android:layout_marginBottom="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
-            <Spinner
-                android:id="@+id/spinnerBatchSize"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-        </LinearLayout>
+        <!-- CFG Scale -->
+        <TextView android:text="CFG Scale"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <SeekBar
+            android:id="@+id/seekCFG"
+            android:max="19"
+            android:progress="7"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView android:id="@+id/txtCFGValue"
+            android:text="7"
+            android:textColor="#FF7777"
+            android:layout_gravity="end"
+            android:layout_marginBottom="12dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
         <!-- Seed -->
         <LinearLayout
@@ -225,7 +280,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:hint="Seed (optional)"
+                android:hint="Seed"
                 android:inputType="number"
                 android:backgroundTint="#FF5555"
                 android:textColor="#FFFFFF"
@@ -241,7 +296,20 @@
                 android:layout_marginStart="8dp" />
         </LinearLayout>
 
-        <!-- Generate button -->
+        <!-- Lora -->
+        <TextView android:text="LoRA"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <Spinner
+            android:id="@+id/spinnerLora"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Generate -->
         <Button
             android:id="@+id/btnGenerateTxt2Img"
             android:layout_width="match_parent"
@@ -253,5 +321,6 @@
             android:backgroundTint="#D32F2F"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="24dp" />
+
     </LinearLayout>
 </ScrollView>

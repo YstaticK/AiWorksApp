@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#1C1C1C"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:divider="?android:attr/dividerVertical"
+        android:showDividers="middle">
+
+        <!-- Header -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp">
+
+            <Button
+                android:id="@+id/btnBackToTxt2Img"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="← txt2img"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#555555" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="img2img"
+                android:gravity="end"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="#FF5555" />
+        </LinearLayout>
+
+        <!-- Image preview -->
+        <ImageView
+            android:id="@+id/imgPreview"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginBottom="12dp"
+            android:background="#333333"
+            android:scaleType="centerCrop" />
+
+        <Button
+            android:id="@+id/btnChooseImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Choose Image"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#B71C1C"
+            android:layout_marginBottom="16dp" />
+
+        <!-- The rest is identical to txt2img -->
+        <include layout="@layout/layout_txt2img" />
+
+    </LinearLayout>
+</ScrollView>
