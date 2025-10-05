@@ -45,32 +45,40 @@ class GenerateImageActivity : AppCompatActivity() {
         }
     }
 
-    /** Inflate and handle txt2img layout */
+    /** Inflate txt2img layout */
     private fun loadTxt2ImgLayout() {
         container.removeAllViews()
         val inflater = LayoutInflater.from(this)
         val view = inflater.inflate(R.layout.layout_txt2img, container, false)
         container.addView(view)
 
+        // UI bindings
         val etPrompt = view.findViewById<EditText>(R.id.etPrompt)
         val etNegative = view.findViewById<EditText>(R.id.etNegativePrompt)
         val spinnerModel = view.findViewById<Spinner>(R.id.spinnerModel)
         val spinnerSampler = view.findViewById<Spinner>(R.id.spinnerSampler)
-        val etSeed = view.findViewById<EditText>(R.id.etSeed)
-        val btnRandomSeed = view.findViewById<Button>(R.id.btnRandomSeed)
+        val chkHiresFix = view.findViewById<CheckBox>(R.id.chkHiresFix)
+        val spinnerHiresFix = view.findViewById<Spinner>(R.id.spinnerHiresFix)
+        val chkRefiner = view.findViewById<CheckBox>(R.id.chkRefiner)
+        val spinnerRefiner = view.findViewById<Spinner>(R.id.spinnerRefiner)
         val seekSteps = view.findViewById<SeekBar>(R.id.seekSteps)
         val txtStepsValue = view.findViewById<TextView>(R.id.txtStepsValue)
-        val seekCFG = view.findViewById<SeekBar>(R.id.seekCFG)
-        val txtCFGValue = view.findViewById<TextView>(R.id.txtCFGValue)
         val seekWidth = view.findViewById<SeekBar>(R.id.seekWidth)
         val txtWidthValue = view.findViewById<TextView>(R.id.txtWidthValue)
         val seekHeight = view.findViewById<SeekBar>(R.id.seekHeight)
         val txtHeightValue = view.findViewById<TextView>(R.id.txtHeightValue)
-        val spinnerBatchCount = view.findViewById<Spinner>(R.id.spinnerBatchCount)
-        val spinnerBatchSize = view.findViewById<Spinner>(R.id.spinnerBatchSize)
+        val seekCFG = view.findViewById<SeekBar>(R.id.seekCFG)
+        val txtCFGValue = view.findViewById<TextView>(R.id.txtCFGValue)
+        val seekBatchCount = view.findViewById<SeekBar>(R.id.seekBatchCount)
+        val txtBatchCountValue = view.findViewById<TextView>(R.id.txtBatchCountValue)
+        val seekBatchSize = view.findViewById<SeekBar>(R.id.seekBatchSize)
+        val txtBatchSizeValue = view.findViewById<TextView>(R.id.txtBatchSizeValue)
+        val etSeed = view.findViewById<EditText>(R.id.etSeed)
+        val btnRandomSeed = view.findViewById<Button>(R.id.btnRandomSeed)
+        val spinnerLora = view.findViewById<Spinner>(R.id.spinnerLora)
         val btnGenerate = view.findViewById<Button>(R.id.btnGenerateTxt2Img)
 
-        // Populate model and sampler dropdowns
+        // Populate dropdowns
         spinnerModel.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, listOf("stable-diffusion")).apply {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
@@ -79,59 +87,71 @@ class GenerateImageActivity : AppCompatActivity() {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
 
-        spinnerBatchCount.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, listOf("1", "2", "4")).apply {
+        spinnerHiresFix.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, listOf("None", "Latent", "R-ESRGAN")).apply {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
 
-        spinnerBatchSize.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, listOf("1", "2")).apply {
+        spinnerRefiner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, listOf("None", "SDXL Refiner")).apply {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
 
-        // Setup seed randomization
-        btnRandomSeed.setOnClickListener {
-            val randomSeed = (0..999999999).random()
-            etSeed.setText(randomSeed.toString())
+        spinnerLora.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, listOf("None", "Style LoRA", "Character LoRA")).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
 
-        // Setup seekbars
+        // SeekBar value syncing
         setupSeekBar(seekSteps, txtStepsValue, 10)
-        setupSeekBar(seekCFG, txtCFGValue, 7)
         setupSeekBar(seekWidth, txtWidthValue, 512)
         setupSeekBar(seekHeight, txtHeightValue, 512)
+        setupSeekBar(seekCFG, txtCFGValue, 1)
+        setupSeekBar(seekBatchCount, txtBatchCountValue, 1)
+        setupSeekBar(seekBatchSize, txtBatchSizeValue, 1)
 
-        // Generate image button
+        // Random seed
+        btnRandomSeed.setOnClickListener {
+            etSeed.setText((0..999999999).random().toString())
+        }
+
+        // Generate button click
         btnGenerate.setOnClickListener {
-            val steps = seekSteps.progress + 10
-            val cfg = seekCFG.progress + 7
-            val width = seekWidth.progress + 512
-            val height = seekHeight.progress + 512
             val request = GenerationRequest(
                 provider = "LocalSD",
                 model = spinnerModel.selectedItem.toString(),
-                prompts = etPrompt.text.toString(),
+                prompt = etPrompt.text.toString(),
                 negativePrompt = etNegative.text.toString(),
-                steps = steps,
-                cfgScale = cfg.toFloat(),
-                width = width,
-                height = height,
-                batchCount = spinnerBatchCount.selectedItem.toString().toInt(),
-                batchSize = spinnerBatchSize.selectedItem.toString().toInt(),
-                seed = etSeed.text.toString()
+                samplingMethod = spinnerSampler.selectedItem.toString(),
+                samplingSteps = seekSteps.progress + 10,
+                cfgScale = (seekCFG.progress + 1).toFloat(),
+                width = seekWidth.progress + 512,
+                height = seekHeight.progress + 512,
+                batchCount = seekBatchCount.progress + 1,
+                batchSize = seekBatchSize.progress + 1,
+                seed = etSeed.text.toString(),
+                hiresFix = chkHiresFix.isChecked,
+                refiner = chkRefiner.isChecked,
+                lora = spinnerLora.selectedItem.toString(),
+                similarity = 1.0f,
+                quality = 1.0f,
+                referenceImageUri = ""
             )
+
             val intent = Intent(this, GeneratedImageResultsActivity::class.java)
             intent.putExtra("generationRequest", request)
             startActivity(intent)
         }
     }
 
-    /** Placeholder for img2img layout */
+    /** Inflate img2img layout */
     private fun loadImg2ImgLayout() {
         container.removeAllViews()
-        val textView = TextView(this)
-        textView.text = "img2img layout coming soon..."
-        textView.textSize = 18f
-        textView.setPadding(24, 24, 24, 24)
-        container.addView(textView)
+        val inflater = LayoutInflater.from(this)
+        val view = inflater.inflate(R.layout.layout_img2img, container, false)
+        container.addView(view)
+
+        val btnChooseImage = view.findViewById<Button>(R.id.btnChooseImage)
+        btnChooseImage.setOnClickListener {
+            Toast.makeText(this, "Choose image not yet implemented", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun setupSeekBar(seek: SeekBar, txt: TextView, base: Int) {
