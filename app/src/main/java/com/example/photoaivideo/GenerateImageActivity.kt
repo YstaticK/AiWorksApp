@@ -20,6 +20,7 @@ class GenerateImageActivity : AppCompatActivity() {
         btnImg2Img = findViewById(R.id.btnImg2Img)
         container = findViewById(R.id.modeContainer)
 
+        // default mode
         loadTxt2ImgLayout()
         setActiveTab(true)
 
@@ -56,28 +57,41 @@ class GenerateImageActivity : AppCompatActivity() {
         val spinnerSampler = view.findViewById<Spinner>(R.id.spinnerSampler)
         val seekSteps = view.findViewById<SeekBar>(R.id.seekSteps)
         val txtStepsValue = view.findViewById<TextView>(R.id.txtStepsValue)
+        val seekCFG = view.findViewById<SeekBar>(R.id.seekCFG)
+        val txtCFGValue = view.findViewById<TextView>(R.id.txtCFGValue)
         val seekWidth = view.findViewById<SeekBar>(R.id.seekWidth)
         val txtWidthValue = view.findViewById<TextView>(R.id.txtWidthValue)
         val seekHeight = view.findViewById<SeekBar>(R.id.seekHeight)
         val txtHeightValue = view.findViewById<TextView>(R.id.txtHeightValue)
-        val seekCFG = view.findViewById<SeekBar>(R.id.seekCFG)
-        val txtCFGValue = view.findViewById<TextView>(R.id.txtCFGValue)
         val seekBatchCount = view.findViewById<SeekBar>(R.id.seekBatchCount)
         val txtBatchCountValue = view.findViewById<TextView>(R.id.txtBatchCountValue)
         val seekBatchSize = view.findViewById<SeekBar>(R.id.seekBatchSize)
         val txtBatchSizeValue = view.findViewById<TextView>(R.id.txtBatchSizeValue)
+        val chkHiresFix = view.findViewById<CheckBox>(R.id.chkHiresFix)
+        val chkRefiner = view.findViewById<CheckBox>(R.id.chkRefiner)
+        val spinnerLora = view.findViewById<Spinner>(R.id.spinnerLora)
         val etSeed = view.findViewById<EditText>(R.id.etSeed)
         val btnRandomSeed = view.findViewById<Button>(R.id.btnRandomSeed)
         val btnGenerate = view.findViewById<Button>(R.id.btnGenerateTxt2Img)
 
-        // populate spinners
-        spinnerModel.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, listOf("stable-diffusion"))
-        spinnerSampler.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, listOf("Euler a", "DPM++ 2M", "DDIM"))
+        // Spinners
+        spinnerModel.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, listOf("Stable Diffusion 1.5", "SDXL", "Anything v5")).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
 
+        spinnerSampler.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, listOf("Euler a", "DPM++ 2M", "DDIM")).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+
+        spinnerLora.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, listOf("None", "Style LoRA", "Character LoRA")).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+
+        // SeekBars
         setupSeekBar(seekSteps, txtStepsValue, 10)
+        setupSeekBar(seekCFG, txtCFGValue, 1)
         setupSeekBar(seekWidth, txtWidthValue, 512)
         setupSeekBar(seekHeight, txtHeightValue, 512)
-        setupSeekBar(seekCFG, txtCFGValue, 1)
         setupSeekBar(seekBatchCount, txtBatchCountValue, 1)
         setupSeekBar(seekBatchSize, txtBatchSizeValue, 1)
 
@@ -87,20 +101,25 @@ class GenerateImageActivity : AppCompatActivity() {
 
         btnGenerate.setOnClickListener {
             val request = GenerationRequest(
-                provider = "LocalSD",
                 model = spinnerModel.selectedItem.toString(),
                 prompts = etPrompt.text.toString(),
                 negativePrompt = etNegative.text.toString(),
-                steps = seekSteps.progress + 10,
-                cfg = seekCFG.progress + 1,
+                samplingMethod = spinnerSampler.selectedItem.toString(),
+                samplingSteps = seekSteps.progress + 10,
+                cfgScale = (seekCFG.progress + 1).toFloat(),
                 width = seekWidth.progress + 512,
                 height = seekHeight.progress + 512,
-                batch = seekBatchCount.progress + 1,
+                batchCount = seekBatchCount.progress + 1,
+                batchSize = seekBatchSize.progress + 1,
                 seed = etSeed.text.toString(),
-                similarity = 1,
-                quality = "normal",
-                referenceImageUri = ""
+                hiresFix = chkHiresFix.isChecked,
+                refiner = chkRefiner.isChecked,
+                lora = spinnerLora.selectedItem.toString(),
+                referenceImageUri = "",
+                similarity = 1.0f,
+                quality = 1.0f
             )
+
             val intent = Intent(this, GeneratedImageResultsActivity::class.java)
             intent.putExtra("generationRequest", request)
             startActivity(intent)
@@ -125,6 +144,7 @@ class GenerateImageActivity : AppCompatActivity() {
             override fun onProgressChanged(sb: SeekBar?, progress: Int, fromUser: Boolean) {
                 txt.text = (progress + base).toString()
             }
+
             override fun onStartTrackingTouch(sb: SeekBar?) {}
             override fun onStopTrackingTouch(sb: SeekBar?) {}
         })
