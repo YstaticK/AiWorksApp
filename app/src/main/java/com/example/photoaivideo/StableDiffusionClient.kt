@@ -3,6 +3,7 @@ package com.example.photoaivideo
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Base64
+import android.util.Log
 import org.json.JSONObject
 import java.io.*
 import java.net.HttpURLConnection
@@ -10,78 +11,60 @@ import java.net.URL
 
 object StableDiffusionClient {
 
-    // Change this if your local IP changes
+    private const val TAG = "StableDiffusionClient"
     private const val BASE_URL = "http://192.168.178.27:7860"
 
-    /** Send txt2img request to AUTOMATIC1111 */
-    fun txt2img(request: GenerationRequest): Bitmap? {
-        val url = URL("$BASE_URL/sdapi/v1/txt2img")
-        val json = JSONObject().apply {
-            put("prompt", request.prompts)
-            put("negative_prompt", request.negativePrompt)
-            put("sampler_name", request.samplingMethod)
-            put("steps", request.samplingSteps)
-            put("cfg_scale", request.cfgScale)
-            put("width", request.width)
-            put("height", request.height)
-            put("batch_count", request.batchCount)
-            put("batch_size", request.batchSize)
-            put("seed", request.seed.ifEmpty { -1 })
-            if (request.hiresFix) put("enable_hr", true)
-        }
+    fun txt2img(request: GenerationRequest): Bitmap? =
+        post("$BASE_URL/sdapi/v1/txt2img", makeJson(request, null))
 
-        return postAndDecodeImage(url, json)
+    fun img2img(request: GenerationRequest, imageBase64: String): Bitmap? =
+        post("$BASE_URL/sdapi/v1/img2img", makeJson(request, imageBase64))
+
+    private fun makeJson(req: GenerationRequest, initImage: String?): JSONObject {
+        val j = JSONObject()
+        if (initImage != null) j.put("init_images", listOf(initImage))
+        j.put("prompt", req.prompts)
+        j.put("negative_prompt", req.negativePrompt)
+        j.put("sampler_name", req.samplingMethod)
+        j.put("steps", req.samplingSteps)
+        j.put("cfg_scale", req.cfgScale)
+        j.put("width", req.width)
+        j.put("height", req.height)
+        j.put("batch_count", req.batchCount)
+        j.put("batch_size", req.batchSize)
+        j.put("seed", req.seed.ifEmpty { -1 })
+        if (req.hiresFix) j.put("enable_hr", true)
+        return j
     }
 
-    /** Send img2img request with base64-encoded image */
-    fun img2img(request: GenerationRequest, imageBase64: String): Bitmap? {
-        val url = URL("$BASE_URL/sdapi/v1/img2img")
-        val json = JSONObject().apply {
-            put("init_images", listOf(imageBase64))
-            put("prompt", request.prompts)
-            put("negative_prompt", request.negativePrompt)
-            put("sampler_name", request.samplingMethod)
-            put("steps", request.samplingSteps)
-            put("cfg_scale", request.cfgScale)
-            put("width", request.width)
-            put("height", request.height)
-            put("batch_count", request.batchCount)
-            put("batch_size", request.batchSize)
-            put("seed", request.seed.ifEmpty { -1 })
-            if (request.hiresFix) put("enable_hr", true)
+    private fun post(endpoint: String, body: JSONObject): Bitmap? {
+        return try {
+            val conn = (URL(endpoint).openConnection() as HttpURLConnection).apply {
+                requestMethod = "POST"
+                doOutput = true
+                setRequestProperty("Content-Type", "application/json")
+                connectTimeout = 30000
+                readTimeout = 60000
+            }
+
+            conn.outputStream.use { it.write(body.toString().toByteArray()) }
+
+            val code = conn.responseCode
+            val text = (if (code in 200..299) conn.inputStream else conn.errorStream)
+                ?.bufferedReader()?.use { it.readText() } ?: ""
+
+            Log.d(TAG, "Response ($code): ${text.take(400)}")
+
+            if (code != 200) return null
+
+            val images = JSONObject(text).optJSONArray("images") ?: return null
+            if (images.length() == 0) return null
+            val img64 = images.getString(0)
+            val bytes = Base64.decode(img64, Base64.DEFAULT)
+            BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+        } catch (e: Exception) {
+            Log.e(TAG, "Request failed", e)
+            null
         }
-
-        return postAndDecodeImage(url, json)
-    }
-
-    /** Common POST logic for both txt2img and img2img */
-    private fun postAndDecodeImage(url: URL, body: JSONObject): Bitmap? {
-        val conn = (url.openConnection() as HttpURLConnection).apply {
-            requestMethod = "POST"
-            doOutput = true
-            setRequestProperty("Content-Type", "application/json")
-            connectTimeout = 30000
-            readTimeout = 30000
-        }
-
-        conn.outputStream.use { it.write(body.toString().toByteArray()) }
-
-        val responseCode = conn.responseCode
-        if (responseCode != 200) {
-            val errorMsg = conn.errorStream?.bufferedReader()?.use { it.readText() } ?: "Unknown error"
-            println("StableDiffusionClient Error $responseCode: $errorMsg")
-            conn.disconnect()
-            return null
-        }
-
-        val response = conn.inputStream.bufferedReader().use { it.readText() }
-        conn.disconnect()
-
-        val images = JSONObject(response).optJSONArray("images") ?: return null
-        if (images.length() == 0) return null
-
-        val imageBase64 = images.getString(0)
-        val decodedBytes = Base64.decode(imageBase64, Base64.DEFAULT)
-        return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
     }
 }
