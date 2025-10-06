@@ -60,26 +60,21 @@ class GenerateImageActivity : AppCompatActivity() {
         val seekCFG = view.findViewById<SeekBar>(R.id.seekCFG)
         val seekWidth = view.findViewById<SeekBar>(R.id.seekWidth)
         val seekHeight = view.findViewById<SeekBar>(R.id.seekHeight)
-        val spinnerBatchCount = view.findViewById<Spinner>(R.id.spinnerBatchCount)
-        val spinnerBatchSize = view.findViewById<Spinner>(R.id.spinnerBatchSize)
         val etSeed = view.findViewById<EditText>(R.id.etSeed)
         val btnGenerate = view.findViewById<Button>(R.id.btnGenerateTxt2Img)
 
-        // Populate dropdowns
+        // Populate dropdowns safely
         spinnerSampler.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, listOf("Euler a", "DPM++ 2M", "DDIM")).apply {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
-        spinnerBatchCount.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, listOf("1", "2", "4"))
-        spinnerBatchSize.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, listOf("1", "2"))
 
-        // Button click
+        // Generate button logic
         btnGenerate.setOnClickListener {
             val prompt = etPrompt.text.toString()
-            Log.d(TAG, "Generate button pressed. Prompt: $prompt")
-            Toast.makeText(this, "Starting generation: ${prompt.take(50)}", Toast.LENGTH_SHORT).show()
+            Log.d(TAG, "Generate pressed. Prompt: $prompt")
+            Toast.makeText(this, "Starting generation...", Toast.LENGTH_SHORT).show()
 
             val request = GenerationRequest(
-                provider = "LocalSD",
                 model = "stable-diffusion",
                 prompts = prompt,
                 negativePrompt = etNegative.text.toString(),
@@ -88,8 +83,8 @@ class GenerateImageActivity : AppCompatActivity() {
                 cfgScale = (seekCFG.progress + 1).toFloat(),
                 width = seekWidth.progress + 512,
                 height = seekHeight.progress + 512,
-                batchCount = spinnerBatchCount.selectedItem.toString().toInt(),
-                batchSize = spinnerBatchSize.selectedItem.toString().toInt(),
+                batchCount = 1,
+                batchSize = 1,
                 seed = etSeed.text.toString()
             )
 
