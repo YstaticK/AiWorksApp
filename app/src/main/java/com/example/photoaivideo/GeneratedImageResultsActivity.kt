@@ -1,58 +1,71 @@
 package com.example.photoaivideo
 
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.setPadding
+import kotlinx.coroutines.*
+import java.io.InputStream
+import android.util.Base64
 
 class GeneratedImageResultsActivity : AppCompatActivity() {
+
+    private val scope = CoroutineScope(Dispatchers.IO + Job())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         title = "Generation Result"
 
-        // Create a simple vertical layout to show parameters (for now)
         val scrollView = ScrollView(this)
         val container = TextView(this)
-        container.setPadding(24)
         scrollView.addView(container)
+        container.setPadding(24)
         setContentView(scrollView)
 
-        // Get the request object
         val request = intent.getSerializableExtra("generationRequest") as? GenerationRequest
-
         if (request == null) {
-            container.text = "No generation request data found."
+            container.text = "No generation request provided."
             return
         }
 
-        // Display generation parameters for testing
-        val info = """
-            🧠 Model: ${request.model}
-            💬 Prompt: ${request.prompts}
-            🚫 Negative: ${request.negativePrompt}
-            ⚙️ Sampler: ${request.samplingMethod}
-            🔢 Steps: ${request.samplingSteps}
-            🎚 CFG Scale: ${request.cfgScale}
-            📐 Width: ${request.width}
-            📏 Height: ${request.height}
-            🧩 Batch Count: ${request.batchCount}
-            🧩 Batch Size: ${request.batchSize}
-            🌱 Seed: ${request.seed}
-            🪄 Hires Fix: ${request.hiresFix}
-            🧬 Refiner: ${request.refiner}
-            🎨 LoRA: ${request.lora}
-            🖼 Reference Image: ${if (request.referenceImageUri.isNotEmpty()) request.referenceImageUri else "None"}
-            🤝 Similarity: ${request.similarity}
-            📊 Quality: ${request.quality}
-        """.trimIndent()
+        container.text = "Generating image...\nPlease wait..."
 
-        container.text = info
+        scope.launch {
+            val bitmap = if (request.referenceImageUri.isNotEmpty()) {
+                // img2img
+                val uri = Uri.parse(request.referenceImageUri)
+                val base64Img = getImageBase64(uri)
+                StableDiffusionClient.img2img(request, base64Img)
+            } else {
+                // txt2img
+                StableDiffusionClient.txt2img(request)
+            }
 
-        // Placeholder for generated image (will display later when backend is added)
-        val imagePreview = ImageView(this)
-        imagePreview.setImageResource(android.R.drawable.ic_menu_gallery)
+            withContext(Dispatchers.Main) {
+                if (bitmap != null) {
+                    val imgView = ImageView(this@GeneratedImageResultsActivity)
+                    imgView.setImageBitmap(bitmap)
+                    scrollView.addView(imgView)
+                    container.text = ""
+                } else {
+                    container.text = "Failed to generate image."
+                }
+            }
+        }
+    }
+
+    private fun getImageBase64(uri: Uri): String {
+        val inputStream: InputStream? = contentResolver.openInputStream(uri)
+        val bytes = inputStream?.readBytes() ?: return ""
+        return Base64.encodeToString(bytes, Base64.DEFAULT)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        scope.cancel()
     }
 }
